@@ -1,0 +1,279 @@
+html, body {
+    height: 100%;
+    width: 100;
+    margin: 0;
+    padding: 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: transparent;
+    user-select: none;
+}
+
+body {
+    font-family: 'roboto';
+}
+
+@font-face {
+    font-family: 'roboto';
+    src: url('./Roboto-Regular.ttf');
+}
+
+body > #main-container {
+    height: 100%;
+    width: 100%;
+    background-color: #CEB5A7;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-image: url('minecraft-logo.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position-y: 45vh;
+
+}
+
+#main-container > #app-bar {
+    height: 1.5rem;
+    width: 100%;
+    background: #E0F2E9;
+    display: grid;
+    grid-template-columns: auto calc(2 * 3rem);
+    grid-template-rows: 100%;
+    overflow: hidden;
+}
+
+
+#main-container > #app-bar > .dragger {
+    -webkit-app-region: drag;
+    width: 100%;
+    height: 100%;
+    padding: 0 0 0 1rem;
+    box-sizing: border-box;
+}
+
+#main-container > #app-bar > .dragger .title {
+    line-height: 1.5rem;
+    height: 1.5rem;
+    margin: 0;
+    color: #5B7B7A;
+}
+
+#main-container > #app-bar > .buttons button {
+    width: 100%;
+    height: 100%;
+    display: inline-block;
+    border: none;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    outline: none;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    transition: all 200ms ease-in-out;
+}
+
+#main-container > #app-bar > .buttons button:hover {
+    background: #3C887E;
+    border-radius: 1.5rem;
+    color: white;
+}
+
+#main-container > #app-bar > .buttons button:last-of-type:hover {
+    background: rgb(200,20,20);
+}
+
+#main-container > #app-bar > .buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 3rem);
+    grid-template-rows: 100%;
+    overflow: hidden;
+}
+
+#main-container > .time-counter {
+    padding: 1rem;
+    background: #3C887E;
+    border-radius: 0.5rem;
+    margin: auto;
+    width: 80%;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+#main-container > .time-counter > .total p {
+    margin: 0;
+    color: #E0F2E9;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 2rem;
+}
+
+#main-container > .time-counter > .session p {
+    margin: 0;
+}
+
+#main-container > .time-counter > .session p span {
+    background-color: #E0F2E9;
+    border-radius: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    font-weight: bold;
+    color: #3C887E;
+}
+
+#main-container > .time-counter > .session p {
+    color: #E0F2E9;
+}
+
+#main-container {
+    perspective: 1000px;
+    perspective-origin:0 150vh;
+}
+
+#main-container .menu-box {
+    height: fit-content;
+    width: calc(80% + 2rem);
+    background: #E0F2E9;
+    border-radius: 0.5rem;
+    margin: auto;
+    padding: 1.5rem;
+    box-sizing: border-box;
+    margin-top: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+#main-container .menu-box .status-bar {
+    height: 1rem;
+    width: 100%;
+    background-color: rgb(200,20,20);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+#main-container .menu-box .status-bar .filler {
+    width: 100%;
+    height: 0.5rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+    background-color: #E0F2E9;
+}
+
+#main-container .menu-box .status-text p {
+    margin: 0;
+    text-align: center;
+    color: #5B7B7A;
+    text-transform: uppercase;
+    font-size: 1rem;
+}
+
+#main-container .menu-box .status-text {
+    width: fit-content;
+    margin: auto;
+}
+
+.first-time-setup {
+    position: absolute;
+    height: calc(100% - 1.5rem);
+    width: 100%;
+    top: 1.5rem;
+    left: 0;
+    background-color: #E0F2E9;
+    animation: fade-in 200ms ease-in-out;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.first-time-setup > .title {
+    color: #3C887E;
+    text-align: center;
+    width: 100%;
+    font-weight: lighter;
+    margin-top: 4rem;
+    font-size: 3rem;
+    font-family: "roboto";
+}
+
+.first-time-setup div.wrapper > .sub-title {
+    text-align: center;
+    color: #3C887E;
+    opacity: 0.8;
+}
+
+.first-time-setup div.wrapper > div > .path-output {
+    padding: 0.5rem;
+    background: #DFD3CD;
+    width: 20rem;
+    height: 2rem;
+    box-sizing: border-box;
+    display: inline-block;
+    vertical-align: top;
+    border-radius: 0.25rem;
+    z-index: 2;
+    position: relative;
+}
+
+.first-time-setup div.wrapper > div > .path-output > p {
+    margin: 0;
+    height: fit-content;
+    font-size: 0.9rem;
+    color: #5B7B7A;
+}
+
+.smooth-shadow {
+    box-shadow: 0 -1px 2px rgba(0,0,0,0.12), 
+              0 2px 2px rgba(0,0,0,0.12), 
+              0 4px 4px rgba(0,0,0,0.12), 
+              0 8px 8px rgba(0,0,0,0.12),
+              0 16px 16px rgba(0,0,0,0.12);
+  }
+
+.first-time-setup div.wrapper > div > button.browse-directory {
+    display: inline-block;
+    height: 2rem;
+    vertical-align: top;
+    border: 0;
+    background: #3C887E;
+    color: #E0F2E9;
+    text-transform: uppercase;
+    border-radius: 0 0.25rem 0.25rem 0;
+    margin-left: -0.5rem;
+    z-index: 1;
+    position: relative;
+    padding-left: 1rem;
+    cursor: pointer;
+    outline: none;
+    font-weight: bold;
+}
+
+.first-time-setup .wrapper {
+    margin: auto;
+    width: 100%;
+    height: fit-content;
+}
+
+.first-time-setup .progress-counter {
+    padding: 0.5rem;
+    margin: auto;
+    margin-top: 2rem;
+    width: fit-content;
+}
+
+.first-time-setup .progress-counter .dot {
+    height: 0.5rem;
+    width: 0.5rem;
+    background-color: #CEB5A7;
+    border-radius: 100%;
+    display: inline-block;
+    transition: all 300ms ease-in-out;
+}
+
+.first-time-setup .progress-counter .dot.selected {
+    background: #5B7B7A;
+}
+
+.first-time-setup .progress-counter .dot:not(:last-of-type) {
+    margin-right: 0.2rem;
+}
+
+@keyframes fade-in {
+    0%{opacity: 0}
+    100%{opacity: 1}
+}

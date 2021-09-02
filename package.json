@@ -1,0 +1,24 @@
+{
+  "name": "minecraft-hour-counter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "boot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MindChirp/minecraft-counter.git"
+  },
+  "author": "Frikk Ormestad Larsen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MindChirp/minecraft-counter/issues"
+  },
+  "homepage": "https://github.com/MindChirp/minecraft-counter#readme",
+  "dependencies": {
+    "electron": "^14.0.0",
+    "fs-extra": "^10.0.0"
+  }
+}
