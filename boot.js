@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 
 const filesPath = app.getPath("userData");
 var win;
@@ -30,6 +30,13 @@ function createWindow() {
 ipcMain.on("close-program", ()=>{
     //Close the program
     win.close();
+})
+
+ipcMain.handle("open-directory-modal", async (event, arg)=>{
+    var result = await dialog.showOpenDialog(win, {
+        properties: ['openDirectory']
+    })
+    return result.filePaths;
 })
 
 app.whenReady().then(()=>{
