@@ -19,6 +19,7 @@
   "homepage": "https://github.com/MindChirp/minecraft-counter#readme",
   "dependencies": {
     "electron": "^14.0.0",
-    "fs-extra": "^10.0.0"
+    "fs-extra": "^10.0.0",
+    "ps-node": "^0.1.6"
   }
 }

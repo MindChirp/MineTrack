@@ -337,3 +337,34 @@ body > #main-container {
     border-radius: 0px;
     box-shadow: inset 0px 0px 0px 0px #F0F0F0;
     }
+
+    .notification {
+        position: absolute;
+        bottom: 1rem;
+        left: 50%;
+        transform: translate(-50%);
+        border-radius: 0.2rem;
+        background-color: #E0F2E9;
+        padding: 1rem;
+        width: fit-content;
+        height: fit-content;
+        max-width: 50%;
+        animation: fade-in 200ms ease-in-out;
+        overflow: hidden;
+    }
+
+    .notification::before {
+        color: transparent;
+        content: ".";
+        height: 100%;
+        position: absolute;
+        width: 0.3rem;
+        background: #3C887E;
+        left: 0;
+        top: 0;
+    }
+
+    .notification p {
+        margin: 0;
+        color: #5B7B7A;
+    }

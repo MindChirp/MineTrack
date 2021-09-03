@@ -1,5 +1,6 @@
 const { ipcRenderer } = require("electron");
 const path = require("path");
+const ps = require("ps-node");
 
 const fs = require("fs-extra");
 var filesPath;
@@ -9,12 +10,68 @@ ipcRenderer.on("files-path", (ev, data)=>{
     localStorage.setItem("files-path", filesPath);
 });
 
-window.onload = ()=>{
+window.onload = async ()=>{
     filesPath = localStorage.getItem("files-path");
     appDataPath = path.dirname(filesPath);
-    checkResources();
+    await checkResources();
 
+    loadData();
+
+    setTimeout(()=>{
+        startCheckingForMinecraft()
+    }, 600000)
 }
+notification("Checking for minecraft status. Please wait.")
+
+async function startCheckingForMinecraft() {
+
+    notification("Checking for minecraft status. Please wait.")
+    var res = await checkForMinecraft();
+    if(res == true) {
+        var bar = document.querySelector("#main-container > div.menu-box > div.status-bar");
+        var text = document.querySelector("#main-container > div.menu-box > div.status-text > p");
+        text.innerText = "Minecraft is running"
+        bar.style.backgroundColor = "green";
+    } else {
+        var text = document.querySelector("#main-container > div.menu-box > div.status-text > p");
+        var bar = document.querySelector("#main-container > div.menu-box > div.status-bar");
+        text.innerText = "Minecraft is not open"
+        bar.style.backgroundColor = "rgb(200,20,20)";
+    }
+    
+    setTimeout(startCheckingForMinecraft, 600000)
+}
+
+
+function notification(title) {
+    var el = document.createElement("div");
+    el.className = "notification smooth-shadow";
+
+    var t = document.createElement("p");
+    t.innerText = title;
+    el.appendChild(t);
+
+    document.body.appendChild(el);
+    setTimeout(()=>{
+        el.parentNode.removeChild(el);
+    }, 5000)
+}
+
+
+async function loadData() {
+    //Load the configs into the GUI
+    
+    var scanned = await fs.readFile(path.join(filesPath, "worlddata", "scannedplaytime.json"))
+    
+    //convert values to a good format
+    var secs = JSON.parse(scanned).time;
+    var formed = convertHMS(secs);
+
+    var title = document.querySelector("#main-container > div.time-counter > div.total > p");
+
+    title.innerHTML = formed[0] + " hours " + formed[1] + " minutes " + formed[2] + " seconds ";
+}
+
 
 var folders = [
     "configs",
@@ -40,31 +97,40 @@ function createFolders() {
 }
 
 function checkResources() {
-    //Check if configs folder extists
-    fs.access(path.join(filesPath, "configs"))
-    .catch(async ()=>{
-        //Does not exist, enter setup mode
+    return new Promise((resolve, reject)=>{
 
-        await enterFirstTimeUse();
-
-        createFolders()
+        //Check if configs folder extists
+        fs.access(path.join(filesPath, "configs"))
         .then(()=>{
-            var data = {
-                minecraftpath: setupInfo.minecraftpath
-            }
-            fs.writeFile(path.join(filesPath, "configs", "userdata.json"), JSON.stringify(data))
+            resolve();
+        })
+        .catch(async ()=>{
+            //Does not exist, enter setup mode
+            
+            await enterFirstTimeUse();
+            
+            createFolders()
             .then(()=>{
-                //Gather world information as part of the setup process
-                gatherWorldInformation();
+                var data = {
+                    minecraftpath: setupInfo.minecraftpath
+                }
+                fs.writeFile(path.join(filesPath, "configs", "userdata.json"), JSON.stringify(data))
+                .then(async ()=>{
+                    //Gather world information as part of the setup process
+                    await gatherWorldInformation();
+                    resolve();
+                })
+                .catch((err)=>{
+                    alert(err);
+                    reject();
+                })
             })
             .catch((err)=>{
-                alert(err);
+                console.log(err);
+                reject();
             })
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
 
+        })
     })
 }
 
@@ -198,7 +264,7 @@ function enterFirstTimeUse() {
             policy.className ="sub-title policy";
             policy.innerHTML = `This program is strictly intented for counting the total time spent playing minecraft, and any use outside of what is
             described in this body of text, is prohibited. The creator reserves his rights to disable any copy of the program if needed.<br>
-            Scans through your minecraft game files, and tallies up the total play time from all of your worlds. No data will at any point be sent to any servers. 
+            This program scans through your minecraft game files, and tallies up the total play time from all of your worlds. No data will at any point be sent to any servers. 
             The source code of this project can be found at github under the username MindChirp, as minecraft-counter.
 
             <br><br>
@@ -262,78 +328,93 @@ async function openDirectoryModal() {
 
 
 async function gatherWorldInformation() {
-    //Read the config
-    var dat = await fs.readFile(path.join(filesPath, "configs", "userdata.json"), "utf8");
-    var config = JSON.parse(dat);
+    return new Promise(async (resolve, reject)=>{
+        
+        //Read the config
+        var dat = await fs.readFile(path.join(filesPath, "configs", "userdata.json"), "utf8");
+        var config = JSON.parse(dat);
 
-    //Read the minecraft world saves directory
+        //Read the minecraft world saves directory
 
-    var files = await fs.readdir(path.join(config.minecraftpath, "saves"));
+        var files = await fs.readdir(path.join(config.minecraftpath, "saves"));
 
-    //Go through every world config, get the time played and tally it up!
+        //Go through every world config, get the time played and tally it up!
 
-    var totalTicks = 0;
+        var totalTicks = 0;
 
-    var x;
-    var found = false;
-    for(x of files) {
-        found = false;
-        var wfiles
-        var wconfig
-        var parsed
-        try {
-            var wfiles = await fs.readdir(path.join(config.minecraftpath, "saves", x, "stats"))
-            var wconfig = await fs.readFile(path.join(config.minecraftpath, "saves", x, "stats", wfiles[0]), "utf8");
-            var parsed = JSON.parse(wconfig);
-        } catch (error) {
+        var x;
+        var found = false;
+        for(x of files) {
+            found = false;
+            var wfiles
+            var wconfig
+            var parsed
+            try {
+                var wfiles = await fs.readdir(path.join(config.minecraftpath, "saves", x, "stats"))
+                var wconfig = await fs.readFile(path.join(config.minecraftpath, "saves", x, "stats", wfiles[0]), "utf8");
+                var parsed = JSON.parse(wconfig);
+            } catch (error) {
 
-        }
-        try {
-            if(parsed.stats["minecraft:custom"]["minecraft:total_world_time"]) {
-                //console.log("Found", x, parsed.stats["minecraft:custom"]["minecraft:total_world_time"]);
-                totalTicks = totalTicks + parsed.stats["minecraft:custom"]["minecraft:total_world_time"];
-                found = true;
             }
-        } catch (error) {
-            
-        }
-
-        try {
-            if(parsed["stat.playOneMinute"]) {
-                totalTicks = totalTicks + parseInt(parsed["stat.playOneMinute"]);
-                //console.log("Found", x, parsed["stat.playOneMinute"])
-                found = true;
+            try {
+                if(parsed.stats["minecraft:custom"]["minecraft:total_world_time"]) {
+                    //console.log("Found", x, parsed.stats["minecraft:custom"]["minecraft:total_world_time"]);
+                    totalTicks = totalTicks + parsed.stats["minecraft:custom"]["minecraft:total_world_time"];
+                    found = true;
+                }
+            } catch (error) {
+                
             }
-        } catch (error) {
-            
-        }
- 
-        try {
-            if(parsed.stats["minecraft:custom"]["minecraft:play_one_minute"]) {
-                var num = parsed.stats["minecraft:custom"]["minecraft:play_one_minute"];
-                totalTicks = totalTicks + parseInt(num);
-                //console.log("Found", x, num);
-                found = true;
+
+            try {
+                if(parsed["stat.playOneMinute"]) {
+                    totalTicks = totalTicks + parseInt(parsed["stat.playOneMinute"]);
+                    //console.log("Found", x, parsed["stat.playOneMinute"])
+                    found = true;
+                }
+            } catch (error) {
+                
             }
-        } catch (error) {
-            
-        }
-
-        console.log(x);
-        if(!found) {
-            console.log("Not found", x);
-        }
-
-            //console.log(x, parsed);
-            
-    }
     
-    var title = document.querySelector("#main-container > div.time-counter > div.total > p");
-    var seconds = Math.round(totalTicks/20);
-    var time = convertHMS(seconds);
-    console.log(seconds);
-    title.innerHTML = time[0] + " hours " + time[1] + " minutes " + time[2] + " seconds"; 
-    
+            try {
+                if(parsed.stats["minecraft:custom"]["minecraft:play_one_minute"]) {
+                    var num = parsed.stats["minecraft:custom"]["minecraft:play_one_minute"];
+                    totalTicks = totalTicks + parseInt(num);
+                    //console.log("Found", x, num);
+                    found = true;
+                }
+            } catch (error) {
+                
+            }
+
+            console.log(x);
+            if(!found) {
+                console.log("Not found", x);
+            }
+
+                //console.log(x, parsed);
+                
+        }
+        
+        var title = document.querySelector("#main-container > div.time-counter > div.total > p");
+        var seconds = Math.round(totalTicks/20);
+        var time = convertHMS(seconds);
+        console.log(seconds);
+        title.innerHTML = time[0] + " hours " + time[1] + " minutes " + time[2] + " seconds"; 
+        
+        var data = {
+            time: seconds
+        }
+        fs.writeFile(path.join(filesPath, "worlddata", "scannedplaytime.json"), JSON.stringify(data))
+        .then(()=>{
+            resolve();
+        })
+        .catch((error)=>{
+            reject();
+            console.error(error);
+        })
+    })
+
 }
 
 function convertHMS(value) {
@@ -346,4 +427,31 @@ function convertHMS(value) {
     if (minutes < 10) {minutes = "0"+minutes;}
     if (seconds < 10) {seconds = "0"+seconds;}
     return [hours,minutes,seconds]; // Return is HH : MM : SS
+}
+
+
+
+function checkForMinecraft() {
+    return new Promise((resolve, reject)=>{
+
+        //Check if minecraft is running!
+        ps.lookup({
+            command:"infoscreen",
+        },
+        function(err, resultList) {
+            if(err) {
+                reject(err);
+            }
+            
+            if(resultList.length == 0) {
+                resolve(false)
+            }
+            
+            resultList.forEach(function(process) {
+                if(process) {
+                    resolve(true);
+                }
+            });
+        });
+    })
 }
