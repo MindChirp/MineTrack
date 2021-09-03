@@ -25,6 +25,14 @@ function createWindow() {
         
         win.webContents.send("files-path", filesPath);
     })
+
+    win.on('blur', ()=>{
+        win.webContents.send("allow-checking-for-minecraft")
+    })  
+
+    win.on('focus', ()=>{
+        win.webContents.send("deny-checking-for-minecraft")
+    })
 }
 
 ipcMain.on("close-program", ()=>{

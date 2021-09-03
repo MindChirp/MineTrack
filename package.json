@@ -5,7 +5,9 @@
   "main": "boot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder",
+    "pack": "electron-builder --dir"
   },
   "repository": {
     "type": "git",
@@ -18,8 +20,25 @@
   },
   "homepage": "https://github.com/MindChirp/minecraft-counter#readme",
   "dependencies": {
-    "electron": "^14.0.0",
     "fs-extra": "^10.0.0",
     "ps-node": "^0.1.6"
+  },
+  "devDependencies": {
+    "electron": "^14.0.0",
+    "electron-builder": "^22.11.7"
+  },
+  "build": {
+    "asar": true,
+    "appId": "com.electron.minecraftcounter",
+    "win": {
+      "target": "NSIS",
+      "publish": [
+        {
+          "provider": "github",
+          "owner": "MindChirp",
+          "repo": "minecraft-counter"
+        }
+      ]
+    }
   }
 }

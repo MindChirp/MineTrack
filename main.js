@@ -1,10 +1,14 @@
 const { ipcRenderer } = require("electron");
 const path = require("path");
 const ps = require("ps-node");
-
-const fs = require("fs-extra");
+var allowchecking = false;
+var fs = require("fs-extra");
 var filesPath;
 var appDataPath;
+var minecraftOpen = false;
+var totalSeconds = 0;
+var sessionTime = 0;
+
 ipcRenderer.on("files-path", (ev, data)=>{
     filesPath = data;
     localStorage.setItem("files-path", filesPath);
@@ -13,33 +17,42 @@ ipcRenderer.on("files-path", (ev, data)=>{
 window.onload = async ()=>{
     filesPath = localStorage.getItem("files-path");
     appDataPath = path.dirname(filesPath);
+    try {
+        await fs.access(path.join(filesPath, "configs", "userdata"))
+        await gatherWorldInformation();
+    } catch (error) {
+
+    }
+
+
     await checkResources();
 
     loadData();
 
-    setTimeout(()=>{
-        startCheckingForMinecraft()
-    }, 600000)
+    startCheckingForMinecraft()
 }
-notification("Checking for minecraft status. Please wait.")
 
 async function startCheckingForMinecraft() {
-
-    notification("Checking for minecraft status. Please wait.")
-    var res = await checkForMinecraft();
-    if(res == true) {
-        var bar = document.querySelector("#main-container > div.menu-box > div.status-bar");
-        var text = document.querySelector("#main-container > div.menu-box > div.status-text > p");
-        text.innerText = "Minecraft is running"
-        bar.style.backgroundColor = "green";
-    } else {
-        var text = document.querySelector("#main-container > div.menu-box > div.status-text > p");
-        var bar = document.querySelector("#main-container > div.menu-box > div.status-bar");
-        text.innerText = "Minecraft is not open"
-        bar.style.backgroundColor = "rgb(200,20,20)";
+    console.log(allowchecking)
+    if(allowchecking) {
+        notification("Checking for minecraft status. Please wait.")
+        var res = await checkForMinecraft();
+        if(res == true) {
+            minecraftOpen = true;
+            var bar = document.querySelector("#main-container > div.menu-box > div.status-bar");
+            var text = document.querySelector("#main-container > div.menu-box > div.status-text > p");
+            text.innerText = "Minecraft is running"
+            bar.style.backgroundColor = "green";
+        } else {
+            minecraftOpen = false;
+            var text = document.querySelector("#main-container > div.menu-box > div.status-text > p");
+            var bar = document.querySelector("#main-container > div.menu-box > div.status-bar");
+            text.innerText = "Minecraft is not open"
+            bar.style.backgroundColor = "rgb(200,20,20)";
+        }
     }
-    
-    setTimeout(startCheckingForMinecraft, 600000)
+    var delay = minecraftOpen==true?600000:1000;
+    setTimeout(startCheckingForMinecraft, delay);
 }
 
 
@@ -65,6 +78,7 @@ async function loadData() {
     
     //convert values to a good format
     var secs = JSON.parse(scanned).time;
+    totalSeconds = secs;
     var formed = convertHMS(secs);
 
     var title = document.querySelector("#main-container > div.time-counter > div.total > p");
@@ -436,7 +450,7 @@ function checkForMinecraft() {
 
         //Check if minecraft is running!
         ps.lookup({
-            command:"infoscreen",
+            command:"minecraft",
         },
         function(err, resultList) {
             if(err) {
@@ -446,12 +460,52 @@ function checkForMinecraft() {
             if(resultList.length == 0) {
                 resolve(false)
             }
-            
             resultList.forEach(function(process) {
                 if(process) {
-                    resolve(true);
+                    if (process.command.includes("Minecraft\\runtime\\")) {
+                        resolve(true);
+                    } 
                 }
             });
+
+            resolve(false);
         });
     })
 }
+
+var timeout;
+ipcRenderer.on("allow-checking-for-minecraft", (ev)=>{
+    timeout = setTimeout(()=>{
+        allowchecking = true;
+    },60000) //Wait one minute before starting to search for minecraft things
+})
+
+ipcRenderer.on("deny-checking-for-minecraft", (ev)=>{
+    allowchecking = false;
+    clearTimeout(timeout);
+})
+
+
+
+var counting = false;
+setInterval(()=>{
+    if(!minecraftOpen) return;
+    totalSeconds++;
+    sessionTime++;
+    updateTimeCounting(totalSeconds, sessionTime);
+}, 1000)
+
+
+function updateTimeCounting(main, session) {
+    if(main) {
+        var title = document.querySelector("#main-container > div.time-counter > div.total > p");
+        var c = convertHMS(main);
+        title.innerText = c[0] + " hours " + c[1] + " minutes " + c[2] + " seconds ";
+    }
+
+    if(session) {
+        var sestext = document.querySelector("#main-container > div.time-counter > div.session > p");
+        var c = convertHMS(session);
+        sestext.innerHTML = "This session <span>" + c[0] + ":" + c[1] + ":" + c[2] + "</span>";
+    }
+}   
