@@ -899,5 +899,47 @@ function saveSession() {
             notification("Could not save session info to config. The session data is not lost.")
         })
 
+
+        //Show the session popup
+        var pop = document.createElement("div");
+        pop.className = "session-popup-finished";
+        document.getElementById("main-container").appendChild(pop);
+
+        var title = document.createElement("h1");
+        title.innerText = "Nice job!";
+        pop.appendChild(title);
+
+        var p = document.createElement("p");
+        var values = convertHMS(time);
+
+        var string = "";
+        if(values[0] != 0) {
+            var app = values[0]==1?" hour":" hours";
+            string = values[0] + app;
+        }
+        if(values[1] != 0 && values[2] == 0 && values[0] != 0) {
+            var app = values[1]==1?" minute":" minutes";
+            string = string + " and " + values[1] + app
+        } else if(values[1] != 0 && values[2] != 0) {
+            var app = values[1]==1?" minute":" minutes";
+            string = string + values[1] + app
+        }
+
+        if(values[2] != 0 && values[1] == 0 && values[0] != 0) {
+            var app = values[2]==1?" second":" seconds";
+            string = string + "and " + values[2] + app
+        } else if(values[2] != 0 && values[1] == 0 && values[0] == 0) {
+            var app = values[2]==1?" second":" seconds";
+            string = string + values[2] + app
+        }
+        
+        if(string.trim().length == 0) {
+            string = "an unknown period"
+        }
+        p.innerText = "That session lasted " + string + "!";
+        pop.appendChild(p);
+        setTimeout(()=>{
+            pop.parentNode.removeChild(pop);
+        }, 5000)
     })
 }

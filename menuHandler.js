@@ -18,7 +18,24 @@ function openMenu(el) {
         
 
         setTimeout(()=>{
-            resolve();
+            var menu = document.createElement("div");
+            menu.className = "menu-pane";
+            var wr = document.createElement("div");
+            wr.className = "wrapper";
+            menu.appendChild(wr);
+            menu.kill = ()=>{
+                menu.parentNode.removeChild(menu);
+            }
+
+            var back = document.createElement("button");
+            back.className = "button pill solid back secondary";
+            back.innerHTML = "back";
+            menu.appendChild(back);
+            back.onclick = menu.kill;
+
+            document.getElementById("main-container").appendChild(menu);
+            exp.parentNode.removeChild(exp);
+            resolve(wr);
         }, 500)
     })
 }
@@ -33,7 +50,25 @@ async function worlds(el) {
 }
 
 async function about(el) {
-    await openMenu(el)
+    var menu = await openMenu(el)
+    var t = document.createElement("h1");
+    t.innerText = "Hello! My Name is Frikk.";
+    menu.appendChild(t);
+
+    var p = document.createElement("p");
+    p.innerHTML = `
+        I like to make programs. I guess you've realized that by now.
+        <br><br>
+        I made this program to fulfill a need, and I wanted to do it as good as I possibly could.
+        <br><br>
+        I <strong>really</strong> hope you enjoy it!
+
+        <br><br><br>
+        Contact info:<br>
+        <strong>Email - </strong>frikk44@gmail.com        
+    `
+
+    menu.appendChild(p);
 }
 
 async function settings(el) {

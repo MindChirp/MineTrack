@@ -500,6 +500,12 @@ body > #main-container {
         color: #E0F2E9;
     }
 
+    .button.secondary {
+        background-color: #E1D3CB;
+        color: #5B7B7A;
+        font-weight: bolder;
+    }
+
     .action-buttons {
         margin: auto;
         width: fit-content;
@@ -528,4 +534,76 @@ body > #main-container {
         0%{height: 0; width: 0; opacity: 0;}
         60%{opacity: 1;}
         100%{height: 400vh; width: 400vw; opacity: 1;}
+    }
+
+    .menu-pane {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        left: 0;
+        top: 0;
+        background: #5B7B7A;
+        padding: 1rem;
+        box-sizing: border-box;
+        color: #E0F2E9;
+
+    }
+
+    .menu-pane > .wrapper {
+        animation: fade-in 200ms ease-in-out;
+        height: 100%;
+        width: 100%;
+    }
+
+    .menu-pane > .wrapper h1 {
+        color: #E1D3CB;
+        font-weight: lighter;
+        margin: 2rem 0 1rem;
+        max-width: 60%;
+
+    }
+
+    .menu-pane > .wrapper p {
+        margin: 0;
+        line-height: 1rem;
+        font-weight: lighter;
+        max-width: 80%;
+    }
+
+    .menu-pane > button.back {
+        position: absolute;
+        bottom: 1rem;
+        left: 1rem;
+    }
+
+    .session-popup-finished {
+        animation: slide-in-bottom 300ms ease-in-out;
+        background: #A17C6B;
+        border-radius: 1rem 1rem 0 0;
+        height: fit-content;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+    }
+
+    .session-popup-finished h1 {
+        font-weight: lighter;
+        color: #E0F2E9;
+        text-align: center;
+        width: 100%;
+        margin: 1rem 0 0 0;
+    }
+
+    .session-popup-finished p {
+        text-align: center;
+        width: 100%;
+        color: #E1D3CB;
+        margin: 1rem 0 2rem;
+    }
+
+    @keyframes slide-in-bottom {
+        0%{transform: translateY(100%)}
+        100%{transform: translateY(0)}
+        
     }
