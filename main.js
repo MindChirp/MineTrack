@@ -40,7 +40,7 @@ window.onload = async ()=>{
             await fs.access(path.join(filesPath, "configs", "userdata"))
             await gatherWorldInformation();
         } catch (error) {
-            console.log(error)
+            return;
         }
     
         
