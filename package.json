@@ -1,13 +1,14 @@
 {
-  "name": "minecraft-hour-counter",
-  "version": "1.0.0",
+  "name": "minecraft-counter",
+  "version": "0.0.1",
   "description": "",
   "main": "boot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "dist": "electron-builder",
-    "pack": "electron-builder --dir"
+    "pack": "electron-builder --dir",
+    "gh-publish": "electron-builder --x64 --win -p always"
   },
   "repository": {
     "type": "git",
@@ -20,12 +21,15 @@
   },
   "homepage": "https://github.com/MindChirp/minecraft-counter#readme",
   "dependencies": {
+    "electron-debug": "^3.2.0",
+    "electron-updater": "^4.3.9",
+    "find-process": "^1.4.4",
     "fs-extra": "^10.0.0",
-    "ps-node": "^0.1.6"
+    "node-gzip": "^1.1.2"
   },
   "devDependencies": {
     "electron": "^14.0.0",
-    "electron-builder": "^22.11.7"
+    "electron-builder": "~22.10.5"
   },
   "build": {
     "asar": true,

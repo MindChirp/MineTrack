@@ -7,6 +7,8 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="main.css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
     </head>
     <body>
         <div id="main-container">
@@ -15,30 +17,31 @@
                     <p class="title">Minecraft Hour Counter</p>
                 </div>
                 <div class="buttons">
-                    <button class="minimize">–</button>
+                    <button class="minimize" onclick="minimizeProgram()">–</button>
                     <button class="close" onclick="closeProgram()">✕</button>
                 </div>
             </div>
 
-            <div class="time-counter">
+            <div class="time-counter smooth-shadow">
                 <div class="total">
                 <p>No time recorded</p>
                 </div>
                 <div class="session">
                     <p>This session <span>00:00:00</span></p>
                 </div>
-            </div>       
-            
-            <div class="menu-box">
-                <div class="status-text">
-                    <p>Minecraft is not open</p>
-                </div>
-                <div class="status-bar"><div class="filler"></div></div>
-            </div>
+            </div> 
+            <div class="action-buttons">
+                <button class="button pill solid" onclick="stats(this)"><i class="material-icons">show_chart</i>Statistics</button>
+                <button class="button pill solid" onclick="worlds(this)"><i class="material-icons">public</i>Worlds</button>
+                <button class="button pill solid" onclick="about(this)"><i class="material-icons">info</i>About</button>
+                <button class="button pill solid" onclick="settings(this)"><i class="material-icons">settings</i>Settings</button>
+            </div>      
+        
                 
 
-
+            <div id="indicator" class="offline"><div class="filler"></div></div>
         </div>
-        <script src="main.js" async defer></script>
+        <script src="main.js"></script>
+        <script src="menuHandler.js"></script>
     </body>
 </html>

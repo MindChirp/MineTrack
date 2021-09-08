@@ -11,7 +11,7 @@ html, body {
 
 body {
     font-family: 'roboto';
-    animation: fade-in 200ms ease-in-out 2s both;
+    animation: fade-in 200ms ease-in-out 0.5s both;
 }
 
 @font-face {
@@ -22,24 +22,27 @@ body {
 body > #main-container {
     height: 100%;
     width: 100%;
-    background-color: #CEB5A7;
+    background-color: #E0F2E9;
     border-radius: 0.5rem;
     overflow: hidden;
+    /*
     background-image: url('minecraft-logo.png');
     background-size: cover;
     background-repeat: no-repeat;
     background-position-y: 45vh;
-
+*/
 }
 
 #main-container > #app-bar {
     height: 1.5rem;
     width: 100%;
-    background: #E0F2E9;
+    background: transparent;
     display: grid;
     grid-template-columns: auto calc(2 * 3rem);
     grid-template-rows: 100%;
     overflow: hidden;
+    position: relative;
+    z-index: 1000;
 }
 
 
@@ -68,6 +71,7 @@ body > #main-container {
     background-color: transparent;
     outline: none;
     font-size: 1rem;
+    color: black;
     line-height: 1.5rem;
     transition: all 200ms ease-in-out;
 }
@@ -104,7 +108,7 @@ body > #main-container {
     color: #E0F2E9;
     text-transform: uppercase;
     font-weight: bold;
-    font-size: 2rem;
+    font-size: 1.6rem;
 }
 
 #main-container > .time-counter > .session p {
@@ -128,47 +132,30 @@ body > #main-container {
     perspective-origin:0 150vh;
 }
 
-#main-container .menu-box {
-    height: fit-content;
-    width: calc(80% + 2rem);
-    background: #E0F2E9;
-    border-radius: 0.5rem;
-    margin: auto;
-    padding: 1.5rem;
-    box-sizing: border-box;
-    margin-top: 1rem;
-    position: relative;
-    overflow: hidden;
-}
-
-#main-container .menu-box .status-bar {
+#indicator {
     height: 1rem;
     width: 100%;
-    background-color: rgb(200,20,20);
     position: absolute;
     bottom: 0;
     left: 0;
     border-radius: 0 0 0.5rem 0.5rem;
+    background-color: #A17C6B;
+    transition: all 300ms ease-in-out;
 }
 
-#main-container .menu-box .status-bar .filler {
+#indicator.offline {
+    background-color: #A17C6B;
+}
+
+#indicator.online {
+    background-color: #3C887E;
+}
+
+#indicator .filler {
     width: 100%;
     height: 0.5rem;
     border-radius: 0 0 0.5rem 0.5rem;
     background-color: #E0F2E9;
-}
-
-#main-container .menu-box .status-text p {
-    margin: 0;
-    text-align: center;
-    color: #5B7B7A;
-    text-transform: uppercase;
-    font-size: 1rem;
-}
-
-#main-container .menu-box .status-text {
-    width: fit-content;
-    margin: auto;
 }
 
 .first-time-setup {
@@ -254,10 +241,13 @@ body > #main-container {
 }
 
 .first-time-setup .proceed-wrapper {
-    margin: auto;
     width: fit-content;
     height: fit-content;
-    margin-top: 3rem;
+    position: absolute;
+    top: 11rem;
+    left: 50%;
+    transform: translate(-50%);
+    transition: all 200ms ease-in-out;
 }
 
 .first-time-setup button.proceed {
@@ -311,6 +301,54 @@ body > #main-container {
     padding: 0.5rem 1rem;
 }
 
+.first-time-setup .wrapper input {
+    background-color: #DAC8BE;
+    border-radius: 0.25rem;
+    outline: none;
+    display: block;
+    margin: auto;
+    color: #E0F2E9;
+    border: none;
+    font-size: 1.2rem;
+    transition: all 100ms ease-in-out;
+    padding: 0.4rem 1rem;
+    box-sizing: border-box;
+    font-weight: lighter;
+}
+
+.first-time-setup .wrapper input:focus {
+    background-color: #5B7B7A;
+}
+
+.first-time-setup .wrapper input:not(:first-of-type) {
+    margin-top: 0.6rem;
+}
+
+.first-time-setup .wrapper input::placeholder {
+    font-weight: lighter;
+    font-family: 'roboto';
+    color: #5B7B7A;
+    opacity: 0.9;
+}
+
+.first-time-setup .wrapper input:focus::placeholder {
+    color: #E0F2E9;
+}
+
+.first-time-setup .error-text {
+    color: red;
+    /*background-color: #E0F2E9;*/
+    width: 100%;
+    height: fit-content;
+    position: absolute;
+    text-align: center;
+    animation: fade-in 200ms ease-in-out;
+}
+
+.first-time-setup .wrapper a {
+    color: #3C887E;
+}
+
 @keyframes fade-in {
     0%{opacity: 0}
     100%{opacity: 1}
@@ -321,6 +359,16 @@ body > #main-container {
     100%{opacity: 0}
 }
 
+@keyframes change-left-introduction {
+    0%{opacity: 1;}
+    70%{opacity: 0;}
+    100%{transform: translate(-100%); opacity: 0}
+}
+
+@keyframes change-right-introduction {
+    0%{opacity: 0; transform: translate(100%)}
+    100%{transform: translate(0)}
+}
 ::-webkit-scrollbar{
     width: 6px;
     height: 6px;
@@ -367,4 +415,117 @@ body > #main-container {
     .notification p {
         margin: 0;
         color: #5B7B7A;
+    }
+
+    #progress-box {
+        height: fit-content;
+        width: 90%;
+        position: absolute;
+        bottom: 1rem;
+        left: 50%;
+        transform: translate(-50%);
+        background-color: #E1D3CB;
+        padding: 0.5rem;
+        box-sizing: border-box;
+        border-radius: 0.5rem;
+        animation: fade-in 200ms ease-in-out;
+    }
+    #progress-box .bar {
+        height: 0.5rem;
+        width: 100%;
+        background-color: #E0F2E9;
+        border-radius: 0.25rem;
+    }
+
+    #progress-box .bar .indicator {
+        height: 100%;
+        border-radius: 0.25rem;
+        background-color: #3C887E;
+        min-width: 1rem;
+        width: 0;
+        transition: all 500ms ease-in-out;
+    }
+
+    @keyframes slide-down-notification {
+        0%{}
+        100%{transform: translate(-50%, calc(100% + 2rem))}
+    }
+
+    #progress-box > p {
+        margin: 0 0 0.2rem;
+        text-align: center;
+        width: 100%;
+        color: #3C887E;
+    }
+
+
+    .button {
+        border: none;
+        outline: none;
+        background: transparent;
+        font-size: 1rem;
+        text-transform: uppercase;
+        width: fit-content;
+        height: fit-content;
+        padding: 0.7rem 1rem;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        font-family: 'roboto';
+        transition: transform 150ms ease-in-out, box-shadow 150ms ease-in-out;
+        line-height: 1rem;
+    }
+
+    .button i {
+        vertical-align: top;
+        line-height: 1rem;
+        margin-right: 0.5rem;
+        font-size: 1.3rem;
+    }
+
+    .button:hover {
+        transform: translateY(-0.2rem);
+        box-shadow: 0 -1px 2px rgba(0,0,0,0.12), 
+        0 2px 2px rgba(0,0,0,0.12), 
+        0 4px 4px rgba(0,0,0,0.12), 
+        0 8px 8px rgba(0,0,0,0.12),
+        0 16px 16px rgba(0,0,0,0.12);
+    }
+
+    .button.pill {
+        border-radius: 100rem;
+    }
+
+    .button.solid {
+        background-color: #5B7B7A;
+        color: #E0F2E9;
+    }
+
+    .action-buttons {
+        margin: auto;
+        width: fit-content;
+        max-width: calc(80% + 2rem);
+        height: fit-content;
+        padding: 0;
+        margin-top: 1rem;
+    }
+
+    .action-buttons button {
+        display: inline-block;
+    }
+
+    .expanding-menu-transition-pane {
+        position: absolute;
+        height: 0;
+        width: 0;
+        border-radius: 100%;
+        background-color: #5B7B7A;
+        animation: transition-menu 600ms ease-in-out both;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+    }
+
+    @keyframes transition-menu {
+        0%{height: 0; width: 0; opacity: 0;}
+        60%{opacity: 1;}
+        100%{height: 400vh; width: 400vw; opacity: 1;}
     }
