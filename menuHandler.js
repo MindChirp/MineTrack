@@ -36,7 +36,7 @@ function openMenu(el) {
             document.getElementById("main-container").appendChild(menu);
             exp.parentNode.removeChild(exp);
             resolve(wr);
-        }, 500)
+        }, 250)
     })
 }
 
@@ -59,8 +59,7 @@ async function about(el) {
     p.innerHTML = `
         I like to make programs. I guess you've realized that by now.
         <br><br>
-        I made this program to fulfill a need, and I wanted to do it as good as I possibly could.
-        <br><br>
+        I dont have much to say about this piece of software, other than that 
         I <strong>really</strong> hope you enjoy it!
 
         <br><br><br>

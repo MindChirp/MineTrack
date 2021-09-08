@@ -525,15 +525,15 @@ body > #main-container {
         width: 0;
         border-radius: 100%;
         background-color: #5B7B7A;
-        animation: transition-menu 600ms ease-in-out both;
+        animation: transition-menu 0.4s ease-in both;
         transform: translate(-50%, -50%);
         z-index: 0;
     }
 
     @keyframes transition-menu {
-        0%{height: 0; width: 0; opacity: 0;}
+        0%{height: 0; width: 0; opacity: 1;}
         60%{opacity: 1;}
-        100%{height: 400vh; width: 400vw; opacity: 1;}
+        100%{height: 400vh; width: 400vh; opacity: 1;}
     }
 
     .menu-pane {

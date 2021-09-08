@@ -1,0 +1,14 @@
+{
+    "time": [
+        ["minecraft:custom","minecraft:total_world_time"],
+        ["stat.playOneMinute"],
+        ["minecraft:custom","minecraft:play_one_minute"]
+    ],
+    "distance":[
+        {
+            "walkonecm":[
+                ["minecraft:custom", "minecraft:walk_one_cm"]
+            ]
+        }
+    ]
+}

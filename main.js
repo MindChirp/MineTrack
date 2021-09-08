@@ -156,11 +156,13 @@ async function scanLogFiles() {
         console.log(totalSecs);
         //The code is done scanning the log files
         clearInterval(progInterval);
+        totalSeconds = totalSeconds + totalSecs;
 
         bar.style.animation = "none";
         box.style.animation = "slide-down-notification 300ms ease-in-out both 1s";
 
         userConfig.logsCalculated = true;
+        timeConfig.multiplayertime = totalSecs;
 
         try {
             var times = await fs.readFile(path.join(filesPath, "worlddata", "scannedplaytime.json"), "utf8");
@@ -258,7 +260,7 @@ async function startCheckingForMinecraft() {
         try {
             res = await ipcRenderer.invoke("check-for-minecraft");
         } catch (error) {
-            notification("Could not save session");
+            console.log("Failed to check for minecraft");
         }
         if(res == true) {
             minecraftOpen = true;
@@ -738,6 +740,7 @@ async function gatherWorldInformation() {
             } catch (error) {
 
             }
+            console.log(x, parsed);
             try {
                 if(parsed.stats["minecraft:custom"]["minecraft:total_world_time"]) {
                     //console.log("Found", x, parsed.stats["minecraft:custom"]["minecraft:total_world_time"]);
@@ -844,12 +847,9 @@ setInterval(()=>{
 
 
 function updateTimeCounting(main, session) {
-    console.log(main, session);
     if(!isNaN(main)) {
         var title = document.querySelector("#main-container > div.time-counter > div.total > p");
-        console.log(main)
         var c = convertHMS(main);
-        console.log(c)
         title.innerText = c[0] + " hours " + c[1] + " minutes " + c[2] + " seconds ";
     }
 
@@ -913,24 +913,20 @@ function saveSession() {
         var values = convertHMS(time);
 
         var string = "";
+
         if(values[0] != 0) {
-            var app = values[0]==1?" hour":" hours";
-            string = values[0] + app;
+            string = values[0] + " hours"
         }
-        if(values[1] != 0 && values[2] == 0 && values[0] != 0) {
+        if(values[1] != 0 && values[0] == 0) {
             var app = values[1]==1?" minute":" minutes";
-            string = string + " and " + values[1] + app
-        } else if(values[1] != 0 && values[2] != 0) {
+            string = values[1] + app
+        } else if(values[1] != 0 && values[0] != 0) {
             var app = values[1]==1?" minute":" minutes";
-            string = string + values[1] + app
+            string = string + " " + values[1] + app;
         }
 
-        if(values[2] != 0 && values[1] == 0 && values[0] != 0) {
-            var app = values[2]==1?" second":" seconds";
-            string = string + "and " + values[2] + app
-        } else if(values[2] != 0 && values[1] == 0 && values[0] == 0) {
-            var app = values[2]==1?" second":" seconds";
-            string = string + values[2] + app
+        if(values[0] == 0 && values[1] == 0) {
+            string = "less than one minute";
         }
         
         if(string.trim().length == 0) {
