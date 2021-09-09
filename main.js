@@ -20,25 +20,80 @@ ipcRenderer.on("files-path", (ev, data)=>{
 
 function gatherFilePath() {
     return new Promise((resolve, reject)=>{
-        while(filesPath == undefined) {
-            filesPath = localStorage.getItem("files-path");
+        function loop() {
 
-            if(filesPath) {
+            filesPath = localStorage.getItem("files-path");
+            
+            if(filesPath != undefined) {
                 //Get the userConfig
                 resolve();
+            } else {
+                loop();
             }
         }
+        loop();
 
     })
 }
 
 window.onload = async ()=>{
+    
+    try {
+        await gatherFilePath();
+    } catch (error) {
+        notification("Could not start up correctly");
+        return;
+    }
+
+    appDataPath = path.dirname(filesPath);
+
+    /*
+    try {
+        await fs.access(path.join(filesPath, "configs", "userdata.json"))
+    } catch (error) {
+        notification("Could not start up correctly");
+        return;
+    }
+
+    try {
+        await gatherWorldInformation();
+    } catch (error) {
+        notification("Could not start up correctly");
+        return;
+    }
+    */
+   
+    checkResources()
+    .then(async ()=>{
+        try {
+            var dat = await fs.readFile(path.join(filesPath, "configs", "userdata.json"), "utf8")
+            userConfig = JSON.parse(dat);
+
+
+
+        } catch (error) {
+            notification("Error loading user config");
+            return;
+        }
+        loadData();
+        startCheckingForMinecraft();
+        checkLogFileStatus()
+        .then((res)=>{
+            if(res.notChecked) {
+                scanLogFiles();
+            }
+        })
+        .catch((err)=>{
+            console.log(err);
+        });
+
+    /*
     gatherFilePath()
     .then(async()=>{
-        appDataPath = path.dirname(filesPath);
+
         try {
-            await fs.access(path.join(filesPath, "configs", "userdata"))
-            await gatherWorldInformation();
+           // await fs.access(path.join(filesPath, "configs", "userdata"))
+            //await gatherWorldInformation();
         } catch (error) {
             return;
         }
@@ -75,11 +130,12 @@ window.onload = async ()=>{
     
     })
     .catch((err)=>{
-        console.log(err);
+        alert("Fuck")
     })
     
-    
+    */
    
+    })
 }
 totalPercentage = 0;
 
@@ -256,12 +312,35 @@ function parseLogContents(log) {
 async function startCheckingForMinecraft() {
     if(allowchecking) {
         //notification("Checking for minecraft status. Please wait.")
-        var res;
+        var list;
         try {
-            res = await ipcRenderer.invoke("check-for-minecraft");
+            list = await ipcRenderer.invoke("check-for-minecraft");
         } catch (error) {
             console.log("Failed to check for minecraft");
         }
+        console.log(list);
+
+        var res;
+        var x;
+        if(list.length > 0) {
+
+            for(x of list) {
+                if(x.bin != undefined) {
+
+                    if(x.bin.toLowerCase().includes("minecraft") && x.bin.toLowerCase().includes("runtime")) {
+                        res = true;
+                    } else {
+                        res = false;
+                    }
+                } else {
+                    res = "unknown";
+                }
+            }
+        } else {
+            res = false;
+        }
+
+
         if(res == true) {
             minecraftOpen = true;
             //Update the status bar
@@ -275,7 +354,14 @@ async function startCheckingForMinecraft() {
                 //Save the session data. Minecraft was just open, but has now been closed
                 //Check again for minecraft
                 var check = await ipcRenderer.invoke("check-for-minecraft");
-                if(!check) {
+                var x;
+                var on = false;
+                for(x of check) {
+                    if(x.bin.toLowerCase().includes("minecraft") && x.bin.toLowerCase().includes("runtime")) {
+                        on = true;
+                    }
+                }
+                if(!on) {
                     try {
                         await saveSession()
                     } catch (error) {
@@ -290,6 +376,8 @@ async function startCheckingForMinecraft() {
                 ind.classList.add("offline");
                 ind.classList.remove("online");
             }
+        } else if(res == "unknown") {
+            //Nothing
         }
     }
     var delay = minecraftOpen?5000:2000;

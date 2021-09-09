@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const find = require("find-process");
-const updater = require("electron-updater");
+//const updater = require("electron-updater");
 /*const debug = require('electron-debug');
 
 debug();*/
@@ -14,8 +14,8 @@ var obj = {
     autoInstall: false
 }
 
-updater.autoDownload = obj.autoUpdate;
-updater.autoInstallOnAppQuit = obj.installOnRestart;
+//updater.autoDownload = obj.autoUpdate;
+//updater.autoInstallOnAppQuit = obj.installOnRestart;
 
 
 function createWindow() {
@@ -32,8 +32,7 @@ function createWindow() {
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: false,
-                enableRemoteModule: true,
-                devTools:true
+                enableRemoteModule: true
             }
         })
     
@@ -81,8 +80,8 @@ app.whenReady().then(()=>{
 })
 
 ipcMain.handle("check-for-minecraft", async(event, arg) =>{
-    var open = await checkForMinecraft();
-    return open;
+    var list = await checkForMinecraft();
+    return list;
 })
 
 
@@ -91,13 +90,8 @@ function checkForMinecraft() {
         find("name", "javaw", false)
         .then((list)=>{
             if(list) {
-                var x;
-                for(x of list) {
-                    if(x.bin.includes("\\Minecraft\\runtime")) {
-                        resolve(true);
-                    }
-                }
-
+                resolve(list)
+            } else {
                 resolve(false);
             }
         })

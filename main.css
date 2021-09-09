@@ -577,7 +577,7 @@ body > #main-container {
     }
 
     .session-popup-finished {
-        animation: slide-in-bottom 300ms ease-in-out;
+        animation: slide-in-bottom 300ms ease-in-out, slide-out-bottom 300ms ease-in-out 4.7s forwards;
         background: #A17C6B;
         border-radius: 1rem 1rem 0 0;
         height: fit-content;
@@ -605,5 +605,11 @@ body > #main-container {
     @keyframes slide-in-bottom {
         0%{transform: translateY(100%)}
         100%{transform: translateY(0)}
+        
+    }
+
+    @keyframes slide-out-bottom {
+        0%{transform: translateY(0)}
+        100%{transform: translateY(100%)}
         
     }
