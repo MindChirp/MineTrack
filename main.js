@@ -318,7 +318,6 @@ async function startCheckingForMinecraft() {
         } catch (error) {
             console.log("Failed to check for minecraft");
         }
-        console.log(list);
 
         var res;
         var x;
@@ -760,10 +759,12 @@ function enterFirstTimeUse() {
                 When the program detects that you are in-game, however, everything you do inside of minecraft will be recorded as active playtime, even if you are idle in the start menu.
                 <br>
                 It is important that you have the program running to record your playtime. 
-                <br>
+                
                 It is also recommended to enable this program on startup. 
-                <br>
-                To go through this setup process again, press the reset button in the program window.
+                
+                To go through this setup process again, press the reset button in the settings menu.
+
+                To scan for new worlds, press the scan button in the settings or world menu.
             `;
             wrapper.appendChild(info)
 
