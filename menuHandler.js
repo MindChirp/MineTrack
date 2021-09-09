@@ -26,6 +26,9 @@ function openMenu(el) {
             menu.kill = ()=>{
                 menu.parentNode.removeChild(menu);
             }
+            var content = document.createElement("div");
+            content.className = "content";
+            wr.appendChild(content);
 
             var back = document.createElement("button");
             back.className = "button pill solid back secondary";
@@ -48,7 +51,7 @@ async function stats(el) {
     var title = document.createElement("h1");
     title.className = "title";
     title.innerText = "Statistics";
-    menu.appendChild(title);
+    menu.insertBefore(title, menu.querySelector(".content"));
 
     var info = document.createElement("span");
     info.innerText = "Info";
@@ -64,7 +67,7 @@ async function stats(el) {
 
     var topBar = document.createElement("div");
     topBar.className = "stat-top-bar";
-    menu.appendChild(topBar)
+    menu.insertBefore(topBar, menu.querySelector(".content"));
     
     var sessionString = sessions.length == 1 ? "session":"sessions";
     
@@ -82,7 +85,7 @@ async function stats(el) {
 
     var selector = document.createElement("div");
     selector.className = "page-selector";
-    menu.appendChild(selector);
+    menu.insertBefore(selector, menu.querySelector(".content"));
 
     var b = document.createElement("button");
     selector.appendChild(b);
@@ -134,9 +137,27 @@ function triggerTransition(el) {
     }, 100)
 }
 
+var statsPaths = {
+    time: [
+        ["minecraft:custom","minecraft:total_world_time"],
+        ["stat.playOneMinute"],
+        ["minecraft:custom","minecraft:play_one_minute"]
+    ],
+    distance: [
+        {
+            walkonecm:[
+                ["minecraft:custom", "minecraft:walk_one_cm"],
+                ["stat.walkOneCm"]
+            ]
+        }
+    ]
+}
+
 async function showStatPage(index) {
+    //Remove the contents
+    menu.querySelector(".content").innerHTML = "";
     //Read the statistic types from the statformats.json file
-    var stats = JSON.parse(await fs.readFile("./statformats.json", "utf8"));
+    //var stats = JSON.parse(await fs.readFile("statformats.json"), "utf8");
 
     
     /*
@@ -159,12 +180,99 @@ async function showStatPage(index) {
         break;
     }
 
+    var createEntry = ()=>{
+        var el = document.createElement("div");
+        el.className = "stat-entry";
+        var wr = document.createElement("div");
+        wr.className = "wrapper";
+        el.appendChild(wr);
+        document.querySelector("#main-container > div.menu-pane > div > div.content").appendChild(el);
+        return el;
+    }
+
+
     //Get total distance walked
     retrieveStat([["minecraft:custom", "minecraft:walk_one_cm"],["stat.walkOneCm"]],properties)
     .then((res)=>{
-        var text = document.createElement("p");
-        //text.innerHTML = "CM walked " + res;
-        menu.appendChild(text);
+        if(properties.total) {
+            var entry = createEntry();
+            var ico = document.createElement("i");
+            ico.className = "material-icons";
+            ico.innerText = "directions_walk";
+            entry.appendChild(ico);
+
+            var p = document.createElement("p");
+            p.className = "full-size";
+            p.innerText = Math.round(res/100) + " meters walked";
+            entry.querySelector(".wrapper").appendChild(p);
+        }
+            
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+
+
+    //Get total distance walked
+    retrieveStat([["minecraft:custom", "minecraft:sneak_time"],["stat.sneakTime"]],properties)
+    .then((res)=>{
+        if(properties.total) {
+            var entry = createEntry();
+            var ico = document.createElement("i");
+            ico.className = "material-icons";
+            ico.innerText = "elderly";
+            entry.appendChild(ico);
+
+            var p = document.createElement("p");
+            p.className = "full-size";
+            p.innerText = Math.round(res/20) + " seconds sneaked";
+            entry.querySelector(".wrapper").appendChild(p);
+        }
+            
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+
+
+    //Get total distance walked
+    retrieveStat([["minecraft:custom", "minecraft:mob_kills"],["stat.mobKills"]],properties)
+    .then((res)=>{
+        if(properties.total) {
+            var entry = createEntry();
+            var ico = document.createElement("i");
+            ico.className = "material-icons";
+            ico.innerText = "shield";
+            entry.appendChild(ico);
+
+            var p = document.createElement("p");
+            p.className = "full-size";
+            p.innerText = Math.round(res) + " mobs killed";
+            entry.querySelector(".wrapper").appendChild(p);
+        }
+            
+    })
+    .catch((err)=>{
+        console.log(err)
+    })
+
+
+    //Get total distance walked
+    retrieveStat([["minecraft:custom", "minecraft:fly_one_cm"],["stat.flyOneCm"]],properties)
+    .then((res)=>{
+        if(properties.total) {
+            var entry = createEntry();
+            var ico = document.createElement("i");
+            ico.className = "material-icons";
+            ico.innerText = "flight";
+            entry.appendChild(ico);
+
+            var p = document.createElement("p");
+            p.className = "full-size";
+            p.innerText = Math.round(res/100) + " meters flown";
+            entry.querySelector(".wrapper").appendChild(p);
+        }
+            
     })
     .catch((err)=>{
         console.log(err)

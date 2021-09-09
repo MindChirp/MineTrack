@@ -791,7 +791,8 @@ function enterFirstTimeUse() {
 
 async function openDirectoryModal() {
     var result = await ipcRenderer.invoke("open-directory-modal", "pp");
-    if(result.trim().length < 1) return;
+    alert(result);
+    if(result.length < 1) return;
     var text = document.querySelector("body > div.first-time-setup > div.wrapper > div > div > p");
     if(text instanceof HTMLElement) {
         text.innerText = result;

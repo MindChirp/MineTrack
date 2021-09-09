@@ -228,6 +228,7 @@ body > #main-container {
     border-radius: 0.25rem;
     z-index: 2;
     position: relative;
+    overflow: hidden;
 }
 
 .first-time-setup div.wrapper > div > .path-output > p {
@@ -598,7 +599,9 @@ body > #main-container {
     .menu-pane > .wrapper .title {
         text-transform: uppercase;
         font-size: 4rem;
+        margin-right: 0;
         margin-left: 1rem;
+        max-width: none;
     }
 
     .menu-pane > .wrapper p {
@@ -680,6 +683,75 @@ body > #main-container {
     .menu-pane .stat-top-bar h1:last-of-type {
         text-align: right;
         
+    }
+
+    .menu-pane .wrapper {
+        overflow-y: auto;
+        border-radius: 1rem;
+    }
+
+    .menu-pane .content {
+        height: fit-content;
+        width: calc(100% - 2rem);
+        margin: auto;
+        margin-top: 1rem;
+        background: rgba(206, 181, 167, 1);
+        border-radius: 1rem;
+        padding: 1rem;
+        box-sizing: border-box;
+        /*
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(10rem,1fr));
+        grid-template-rows: repeat(auto, 6rem);
+        column-gap: 1rem;
+        row-gap: 1rem;
+        */
+    }
+
+    .menu-pane .content .stat-entry {
+        height: 8rem;
+        width: 100%;
+        background: #E0F2E9;
+        border-radius: 4rem;
+        padding: 0.5rem;
+        box-sizing: border-box;
+        overflow: hidden;
+        
+    }
+
+    .menu-pane .content .stat-entry:not(:last-of-type) {
+        margin-bottom: 0.5rem;
+    }
+
+    .menu-pane .content .stat-entry .wrapper {
+        display: inline-block;
+        height: 100%;
+        width: calc(100% - (7rem + 3.2rem));
+        border-radius: 0;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .menu-pane .content .stat-entry .wrapper p.full-size {
+        font-size: 1.8rem;        
+        text-transform: capitalize;
+        line-height: 1.6rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .menu-pane .content .stat-entry .wrapper p {
+        color: #3C887E;
+    }
+
+    .menu-pane .content .stat-entry i {
+        transform: translate(-3.2rem);
+        color: #3C887E;
+        font-size: 8rem;
+        line-height: 7rem;
+        display: inline-block;
+        float: left;
+        width: 7rem;
     }
 
     .page-selector {
