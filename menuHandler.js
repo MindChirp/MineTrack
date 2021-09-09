@@ -69,7 +69,7 @@ async function stats(el) {
     var sessionString = sessions.length == 1 ? "session":"sessions";
     
     var t1 = document.createElement("h1");
-    t1.innerHTML = sessions.length + sessionString + " recorded";
+    t1.innerHTML = sessions.length + " " + sessionString + " recorded";
     topBar.appendChild(t1);
 
     var t2 = document.createElement("h1");
