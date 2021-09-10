@@ -22,7 +22,11 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
             try {
                 var stat = JSON.parse(await fs.readFile(path.join(userConfig.minecraftpath, "saves", x, "stats", userConfig.uuid + ".json"), "utf8"));
             } catch (error) {
-                continue;
+                try {
+                    var stat = JSON.parse(await fs.readFile(path.join(userConfig.minecraftpath, "saves", x, "stats", userConfig.username + ".json"), "utf8"));
+                } catch (error) {
+                    continue;
+                }
             }
 
 

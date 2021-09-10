@@ -22,7 +22,11 @@ function gatherFilePath() {
     return new Promise((resolve, reject)=>{
         function loop() {
 
-            filesPath = localStorage.getItem("files-path");
+            try {
+                filesPath = localStorage.getItem("files-path");
+            } catch (error) {
+                console.log(error);
+            }
             
             if(filesPath != undefined) {
                 //Get the userConfig
@@ -41,6 +45,7 @@ window.onload = async ()=>{
     try {
         await gatherFilePath();
     } catch (error) {
+        console.log(error);
         notification("Could not start up correctly");
         return;
     }
@@ -78,9 +83,13 @@ window.onload = async ()=>{
         loadData();
         startCheckingForMinecraft();
         checkLogFileStatus()
-        .then((res)=>{
+        .then(async(res)=>{
             if(res.notChecked) {
-                scanLogFiles();
+                try {
+                    await scanLogFiles();
+                } catch (error) {
+                    console.log(error);
+                }
             }
         })
         .catch((err)=>{
@@ -150,6 +159,11 @@ function setProgIndPos() {
 
 async function scanLogFiles() {
     return new Promise(async (resolve, reject)=>{
+        try {
+            await fs.access(path.join(userConfig.minecraftpath, "logs"))
+        } catch (error) {
+            reject("Logs not found!");
+        }
         var totalSecs = 0;
         //Create progress box
         var box = document.createElement("div");
@@ -825,7 +839,7 @@ async function gatherWorldInformation() {
             var parsed
             try {
                 var wfiles = await fs.readdir(path.join(config.minecraftpath, "saves", x, "stats"))
-                var wconfig = await fs.readFile(path.join(config.minecraftpath, "saves", x, "stats", wfiles[0]), "utf8");
+                var wconfig = await fs.readFile(path.join(config.minecraftpath, "saves", x, "stats", userConfig.uuid), "utf8");
                 var parsed = JSON.parse(wconfig);
             } catch (error) {
 

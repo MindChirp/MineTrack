@@ -26,13 +26,11 @@ function openMenu(el) {
             menu.kill = ()=>{
                 menu.parentNode.removeChild(menu);
             }
-            var content = document.createElement("div");
-            content.className = "content";
-            wr.appendChild(content);
+
 
             var back = document.createElement("button");
-            back.className = "button pill solid back secondary";
-            back.innerHTML = "back";
+            back.className = "button pill solid back secondary material-icons";
+            back.innerHTML = "arrow_back";
             menu.appendChild(back);
             back.onclick = menu.kill;
 
@@ -67,7 +65,7 @@ async function stats(el) {
 
     var topBar = document.createElement("div");
     topBar.className = "stat-top-bar";
-    menu.insertBefore(topBar, menu.querySelector(".content"));
+    menu.appendChild(topBar);
     
     var sessionString = sessions.length == 1 ? "session":"sessions";
     
@@ -85,14 +83,13 @@ async function stats(el) {
 
     var selector = document.createElement("div");
     selector.className = "page-selector";
-    menu.insertBefore(selector, menu.querySelector(".content"));
+    menu.appendChild(selector);
 
     var b = document.createElement("button");
     selector.appendChild(b);
     b.innerText = "All time"
     b.className ="active"
     b.setAttribute("onclick", "triggerTransition(this)");
-    showStatPage(0);
 
     var b = document.createElement("button");
     selector.appendChild(b);
@@ -103,7 +100,15 @@ async function stats(el) {
     selector.appendChild(b);
     b.innerText = "Sessions"
     b.setAttribute("onclick", "triggerTransition(this)");
+
+    var content = document.createElement("div");
+    content.className = "content";
+    menu.appendChild(content);
+
+    showStatPage(0);
+
 }
+
 var disableMenu = false;
 function triggerTransition(el) {
     if(disableMenu) return;
@@ -179,104 +184,145 @@ async function showStatPage(index) {
             properties = {sessions: true}
         break;
     }
+//[["minecraft:custom", "minecraft:walk_one_cm"],["stat.walkOneCm"]]
+    if(!properties.sessions) {
+        var allWorlds = [];
+        var createEntry = (path, properties, scaling, title, icon)=>{
+            return new Promise((resolve, reject)=>{
 
-    var createEntry = ()=>{
-        var el = document.createElement("div");
-        el.className = "stat-entry";
-        var wr = document.createElement("div");
-        wr.className = "wrapper";
-        el.appendChild(wr);
-        document.querySelector("#main-container > div.menu-pane > div > div.content").appendChild(el);
-        return el;
+                //Get total distance walked
+                retrieveStat(path,properties)
+                .then(async (res)=>{
+                    if(properties.total) {
+                        var entry = returnBox();
+                        var ico = document.createElement("i");
+                        ico.className = "material-icons";
+                        ico.innerText = icon;
+                        entry.appendChild(ico);
+                        
+                        var p = document.createElement("p");
+                        p.className = "full-size";
+                        p.innerText = Math.round(res*scaling) + " " + title;
+                        entry.querySelector(".wrapper").appendChild(p);
+                        resolve(entry);
+                    } else if(properties.perWorld) {
+                        var x;
+                        for(x of res) {
+                            await new Promise((resolve)=>{
+
+                                if(allWorlds.filter(e=>e.name == x.name).length == 0) {
+                                    allWorlds.push({name:x.name})
+                                    //We will get returned all worlds per stat
+                                    var entry = returnBox(true);
+                                    menu.querySelector(".content").appendChild(entry);
+                                    var name = document.createElement("p");
+                                    name.className = "world-name";
+                                    name.innerText = x.name;
+                                    entry.querySelector(".wrapper").appendChild(name);
+                                    var ul = document.createElement("div");
+                                    ul.className = "ul";
+                                    entry.querySelector(".wrapper").appendChild(ul);
+                                    resolve();
+                                } else {
+                                    resolve();
+                                }
+                            })
+
+                            var boxes = document.body.getElementsByClassName("stat-entry");
+                            console.log(boxes);
+                            var val = x.value;
+
+
+                            var p = document.createElement("p");
+                            p.className = "world-stat";
+                            p.innerHTML = "<span>" + Math.round((val * scaling)) + "</span> " + title;
+                            
+                            //Get the thing in the world array that matches this thing and things thangs
+                            var index = allWorlds.findIndex(y => y.name == x.name);
+                            boxes[index].querySelector(".wrapper > .ul").appendChild(p);
+                        }
+
+                    }
+                })
+                .catch((err)=>{
+                    reject(err);
+                })
+                
+                var returnBox = (world)=>{
+                    
+                    var el = document.createElement("div");
+                    el.className = "stat-entry smooth-shadow";
+                    var wr = document.createElement("div");
+                    wr.className = "wrapper";
+                    el.appendChild(wr);
+
+                    if(world) {
+                        el.classList.add("world-display");
+                    }
+                    
+                    return el;
+                }
+            })
+        }
+
+        var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content");
+        createEntry([["minecraft:custom", "minecraft:walk_one_cm"],["stat.walkOneCm"]], properties, 0.01, "Meters walked", "directions_walk")
+        .then((el)=>{
+            wrapper.appendChild(el);
+        })
+        .catch((err)=>{
+            console.log(err);
+        })
+
+        createEntry([["minecraft:custom", "minecraft:sneak_time"],["stat.sneakTime"]],properties, (1/20), "Seconds sneaked", "elderly")
+        .then((el)=>{
+            wrapper.appendChild(el);
+        })
+        .catch((err)=>{
+            console.log(err);
+        })
+
+        
+        createEntry([["minecraft:custom", "minecraft:mob_kills"],["stat.mobKills"]],properties, 1, "mobs killed", "shield")
+        .then((el)=>{
+            wrapper.appendChild(el);
+        })
+        .catch((err)=>{
+            console.log(err);
+        })
+        
+        createEntry([["minecraft:custom", "minecraft:fly_one_cm"],["stat.flyOneCm"]],properties, (1/100), "meters flown", "flight")
+        .then((el)=>{
+            wrapper.appendChild(el);
+        })
+        .catch((err)=>{
+            console.log(err);
+        })
+
+        createEntry([["minecraft:custom", "minecraft:deaths"],["stat.deaths"]],properties, 1, "deaths", "personal_injury")
+        .then((el)=>{
+            wrapper.appendChild(el);
+        })
+        .catch((err)=>{
+            console.log(err);
+        })
+
+        createEntry([["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]],properties, (((1/20)/60)/60), "hours played", "schedule")
+        .then((el)=>{
+            wrapper.appendChild(el);
+        })
+        .catch((err)=>{
+            console.log(err);
+        })
+
+    } else {
+        //Show the properties section
+        var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content");
+        wrapper.innerHTML = "";
+        var t = document.createElement("p");
+        t.innerText ="Penis";
+        wrapper.appendChild(t);
     }
-
-
-    //Get total distance walked
-    retrieveStat([["minecraft:custom", "minecraft:walk_one_cm"],["stat.walkOneCm"]],properties)
-    .then((res)=>{
-        if(properties.total) {
-            var entry = createEntry();
-            var ico = document.createElement("i");
-            ico.className = "material-icons";
-            ico.innerText = "directions_walk";
-            entry.appendChild(ico);
-
-            var p = document.createElement("p");
-            p.className = "full-size";
-            p.innerText = Math.round(res/100) + " meters walked";
-            entry.querySelector(".wrapper").appendChild(p);
-        }
-            
-    })
-    .catch((err)=>{
-        console.log(err)
-    })
-
-
-    //Get total distance walked
-    retrieveStat([["minecraft:custom", "minecraft:sneak_time"],["stat.sneakTime"]],properties)
-    .then((res)=>{
-        if(properties.total) {
-            var entry = createEntry();
-            var ico = document.createElement("i");
-            ico.className = "material-icons";
-            ico.innerText = "elderly";
-            entry.appendChild(ico);
-
-            var p = document.createElement("p");
-            p.className = "full-size";
-            p.innerText = Math.round(res/20) + " seconds sneaked";
-            entry.querySelector(".wrapper").appendChild(p);
-        }
-            
-    })
-    .catch((err)=>{
-        console.log(err)
-    })
-
-
-    //Get total distance walked
-    retrieveStat([["minecraft:custom", "minecraft:mob_kills"],["stat.mobKills"]],properties)
-    .then((res)=>{
-        if(properties.total) {
-            var entry = createEntry();
-            var ico = document.createElement("i");
-            ico.className = "material-icons";
-            ico.innerText = "shield";
-            entry.appendChild(ico);
-
-            var p = document.createElement("p");
-            p.className = "full-size";
-            p.innerText = Math.round(res) + " mobs killed";
-            entry.querySelector(".wrapper").appendChild(p);
-        }
-            
-    })
-    .catch((err)=>{
-        console.log(err)
-    })
-
-
-    //Get total distance walked
-    retrieveStat([["minecraft:custom", "minecraft:fly_one_cm"],["stat.flyOneCm"]],properties)
-    .then((res)=>{
-        if(properties.total) {
-            var entry = createEntry();
-            var ico = document.createElement("i");
-            ico.className = "material-icons";
-            ico.innerText = "flight";
-            entry.appendChild(ico);
-
-            var p = document.createElement("p");
-            p.className = "full-size";
-            p.innerText = Math.round(res/100) + " meters flown";
-            entry.querySelector(".wrapper").appendChild(p);
-        }
-            
-    })
-    .catch((err)=>{
-        console.log(err)
-    })
     
 
 }
