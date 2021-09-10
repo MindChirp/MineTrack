@@ -763,6 +763,7 @@ body > #main-container {
 
     .menu-pane .content .stat-entry.world-display {
         height: 8rem;
+        border-radius: 1rem;
     }
 
     .menu-pane .content .stat-entry.world-display i {

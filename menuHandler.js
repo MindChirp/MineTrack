@@ -315,6 +315,14 @@ async function showStatPage(index) {
             console.log(err);
         })
 
+        createEntry([["minecraft:custom", "minecraft:jump"],["stat.jump"]],properties, 1, "times jumped", "north_east")
+        .then((el)=>{
+            wrapper.appendChild(el);
+        })
+        .catch((err)=>{
+            console.log(err);
+        })
+
     } else {
         //Show the properties section
         var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content");
