@@ -669,8 +669,17 @@ body > #main-container {
     .menu-pane.scan .wrapper button:hover {
         transform: translate(0,-0.2rem);
     }
+
+    .menu-pane.scan .wrapper button.outline {
+        background-color: transparent;
+        border: 2px solid #E0F2E9;  
+
+    }
     
-    .menu-pane.scan .wrapper .scan-result, .full-list {
+    .menu-pane.scan .wrapper button.outline:hover {
+        transform: none;
+    }
+    .menu-pane.scan .wrapper .scan-result  {
         margin-top: 1rem;
         padding: 1rem;
         box-sizing: border-box;
@@ -679,20 +688,6 @@ body > #main-container {
         border-radius: 1rem;
         color: #3C887E;
         
-    }    
-
-
-
-    .menu-pane.scan .wrapper .full-list {
-        transition: all 150ms ease-in-out;
-    }
-
-    .menu-pane.scan .wrapper .full-list.hidden:hover {
-        cursor: pointer;
-    }
-
-    .menu-pane.scan .wrapper .full-list > p.reveal {
-
     }
 
 

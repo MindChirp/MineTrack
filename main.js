@@ -440,7 +440,8 @@ async function loadData() {
 var folders = [
     "configs",
     "worlddata",
-    "recordeddata"
+    "recordeddata",
+    "scans"
 ]
 function createFolders() {
     return new Promise(async(resolve, reject)=>{
@@ -714,10 +715,18 @@ function enterFirstTimeUse() {
             progCounter.setPage(3);
             await cleanUp();
 
-            proceed.onclick = ()=>{
+            proceed.onclick = async ()=>{
                 //Get input values
                 var name = usr.value;
-                var id = uuid.value;
+                try {
+                    var id = await getId(name)
+                } catch (error) {
+                    console.log(error);
+                    notification("Player not found");
+                    return;
+                }
+
+                console.log(id);
 
                 if(name.trim().length == 0 || id.trim().length == 0) {
                     setupError("Both fields must have a value");
@@ -737,7 +746,7 @@ function enterFirstTimeUse() {
             var info = document.createElement("p");
             info.className = "sub-title policy";
             info.innerHTML = `For the program to differentiate you from other players, in the case that user data for multiple players have been stored in one world,
-            you need to enter both your player UUID, and your full minecraft username. To find your UUID, you can use <a href='https://mcuuid.net/' target='_blank'>this</a> webpage.`;
+            you need to enter your minecraft username.`;
             wrapper.appendChild(info);
 
             var usr = document.createElement("input");
@@ -746,14 +755,7 @@ function enterFirstTimeUse() {
             usr.placeholder = "Minecraft username"
             usr.className = "smooth-shadow";
 
-            var uuid = document.createElement("input");
-            uuid.spellcheck = false;
-            uuid.type = "text";
-            uuid.placeholder = "UUID"
-            uuid.className = "smooth-shadow";
-
             wrapper.appendChild(usr);
-            wrapper.appendChild(uuid);
             calculateButtonPos();
         }
 
@@ -812,6 +814,13 @@ async function openDirectoryModal() {
     }
 
 }
+
+
+function getId(playername) {
+    return fetch(`https://api.mojang.com/users/profiles/minecraft/${playername}`)
+      .then(data => data.json())
+      .then(player => player.id);
+  }
 
 
 async function gatherWorldInformation() {

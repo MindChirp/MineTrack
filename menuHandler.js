@@ -392,18 +392,18 @@ async function scan(el) {
     menu.appendChild(res);
     
     var p = document.createElement("p");
-    p.innerText = "Your scanned worlds will appear here";
+    p.innerText = "Your scanned directory will appear here";
     res.appendChild(p);
     p.className = "empty";
 
-    var full = document.createElement("div");
-    full.className = "full-list smooth-shadow hidden";
-    menu.appendChild(full);
+    var reveal = document.createElement("button");
+    reveal.className = "outline";
+    menu.appendChild(reveal);
+    reveal.innerText = "Reveal all scans";
+    reveal.style = `
+        margin-top: 1rem;
+    `
     
-    var p = document.createElement("p");
-    p.innerText = "Click to reveal all scanned directories";
-    full.appendChild(p);
-    p.className = "reveal";
 
     full.onclick = async ()=>{
         try {
@@ -419,7 +419,9 @@ async function scan(el) {
 
 
 function revealAllScans() {
+    return new Promise((resolve, reject)=>{
 
+    })
 }
 
 async function openDirectoryModal1() {
