@@ -596,6 +596,10 @@ body > #main-container {
 
     }
 
+    .menu-pane > .wrapper .sub-title {
+        color: #E0F2E9;
+    }
+
     .menu-pane > .wrapper .title {
         text-transform: uppercase;
         font-size: 4rem;
@@ -615,6 +619,82 @@ body > #main-container {
         top: 1.5rem;
         left: 2rem;
     }
+
+    .menu-pane .wrapper .path-selection-box {
+    }
+
+    .menu-pane .wrapper .path-selection-box .path-out {
+        padding: 0.5rem;
+        background: #DFD3CD;
+        width: 20rem;
+        height: 2rem;
+        box-sizing: border-box;
+        display: inline-block;
+        vertical-align: top;
+        border-radius: 0.25rem;
+        z-index: 2;
+        position: relative;
+        overflow: hidden;
+    }
+
+    
+    .menu-pane .wrapper .path-selection-box .path-out p {
+        margin: 0;
+        height: fit-content;
+        font-size: 0.9rem;
+        color: #5B7B7A;
+    }
+
+
+    .menu-pane.scan .wrapper button {
+        height: 2rem;
+        vertical-align: top;
+        border: 0;
+        background: #3C887E;
+        color: #E0F2E9;
+        text-transform: uppercase;
+        border-radius: 0.25rem;
+        z-index: 1;
+        position: relative;
+        cursor: pointer;
+        outline: none;
+        font-weight: bold;
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+        font-family: 'roboto';
+        letter-spacing: 0.15em;
+        transition: all 150ms ease-in-out;
+    }
+
+    .menu-pane.scan .wrapper button:hover {
+        transform: translate(0,-0.2rem);
+    }
+    
+    .menu-pane.scan .wrapper .scan-result, .full-list {
+        margin-top: 1rem;
+        padding: 1rem;
+        box-sizing: border-box;
+        width: 100%;
+        background: #E0F2E9;
+        border-radius: 1rem;
+        color: #3C887E;
+        
+    }    
+
+
+
+    .menu-pane.scan .wrapper .full-list {
+        transition: all 150ms ease-in-out;
+    }
+
+    .menu-pane.scan .wrapper .full-list.hidden:hover {
+        cursor: pointer;
+    }
+
+    .menu-pane.scan .wrapper .full-list > p.reveal {
+
+    }
+
 
     .session-popup-finished {
         animation: slide-in-bottom 300ms ease-in-out, slide-out-bottom 300ms ease-in-out 4.7s forwards;
@@ -686,7 +766,6 @@ body > #main-container {
     }
 
     .menu-pane .wrapper {
-        overflow-y: hidden;
         border-radius: 1rem;
     }
 
@@ -696,7 +775,7 @@ body > #main-container {
         margin: auto;
         margin-top: 1rem;
         background: rgba(206, 181, 167, 1);
-        border-radius: 2rem;
+        border-radius: 1rem;
         box-sizing: border-box;
         padding: 1rem;
         overflow-y: auto;
@@ -762,7 +841,7 @@ body > #main-container {
 
 
     .menu-pane .content .stat-entry.world-display {
-        height: 8rem;
+        height: fit-content;
         border-radius: 1rem;
     }
 
@@ -773,7 +852,7 @@ body > #main-container {
     .menu-pane .content .stat-entry.world-display .wrapper {
         text-align: center;
         display: inline-block;
-        overflow-y: auto;
+        overflow-y: hidden;
         width: 100%;
     }
 

@@ -343,25 +343,93 @@ async function worlds(el) {
     menu.appendChild(title);
 }
 
-async function about(el) {
+async function scan(el) {
     var menu = await openMenu(el)
-    var t = document.createElement("h1");
-    t.innerText = "Hello! My Name is Frikk.";
-    menu.appendChild(t);
+    menu.closest(".menu-pane").classList.add("scan");
+    var title = document.createElement("h1");
+    title.className = "title";
+    title.innerText = "Scan";
+    menu.appendChild(title);
+
+    var path = document.createElement("div");
+    path.className = "path-selection-box";
+    menu.appendChild(path);
+
+    var t = document.createElement("p");
+    t.innerText = "Select a directory to scan";
+    path.appendChild(t);
+    t.className = "sub-title";
+
+    var out = document.createElement("div");
+    out.className = "path-out smooth-shadow";
+    path.appendChild(out);
 
     var p = document.createElement("p");
-    p.innerHTML = `
-        I like to make programs. I guess you've realized that by now.
-        <br><br>
-        I dont have much to say about this piece of software, other than that 
-        I <strong>really</strong> hope you enjoy it!
+    p.innerHTML = "No path selected";
+    out.appendChild(p);
 
-        <br><br><br>
-        Contact info:<br>
-        <strong>Email - </strong>frikk44@gmail.com        
+    var browse = document.createElement("button");
+    browse.innerText = "browse";
+    browse.className = "smooth-shadow";
+    browse.style = `
+        margin-left: 1rem;
+    `
+    path.appendChild(browse);
+
+    browse.onclick = openDirectoryModal1;
+
+    var scan = document.createElement("button");
+    scan.innerText = "scan directory";
+    scan.className = "smooth-shadow";
+    path.appendChild(scan);
+    scan.style = `
+        display: block;
+        margin-top: 1rem;
     `
 
-    menu.appendChild(p);
+    var res = document.createElement("div");
+    res.className = "scan-result smooth-shadow";
+    menu.appendChild(res);
+    
+    var p = document.createElement("p");
+    p.innerText = "Your scanned worlds will appear here";
+    res.appendChild(p);
+    p.className = "empty";
+
+    var full = document.createElement("div");
+    full.className = "full-list smooth-shadow hidden";
+    menu.appendChild(full);
+    
+    var p = document.createElement("p");
+    p.innerText = "Click to reveal all scanned directories";
+    full.appendChild(p);
+    p.className = "reveal";
+
+    full.onclick = async ()=>{
+        try {
+            var scans = await revealAllScans();
+        } catch (error) {
+            notification("An error occured");
+        }
+
+        console.log(scans);
+    };
+
+}
+
+
+function revealAllScans() {
+
+}
+
+async function openDirectoryModal1() {
+    var result = await ipcRenderer.invoke("open-directory-modal", "pp");
+    if(result.length < 1) return;
+    var text = document.querySelector("#main-container > div.menu-pane > div > div > div > p")
+    if(text instanceof HTMLElement) {
+        text.innerText = result;
+    }
+
 }
 
 async function settings(el) {
