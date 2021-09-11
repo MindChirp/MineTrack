@@ -370,11 +370,11 @@ async function scan(el) {
 
     var browse = document.createElement("button");
     browse.innerText = "browse";
-    browse.className = "smooth-shadow";
+    browse.className = "rounded outline";
     browse.style = `
-        margin-left: 1rem;
+        margin-left: 0.5rem;
+        vertical-align: top;
     `
-    path.appendChild(browse);
 
     browse.onclick = openDirectoryModal1;
 
@@ -382,9 +382,12 @@ async function scan(el) {
     scan.innerText = "scan directory";
     scan.className = "smooth-shadow";
     path.appendChild(scan);
+    path.appendChild(browse);
+
     scan.style = `
-        display: block;
-        margin-top: 1rem;
+        display: inline-block;
+        vertical-align: top;
+        margin-left: 1rem;
     `
 
     var res = document.createElement("div");
@@ -399,7 +402,7 @@ async function scan(el) {
     var reveal = document.createElement("button");
     reveal.className = "outline";
     menu.appendChild(reveal);
-    reveal.innerText = "Reveal all scans";
+    reveal.innerText = "Reveal previous scans";
     reveal.style = `
         margin-top: 1rem;
     `
@@ -448,4 +451,26 @@ function getOffset(el) {
       left: rect.left + window.scrollX,
       top: rect.top + window.scrollY
     };
+  }
+
+
+  function stdMenu() {
+    var menu = document.createElement("div");
+    menu.className = "menu-pane";
+    var wr = document.createElement("div");
+    wr.className = "wrapper";
+    menu.appendChild(wr);
+    menu.kill = ()=>{
+        menu.parentNode.removeChild(menu);
+    }
+
+
+    var back = document.createElement("button");
+    back.className = "button pill solid back secondary material-icons";
+    back.innerHTML = "arrow_back";
+    menu.appendChild(back);
+    back.onclick = menu.kill;
+
+    document.getElementById("main-container").appendChild(menu);
+    return wr;
   }

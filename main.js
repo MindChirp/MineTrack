@@ -9,7 +9,18 @@ var minecraftOpen = false;
 var totalSeconds = 0;
 var sessionTime = 0;
 var userConfig;
-var timeConfig;
+var timeConfig = {
+    multiplayertime: 0,
+    singleplayertime: 0,
+    totalSessionTime: 0
+};
+
+const folders = [
+    "configs",
+    "worlddata",
+    "recordeddata",
+    "scans"
+]
 
 const {gzip, ungzip} = require("node-gzip");
 
@@ -67,26 +78,31 @@ window.onload = async ()=>{
         return;
     }
     */
-   
     checkResources()
     .then(async ()=>{
+
         try {
-            var dat = await fs.readFile(path.join(filesPath, "configs", "userdata.json"), "utf8")
-            userConfig = JSON.parse(dat);
-
-
-
+            await loadData();
         } catch (error) {
-            notification("Error loading user config");
+            notification("Startup aborted");
+            showErrorPage("Your startup was aborted", error);
             return;
         }
-        loadData();
         startCheckingForMinecraft();
         checkLogFileStatus()
         .then(async(res)=>{
             if(res.notChecked) {
                 try {
                     await scanLogFiles();
+                    
+                    //Show results
+                    var mT = timeConfig.multiplayertime;
+                    var conv1 = convertHMS(mT);
+
+                    var sT = timeConfig.singleplayertime;
+                    var conv2 = convertHMS(sT);
+
+                    notification("Found " + conv1[0] + " multiplayer hours and " + conv2[0] + " singleplayer hours.");
                 } catch (error) {
                     console.log(error);
                 }
@@ -223,7 +239,7 @@ async function scanLogFiles() {
         }
         console.log(totalSecs, totalSeconds)
 
-        console.log(totalSecs);
+        console.log("Multiplayer time: ", totalSecs);
         //The code is done scanning the log files
         clearInterval(progInterval);
         totalSeconds = totalSeconds + totalSecs;
@@ -252,6 +268,7 @@ async function scanLogFiles() {
         .then(()=>{
             //OK
             console.log(userConfig)
+            resolve();
         })
         .catch((err)=>{
             notification("Something went wrong while looking through your logs. We will try again the next time you open the program.")
@@ -399,6 +416,7 @@ async function startCheckingForMinecraft() {
 
 
 function notification(title) {
+    var cont = document.getElementById("notification-container");
     var el = document.createElement("div");
     el.className = "notification smooth-shadow";
 
@@ -406,58 +424,96 @@ function notification(title) {
     t.innerText = title;
     el.appendChild(t);
 
-    document.body.appendChild(el);
+    if(cont.getElementsByClassName("notification")) {
+        //There are already notifications existent. Insert above last notification
+        var notifs = cont.getElementsByClassName("notification");
+
+        cont.insertBefore(el, notifs[notifs.length-1]);
+    } else {
+        cont.appendChild(el);
+    }
+
     setTimeout(()=>{
         el.parentNode.removeChild(el);
     }, 5000)
 }
 
 
-async function loadData() {
+function loadData() {
     //Load the configs into the GUI
+    return new Promise(async (resolve, reject)=>{
+
+            try {
+                var scanned = await fs.readFile(path.join(filesPath, "worlddata", "scannedplaytime.json"))
+            } catch (error) {
+            console.log(error);
+            notification("Failed to load necessary files");
+            reject(error)
+        }
+        timeConfig = JSON.parse(scanned);
+        
+        //convert values to a good format
+        totalSeconds = timeConfig.singleplayertime;
+        if(!isNaN(timeConfig.totalSessionTime)) {
+            totalSeconds = totalSeconds + timeConfig.totalSessionTime;
+        }
+
+        if(!isNaN(timeConfig.multiplayertime)) {
+            totalSeconds = totalSeconds + timeConfig.multiplayertime;
+        }
+        updateTimeCounting(totalSeconds);
+
+        //Load the userdata.json file!
+        try {
+            var data = await fs.readFile(path.join(filesPath, "configs", "userdata.json"), "utf8");
+            userConfig = JSON.parse(data);
+        } catch (error) {
+            notification("Failed to load configuration file");
+            reject(error)
+        }
+
+        
+
+        resolve();
+    })
     
-    var scanned = await fs.readFile(path.join(filesPath, "worlddata", "scannedplaytime.json"))
-    
-    timeConfig = JSON.parse(scanned);
-
-    //convert values to a good format
-    totalSeconds = timeConfig.singleplayertime;
-    if(!isNaN(timeConfig.totalSessionTime)) {
-        totalSeconds = totalSeconds + timeConfig.totalSessionTime;
-    }
-
-    if(!isNaN(timeConfig.multiplayertime)) {
-        totalSeconds = totalSeconds + timeConfig.multiplayertime;
-    }
-    var formed = convertHMS(totalSeconds);
-
-    var title = document.querySelector("#main-container > div.time-counter > div.total > p");
-
-    title.innerHTML = formed[0] + " hours " + formed[1] + " minutes " + formed[2] + " seconds ";
 }
 
-
-var folders = [
-    "configs",
-    "worlddata",
-    "recordeddata",
-    "scans"
-]
 function createFolders() {
     return new Promise(async(resolve, reject)=>{
         var x;
         var i = 0;
-        for (x of folders) {
+        for (x of folders) { //Defined on the top of the page
             try {
                 await fs.mkdir(path.join(filesPath, x))
                 if(i==folders.length-1) {
-                    resolve();
+                    //OK
                 }
                 i++;
             } catch (error) {
                 reject(error);
             }
         }
+
+
+        //Write files to folders
+
+        var config = {
+            username: setupInfo.username,
+            uuid: setupInfo.uuid,
+            minecraftpath: setupInfo.minecraftpath
+        }
+
+        userConfig = config;
+        console.log(userConfig)
+        try {
+            await fs.writeFile(path.join(filesPath, "configs", "userdata.json"), JSON.stringify(config))
+        } catch (error) {
+            notification("Setup failed");
+            reject(error);
+        }
+
+        resolve();
     })
 }
 
@@ -474,24 +530,18 @@ function checkResources() {
             await enterFirstTimeUse();
             
             createFolders()
-            .then(()=>{
-                var data = {
-                    minecraftpath: setupInfo.minecraftpath,
-                    uuid: setupInfo.uuid,
-                    username: setupInfo.username
-                }
-                fs.writeFile(path.join(filesPath, "configs", "userdata.json"), JSON.stringify(data, null, 4))
-                .then(async ()=>{
-                    //Gather world information as part of the setup process
+            .then(async ()=>{
+                //Gather world information as part of the setup process
+                try {
                     await gatherWorldInformation();
-                    resolve();
-                })
-                .catch((err)=>{
-                    alert(err);
+                } catch (error) {
+                    notification("Could not load singleplayer time");
                     reject();
-                })
+                }   
+                resolve();
             })
             .catch((err)=>{
+                notification("Could not check program resources");
                 console.log(err);
                 reject();
             })
@@ -726,10 +776,9 @@ function enterFirstTimeUse() {
                     return;
                 }
 
-                console.log(id);
 
                 if(name.trim().length == 0 || id.trim().length == 0) {
-                    setupError("Both fields must have a value");
+                    setupError("The field must have a value");
                 } else {
                     setupInfo.uuid = id;
                     setupInfo.username = name;
@@ -823,100 +872,30 @@ function getId(playername) {
   }
 
 
-async function gatherWorldInformation() {
-    return new Promise(async (resolve, reject)=>{
-        
-        //Read the config
-        var dat = await fs.readFile(path.join(filesPath, "configs", "userdata.json"), "utf8");
-        var config = JSON.parse(dat);
+function gatherWorldInformation() {
+    return new Promise(async(resolve, reject)=>{
 
-        //Read the minecraft world saves directory
-
-        var files = await fs.readdir(path.join(config.minecraftpath, "saves"));
-
-        //Go through every world config, get the time played and tally it up!
-
-        var totalTicks = 0;
-
-        var x;
-        var found = false;
-        for(x of files) {
-            found = false;
-            var wfiles
-            var wconfig
-            var parsed
-            try {
-                var wfiles = await fs.readdir(path.join(config.minecraftpath, "saves", x, "stats"))
-                var wconfig = await fs.readFile(path.join(config.minecraftpath, "saves", x, "stats", userConfig.uuid), "utf8");
-                var parsed = JSON.parse(wconfig);
-            } catch (error) {
-
-            }
-            console.log(x, parsed);
-            try {
-                if(parsed.stats["minecraft:custom"]["minecraft:total_world_time"]) {
-                    //console.log("Found", x, parsed.stats["minecraft:custom"]["minecraft:total_world_time"]);
-                    totalTicks = totalTicks + parsed.stats["minecraft:custom"]["minecraft:total_world_time"];
-                    found = true;
-                }
-            } catch (error) {
-                
-            }
-
-            try {
-                if(parsed["stat.playOneMinute"]) {
-                    totalTicks = totalTicks + parseInt(parsed["stat.playOneMinute"]);
-                    //console.log("Found", x, parsed["stat.playOneMinute"])
-                    found = true;
-                }
-            } catch (error) {
-                
-            }
-    
-            try {
-                if(parsed.stats["minecraft:custom"]["minecraft:play_one_minute"]) {
-                    var num = parsed.stats["minecraft:custom"]["minecraft:play_one_minute"];
-                    totalTicks = totalTicks + parseInt(num);
-                    //console.log("Found", x, num);
-                    found = true;
-                }
-            } catch (error) {
-                
-            }
-
-            console.log(x);
-            if(!found) {
-                console.log("Not found", x);
-            }
-
-                //console.log(x, parsed);
-                
+        try {
+            var stat = await retrieveStat([["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]], {total:true})
+        } catch (error) {
+            reject(error);      
         }
         
-        var title = document.querySelector("#main-container > div.time-counter > div.total > p");
-        var seconds = Math.round(totalTicks/20);
-        var time = convertHMS(seconds);
-        console.log(time)
-        console.log(seconds);
-        setTimeout(()=>{
-
-            title.innerHTML = time[0] + " hours " + time[1] + " minutes " + time[2] + " seconds"; 
-        }, 1000)
-        
-        var data = {
-            singleplayertime: seconds,
-            multiplayertime: 0
+        var secs = stat/20;
+        totalSeconds = totalSeconds + secs;
+        updateTimeCounting(totalSeconds);
+        //Update the config
+        timeConfig.singleplayertime = secs;
+        try {
+            await fs.writeFile(path.join(filesPath, "worlddata", "scannedplaytime.json"), JSON.stringify(timeConfig));
+        } catch (error) {
+            reject(error);
         }
-        fs.writeFile(path.join(filesPath, "worlddata", "scannedplaytime.json"), JSON.stringify(data))
-        .then(()=>{
-            resolve();
-        })
-        .catch((error)=>{
-            reject();
-            console.error(error);
-        })
+
+        resolve();
+
     })
-
+    
 }
 
 function convertHMS(value) {
@@ -1049,5 +1028,98 @@ function saveSession() {
         setTimeout(()=>{
             pop.parentNode.removeChild(pop);
         }, 5000)
+    })
+}
+
+function showErrorPage(title, errorstack) {
+    var menu = stdMenu();
+    menu.closest(".menu-pane").classList.add("error")
+    var titleT = document.createElement("h1");
+    titleT.className = "title";
+    titleT.innerHTML = title;
+    menu.appendChild(titleT);
+    
+    //Remove the default back button
+    menu.parentNode.removeChild(menu.parentNode.querySelector(".back"));
+
+    //Create standard error paragraph
+    var p = document.createElement("p");
+    p.innerHTML = `
+        You're probably seeing this because something went critically wrong,
+        and therefore the program couldn't continue to operate normally.
+        Below you will see additional error logging, and in the case that restarting the program
+        does not fix the issue, you are strongly encouraged to report this
+        issue on GitHub, with the error output below attached to the 
+        issue ticket either as an image, or as plain text.
+
+        <br><br>
+        If the program refuses to return to normal operation, you can press the button
+        below to wipe all stored data. This should work in most cases.
+    `;
+    menu.appendChild(p);
+
+    var error = document.createElement("div");
+    error.className = "error-log";
+    menu.appendChild(error);
+    error.innerHTML = errorstack;
+
+    var a = document.createElement("a");
+    var gh = document.createElement("button");
+    gh.className = "rounded smooth-shadow";
+    gh.innerText = "Open github";
+    a.style = `
+        position: absolute;
+        left: 1rem;
+        bottom: 1rem;
+    `;
+    a.href = "https://github.com/MindChirp/minecraft-counter/issues/new";
+    a.target = "_blank"
+    a.appendChild(gh);
+    menu.appendChild(a);
+
+    var reset = document.createElement("button");
+    reset.className = "outline rounded";
+    reset.innerText = "Reset user data";
+    reset.style = `
+        position: absolute;
+        right: 1rem;
+        bottom: 1rem;
+    `;
+    menu.appendChild(reset);
+    var oncePressed = false;
+    reset.addEventListener("click", async ()=>{
+        if(!oncePressed) {
+            notification("Click the button again to confirm");
+            oncePressed = true;
+            return;
+        }
+
+        notification("Resetting");
+        
+        try {
+            await resetAppFiles();
+        } catch (error) {
+            notification("Could not reset stored data");
+        }
+        
+        
+    })
+
+}
+
+function resetAppFiles() {
+    return new Promise(async (resolve, reject)=>{
+        //Delete the files
+
+        var x;
+        for(x of folders) { //Defined at the top of the page
+            try {
+                await fs.unlink(path.join(filesPath, ""));
+                
+            } catch (error) {
+                
+            }
+        }
+
     })
 }

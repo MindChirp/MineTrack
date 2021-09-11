@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const find = require("find-process");
 //const updater = require("electron-updater");
 /*const debug = require('electron-debug');
@@ -50,6 +50,12 @@ function createWindow() {
         win.on('focus', ()=>{
             win.webContents.send("deny-checking-for-minecraft","")
         })   
+            
+        win.webContents.setWindowOpenHandler(({ url }) => {
+            shell.openExternal(url);
+            return { action: 'deny' };
+          });
+        
     } catch (error) {
         console.log(error, "ERROR APPENDIX");
     }
@@ -100,3 +106,4 @@ function checkForMinecraft() {
         })
     })
 }
+

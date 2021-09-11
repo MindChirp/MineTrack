@@ -419,19 +419,29 @@ body > #main-container {
     box-shadow: inset 0px 0px 0px 0px #F0F0F0;
     }
 
-    .notification {
+    #notification-container {
         position: absolute;
-        bottom: 1rem;
+        bottom: 0.5rem;
         left: 50%;
         transform: translate(-50%);
+        width: 50%;
+        height: fit-content;
+        z-index: 2000;
+    }
+    #notification-container .notification {
         border-radius: 0.2rem;
         background-color: #E0F2E9;
         padding: 1rem;
         width: fit-content;
         height: fit-content;
-        max-width: 50%;
-        animation: fade-in 200ms ease-in-out;
+        box-sizing: border-box;
+        max-width: 100%;
+        animation: slide-in-notification 200ms ease-in-out 0.5s both;
         overflow: hidden;
+        margin-bottom: 0.5rem !important;
+        display: block;
+        position: relative;
+        margin: auto;
     }
 
     .notification::before {
@@ -462,6 +472,7 @@ body > #main-container {
         box-sizing: border-box;
         border-radius: 0.5rem;
         animation: fade-in 200ms ease-in-out;
+        z-index: 1;
     }
     #progress-box .bar {
         height: 0.5rem;
@@ -479,9 +490,9 @@ body > #main-container {
         transition: all 500ms ease-in-out;
     }
 
-    @keyframes slide-down-notification {
-        0%{}
-        100%{transform: translate(-50%, calc(100% + 2rem))}
+    @keyframes slide-in-notification {
+        0%{transform: translate(0, 100%); opacity: 0}
+        100%{transform: translate(0, 0); opacity: 1;}
     }
 
     #progress-box > p {
@@ -646,7 +657,7 @@ body > #main-container {
     }
 
 
-    .menu-pane.scan .wrapper button {
+    .menu-pane.scan, .menu-pane.error .wrapper button {
         height: 2rem;
         vertical-align: top;
         border: 0;
@@ -666,17 +677,21 @@ body > #main-container {
         transition: all 150ms ease-in-out;
     }
 
-    .menu-pane.scan .wrapper button:hover {
+    .menu-pane.scan, .menu-pane.error .wrapper button:hover {
         transform: translate(0,-0.2rem);
     }
 
-    .menu-pane.scan .wrapper button.outline {
+    .menu-pane.scan, .menu-pane.error .wrapper button.outline {
         background-color: transparent;
         border: 2px solid #E0F2E9;  
 
     }
-    
-    .menu-pane.scan .wrapper button.outline:hover {
+
+    .menu-pane.scan, .menu-pane.error .wrapper button.rounded {
+        border-radius: 100rem;
+    }
+
+    .menu-pane.scan, .menu-pane.error .wrapper button.outline:hover {
         transform: none;
     }
     .menu-pane.scan .wrapper .scan-result  {
@@ -688,6 +703,34 @@ body > #main-container {
         border-radius: 1rem;
         color: #3C887E;
         
+    }
+
+    .menu-pane.error > .wrapper > .title {
+        font-size: 2.5rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    
+    .menu-pane.error > .wrapper p {
+        text-align: center;
+        max-width: 90% !important;
+        margin: auto;
+        padding: 0 3rem;
+        box-sizing: border-box;
+    }
+
+    .menu-pane.error > .wrapper .error-log {
+        background: #E0F2E9;
+        border-radius: 1rem;
+        height: fit-content;
+        width: 80%;
+        margin: auto;
+        margin-top: 2rem;
+        padding: 1rem;
+        box-sizing: border-box;
+        color: #3C887E;
+        user-select:text;
     }
 
 

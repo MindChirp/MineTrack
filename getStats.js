@@ -6,10 +6,10 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
         //FORMAT: [["path", "1"], ["alternate", "path2"], ["alternate", "path3"]]
         
         //Get the minecraft worlds
-        
         try {
             var worlds = await fs.readdir(path.join(userConfig.minecraftpath, "saves"));
         } catch (error) {
+            notification("Failed to scan minecraft saved");
             console.log(error);
         }
 
@@ -19,8 +19,24 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
         var worldArr = [];
 
         for(x of worlds) {
+            //Figure out the correct file
+            var uuid = userConfig.uuid;
+            var name = "";
             try {
-                var stat = JSON.parse(await fs.readFile(path.join(userConfig.minecraftpath, "saves", x, "stats", userConfig.uuid + ".json"), "utf8"));
+                var files = await fs.readdir(path.join(userConfig.minecraftpath, "saves", x, "stats"));
+            } catch (error) {
+                
+            }
+
+            var y;
+            for(y of files) {
+                if(y.replaceAll("-", "").replaceAll(".json", "") == uuid){
+                    name = y.replaceAll(".json", "");
+                }
+            }
+            try {
+                
+                var stat = JSON.parse(await fs.readFile(path.join(userConfig.minecraftpath, "saves", x, "stats", name + ".json"), "utf8"));
             } catch (error) {
                 try {
                     var stat = JSON.parse(await fs.readFile(path.join(userConfig.minecraftpath, "saves", x, "stats", userConfig.username + ".json"), "utf8"));
@@ -39,7 +55,6 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
                 statPath = base;
             } else {
                 statPath = stat;
-               // console.log(x);
             }
             var y;
             for(y of statisticPath) {
