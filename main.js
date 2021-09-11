@@ -393,9 +393,14 @@ async function startCheckingForMinecraft() {
                 var x;
                 var on = false;
                 for(x of check) {
-                    if(x.bin.toLowerCase().includes("minecraft") && x.bin.toLowerCase().includes("runtime")) {
-                        on = true;
+                    try {
+                        if(x.bin.toLowerCase().includes("minecraft") && x.bin.toLowerCase().includes("runtime")) {
+                            on = true;
+                        }
+                    } catch (error) {
+                        
                     }
+
                 }
                 if(!on) {
                     try {
