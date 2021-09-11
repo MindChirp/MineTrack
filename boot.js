@@ -73,6 +73,12 @@ ipcMain.on("minimize-program", ()=>{
     win.minimize();
 })
 
+ipcMain.on("relaunch-program", ()=>{
+    //Close the program
+    app.relaunch();
+    app.exit();
+})
+
 ipcMain.handle("open-directory-modal", async (event, arg)=>{
     var result = await dialog.showOpenDialog(win, {
         properties: ['openDirectory']

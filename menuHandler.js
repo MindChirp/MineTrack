@@ -407,8 +407,7 @@ async function scan(el) {
         margin-top: 1rem;
     `
     
-
-    full.onclick = async ()=>{
+    reveal.addEventListener("click", async ()=>{
         try {
             var scans = await revealAllScans();
         } catch (error) {
@@ -416,7 +415,7 @@ async function scan(el) {
         }
 
         console.log(scans);
-    };
+    })
 
 }
 

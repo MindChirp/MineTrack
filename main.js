@@ -103,64 +103,67 @@ window.onload = async ()=>{
                     var conv2 = convertHMS(sT);
 
                     notification("Found " + conv1[0] + " multiplayer hours and " + conv2[0] + " singleplayer hours.");
+
+                    checkForTermsAgreement();
                 } catch (error) {
                     console.log(error);
                 }
+            } else {
+                checkForTermsAgreement();
             }
         })
         .catch((err)=>{
             console.log(err);
         });
+    })
+}
 
-    /*
-    gatherFilePath()
-    .then(async()=>{
 
-        try {
-           // await fs.access(path.join(filesPath, "configs", "userdata"))
-            //await gatherWorldInformation();
-        } catch (error) {
-            return;
-        }
-    
-        
-        checkResources()
-        .then(async ()=>{
+function checkForTermsAgreement() {
+    if(userConfig.termsAccepted) {
+        //OK
+    } else {
+        var menu = stdMenu();
+        menu.parentNode.classList.add("terms");
+        //Remove back button
+        menu.parentNode.removeChild(menu.parentNode.querySelector(".back"));
+
+        var title = document.createElement("h1");
+        title.className = "title";
+        title.innerText = "important";
+        menu.appendChild(title);
+
+        var p = document.createElement("p");
+        p.innerHTML = `We see that you haven't agreed to our terms of use. 
+            Because of this, we sadly can't let you use the program.
+            Click the button below to restart the setup process, where you can accept the terms.
+        `
+        menu.appendChild(p);
+
+        var reset = document.createElement("button");
+        reset.className = "rounded outline smooth-shadow";
+        reset.innerText = "Reenter setup";
+        reset.style = `
+            margin-top: 1rem;
+        `
+        menu.appendChild(reset);
+
+        reset.addEventListener("click", async ()=>{
+
+            notification("Resetting");
+            
             try {
-                var dat = await fs.readFile(path.join(filesPath, "configs", "userdata.json"), "utf8")
-                userConfig = JSON.parse(dat);
+                await resetAppFiles();
             } catch (error) {
-                notification("Error loading user config");
-                return;
-            }      
-
-            loadData();
-            startCheckingForMinecraft();
-
-            //When all this is done, Check if all the log files have been scanned
-            checkLogFileStatus()
-            .then((res)=>{
-                if(res.notChecked) {
-                    scanLogFiles();
-                }
-            })
-            .catch((err)=>{
-                console.log(err);
-            })
-        })
-        .catch((error)=>{
-            console.log(err);
-        })
+                notification("Could not reset stored data");
+            }
+    
+            //When all is done, restart the program
+            relaunchProgram();
+            
+        })    
         
-    
-    })
-    .catch((err)=>{
-        alert("Fuck")
-    })
-    
-    */
-   
-    })
+    }
 }
 totalPercentage = 0;
 
@@ -244,8 +247,11 @@ async function scanLogFiles() {
         clearInterval(progInterval);
         totalSeconds = totalSeconds + totalSecs;
 
-        bar.style.animation = "none";
+        box.style.animation = "none";
         box.style.animation = "slide-down-notification 300ms ease-in-out both 1s";
+        setTimeout(()=>{
+            box.parentNode.removeChild(box);
+        }, 1300)
 
         userConfig.logsCalculated = true;
         timeConfig.multiplayertime = totalSecs;
@@ -491,7 +497,7 @@ function createFolders() {
                 }
                 i++;
             } catch (error) {
-                reject(error);
+                console.log("Maybe that folder exists already?", x);    
             }
         }
 
@@ -501,7 +507,8 @@ function createFolders() {
         var config = {
             username: setupInfo.username,
             uuid: setupInfo.uuid,
-            minecraftpath: setupInfo.minecraftpath
+            minecraftpath: setupInfo.minecraftpath,
+            termsAccepted: setupInfo.termsAccepted
         }
 
         userConfig = config;
@@ -571,10 +578,22 @@ function minimizeProgram() {
     })
 }
 
+function relaunchProgram() {
+    ipcRenderer.send("relaunch-program")
+    .then(()=>{
+        console.log("Relaunching");
+    })
+    .catch((err)=>{
+        notification("Could not relaunch");
+        console.log(err);
+    })
+}
+
 var setupInfo = {
     minecraftpath: undefined,
     uuid: undefined,
-    username: undefined
+    username: undefined,
+    termsAccepted: false
 }
 
 function enterFirstTimeUse() {
@@ -755,8 +774,11 @@ function enterFirstTimeUse() {
             <br><br>
             By clicking <strong>proceed</strong>, you agree to these terms.`
             wrapper.appendChild(policy);
-
-            proceed.onclick = step3;
+            proceed.onclick = "";
+            proceed.addEventListener("click", ()=>{
+                setupInfo.termsAccepted = true;
+                step3();
+            })
             
             calculateButtonPos();
         }
@@ -1047,14 +1069,13 @@ function showErrorPage(title, errorstack) {
     p.innerHTML = `
         You're probably seeing this because something went critically wrong,
         and therefore the program couldn't continue to operate normally.
-        Below you will see additional error logging, and in the case that restarting the program
+        Below, you will see additional error logging, and in the case that restarting the program
         does not fix the issue, you are strongly encouraged to report this
         issue on GitHub, with the error output below attached to the 
         issue ticket either as an image, or as plain text.
 
         <br><br>
-        If the program refuses to return to normal operation, you can press the button
-        below to wipe all stored data. This should work in most cases.
+        If the program refuses to return to normal operation, you can press <strong>reset user data</strong> to wipe all stored data. This should work in most cases.
     `;
     menu.appendChild(p);
 
@@ -1101,6 +1122,9 @@ function showErrorPage(title, errorstack) {
         } catch (error) {
             notification("Could not reset stored data");
         }
+
+        //When all is done, restart the program
+        relaunchProgram();
         
         
     })
@@ -1114,12 +1138,14 @@ function resetAppFiles() {
         var x;
         for(x of folders) { //Defined at the top of the page
             try {
-                await fs.unlink(path.join(filesPath, ""));
-                
+                await fs.rmdir(path.join(filesPath, x), {recursive: true});
             } catch (error) {
-                
+                //OK
+                console.log(error);
+                console.log(x + " does not exist, or it couldn't be deleted");
             }
         }
+        resolve();
 
     })
 }

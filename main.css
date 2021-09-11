@@ -649,7 +649,7 @@ body > #main-container {
     }
 
     
-    .menu-pane .wrapper .path-selection-box .path-out p {
+    .menu-pane .wrapper .path-selection-box .path-out p, .menu-pane.error .wrapper .path-selection-box .path-out p {
         margin: 0;
         height: fit-content;
         font-size: 0.9rem;
@@ -657,7 +657,7 @@ body > #main-container {
     }
 
 
-    .menu-pane.scan, .menu-pane.error .wrapper button {
+    .menu-pane.scan .wrapper button, .menu-pane.error .wrapper button, .menu-pane.terms .wrapper button {
         height: 2rem;
         vertical-align: top;
         border: 0;
@@ -677,21 +677,21 @@ body > #main-container {
         transition: all 150ms ease-in-out;
     }
 
-    .menu-pane.scan, .menu-pane.error .wrapper button:hover {
+    .menu-pane.scan .wrapper button:hover, .menu-pane.error .wrapper button:hover, .menu-pane.terms .wrapper button:hover{
         transform: translate(0,-0.2rem);
     }
 
-    .menu-pane.scan, .menu-pane.error .wrapper button.outline {
+    .menu-pane.scan .wrapper button.outline, .menu-pane.error .wrapper button.outline, .menu-pane.terms .wrapper button.outline {
         background-color: transparent;
         border: 2px solid #E0F2E9;  
 
     }
 
-    .menu-pane.scan, .menu-pane.error .wrapper button.rounded {
+    .menu-pane.scan .wrapper button.rounded, .menu-pane.error .wrapper button.rounded, .menu-pane.terms .wrapper button.rounded{
         border-radius: 100rem;
     }
 
-    .menu-pane.scan, .menu-pane.error .wrapper button.outline:hover {
+    .menu-pane.scan .wrapper button.outline:hover, .menu-pane.error .wrapper button.outline:hover, .menu-pane.terms .wrapper button.outline:hover {
         transform: none;
     }
     .menu-pane.scan .wrapper .scan-result  {
