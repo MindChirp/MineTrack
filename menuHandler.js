@@ -61,8 +61,8 @@ async function stats(el) {
     body.className = "body smooth-shadow";
     info.appendChild(body);
     body.innerHTML = `
-        Some worlds might not be scanned, either because its statistics file does not contain any relevant information,
-        or because the world doesn't contain any statistics at all. This might be because your world is really old.
+        This page only shows statistics from your singleplayer worlds. Some worlds may not have statistics,
+        and these are not included.
     `;
     title.appendChild(info);
 
@@ -626,9 +626,79 @@ async function settings(el) {
         margin: 0;
     `;
 
-    var div = document.createElement("div");
-    div.className = "divider";
-    menu.appendChild(div);
+    divider();
+
+    var t = document.createElement("p");
+    t.innerText = "Lost track of your total playtime?",
+    menu.appendChild(t);
+    t.style = "margin-bottom: 0.2rem";
+
+    var reCalc = document.createElement("button");
+    reCalc.innerText = "recalculate";
+    reCalc.className = "smooth-shadow";
+    menu.appendChild(reCalc);
+
+    reCalc.addEventListener("click", async ()=>{
+
+        var newObj = {
+            username: userConfig.username,
+            uuid: userConfig.uuid,
+            logsCalculated: false,
+            termsAccepted: userConfig.termsAccepted,
+            minecraftpath: userConfig.minecraftpath
+        }
+
+        var newObj1 = {
+            multiplayertime: 0,
+            singleplayertime: 0,
+            totalSessionTime: 0
+        }
+
+        try {
+            await saveUserConfig(newObj);
+            await saveTimeConfig(newObj1);
+            timeConfig = newObj1;
+            userConfig = newObj;
+            totalSeconds = 0;
+
+        } catch (error) {
+            notification("Failed to update user config");
+            return;
+        }
+
+        try {
+            await gatherWorldInformation()
+        } catch (error) {
+            notification("Could not recalculate")
+        }
+
+        try {
+            await scanLogFiles();
+        } catch (error) {
+            notification("Could not rescan log files");
+        }
+
+
+    })
+
+
+    divider();
+
+    var t = document.createElement("p");
+    t.innerText = "Registered username and uuid",
+    menu.appendChild(t);
+    t.style = "margin-bottom: 0.5rem";
+
+    var usrName = document.createElement("p");
+    usrName.innerText = userConfig.username;
+    menu.appendChild(usrName);
+
+    var id = document.createElement("p");
+    id.innerText = userConfig.uuid;
+    menu.appendChild(id);
+
+
+    divider();
     var reset = document.createElement("button");
     reset.innerText = "Reset program";
     menu.appendChild(reset);
@@ -647,12 +717,37 @@ async function settings(el) {
         relaunchProgram();
     })
 
+    function divider() {
+        var div = document.createElement("div");
+        div.className = "divider";
+        menu.appendChild(div);
+    }
+
 }
 
-function saveUserConfig() {
+function saveUserConfig(custom) {
     return new Promise(async(resolve, reject)=>{
+        var config = userConfig;
+        if(custom) {
+            config = custom;
+        }
         try {
-            await fs.writeFile(path.join(filesPath, "configs", "userdata.json"), JSON.stringify(userConfig))
+            await fs.writeFile(path.join(filesPath, "configs", "userdata.json"), JSON.stringify(config))
+        } catch (error) {
+            reject(error);
+        }
+        resolve();
+    })
+}
+
+function saveTimeConfig(custom) {
+    return new Promise(async(resolve, reject)=>{
+        var config = timeConfig;
+        if(custom) {
+            config = custom;
+        }
+        try {
+            await fs.writeFile(path.join(filesPath, "worlddata", "scannedplaytime.json"), JSON.stringify(config))
         } catch (error) {
             reject(error);
         }

@@ -1,0 +1,7 @@
+1. Add graph presentation of the log files!
+2. Record first log file
+3. Create a linear regression model with the lowest r-factor, and then ask for the
+year / date where the player started playing minecraft
+4. Do integral-calculations to estimate the total area beneath the expression, et voila, we got an
+estimate of the total playtime since the person started playing minecraft - even without
+the full minecraft log history / all the worlds!

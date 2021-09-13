@@ -218,6 +218,7 @@ async function scanLogFiles() {
             reject(error);
         }
 
+        if(!files) reject("No logs");
         //Go through each of these zip-files, open the text file, and get the start and end time stamp.
         totalPercentage = 0;
         var percentageStep = 100 / files.length; //Maybe handle the situation that there are none files?
@@ -907,7 +908,7 @@ function gatherWorldInformation() {
     return new Promise(async(resolve, reject)=>{
 
         try {
-            var stat = await retrieveStat([["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]], {total:true})
+            var stat = await retrieveStat([["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]], {total:true}, undefined)
         } catch (error) {
             reject(error);      
         }
