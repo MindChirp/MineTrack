@@ -1,4 +1,4 @@
-function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: Boolean}) {
+function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: Boolean}, worldPath) {
     return new Promise(async (resolve, reject)=>{
         if(statisticPath.length < 1) reject("NO PATH");
         //We get an array as the statpath
@@ -6,13 +6,19 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
         //FORMAT: [["path", "1"], ["alternate", "path2"], ["alternate", "path3"]]
         
         //Get the minecraft worlds
-        try {
-            var worlds = await fs.readdir(path.join(userConfig.minecraftpath, "saves"));
-        } catch (error) {
-            notification("Failed to scan minecraft saved");
-            console.log(error);
+
+        var mainPath = path.join(userConfig.minecraftpath, "saves")
+
+        if(worldPath) {
+            mainPath = worldPath;
         }
 
+        try {
+            var worlds = await fs.readdir(mainPath);
+        } catch (error) {
+            notification("Failed to scan minecraft saves");
+            console.log(error);
+        }
         //Get the username or UUID
         var x;        
         var total = 0;
@@ -23,11 +29,11 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
             var uuid = userConfig.uuid;
             var name = "";
             try {
-                var files = await fs.readdir(path.join(userConfig.minecraftpath, "saves", x, "stats"));
+                var files = await fs.readdir(path.join(mainPath, x, "stats"));
             } catch (error) {
                 
             }
-
+            if(files == undefined) continue;
             var y;
             for(y of files) {
                 if(y.replaceAll("-", "").replaceAll(".json", "") == uuid){
@@ -36,10 +42,10 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
             }
             try {
                 
-                var stat = JSON.parse(await fs.readFile(path.join(userConfig.minecraftpath, "saves", x, "stats", name + ".json"), "utf8"));
+                var stat = JSON.parse(await fs.readFile(path.join(mainPath, x, "stats", name + ".json"), "utf8"));
             } catch (error) {
                 try {
-                    var stat = JSON.parse(await fs.readFile(path.join(userConfig.minecraftpath, "saves", x, "stats", userConfig.username + ".json"), "utf8"));
+                    var stat = JSON.parse(await fs.readFile(path.join(mainPath, x, "stats", userConfig.username + ".json"), "utf8"));
                 } catch (error) {
                     continue;
                 }

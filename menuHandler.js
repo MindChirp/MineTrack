@@ -1,3 +1,5 @@
+
+
 function openMenu(el) {
     return new Promise((resolve)=>{
 
@@ -44,6 +46,7 @@ var menu;
 
 async function stats(el) {
     menu = await openMenu(el)
+    menu.closest(".menu-pane").classList.add("statistics");
     var sessions = await fs.readdir(path.join(filesPath, "recordeddata"));
 
     var title = document.createElement("h1");
@@ -328,7 +331,7 @@ async function showStatPage(index) {
         var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content");
         wrapper.innerHTML = "";
         var t = document.createElement("p");
-        t.innerText ="Penis";
+        t.innerText ="Placeholder";
         wrapper.appendChild(t);
     }
     
@@ -351,18 +354,31 @@ async function scan(el) {
     title.innerText = "Scan";
     menu.appendChild(title);
 
-    var path = document.createElement("div");
-    path.className = "path-selection-box";
-    menu.appendChild(path);
+    var info = document.createElement("div");
+    var p = document.createElement("p");
+    p.innerText = `
+        Select the folder containing the worlds when scanning for statistics. Minecraft log files are not yet supported when scanning manually for files.
+    `;
+    info.appendChild(p);
+    info.className = "information-paragraph";
+    menu.appendChild(info);
+    var ico = document.createElement("i");
+    ico.innerHTML = "info";
+    ico.className = "material-icons";
+    info.appendChild(ico);
+
+    var pathB = document.createElement("div");
+    pathB.className = "path-selection-box";
+    menu.appendChild(pathB);
 
     var t = document.createElement("p");
     t.innerText = "Select a directory to scan";
-    path.appendChild(t);
+    pathB.appendChild(t);
     t.className = "sub-title";
 
     var out = document.createElement("div");
     out.className = "path-out smooth-shadow";
-    path.appendChild(out);
+    pathB.appendChild(out);
 
     var p = document.createElement("p");
     p.innerHTML = "No path selected";
@@ -381,8 +397,8 @@ async function scan(el) {
     var scan = document.createElement("button");
     scan.innerText = "scan directory";
     scan.className = "smooth-shadow";
-    path.appendChild(scan);
-    path.appendChild(browse);
+    pathB.appendChild(scan);
+    pathB.appendChild(browse);
 
     scan.style = `
         display: inline-block;
@@ -390,33 +406,141 @@ async function scan(el) {
         margin-left: 1rem;
     `
 
+    scan.addEventListener("click", ()=>{
+        scanDirectory(scanPath)
+        .then(async(res)=>{
+            //Add these to an object, and save this to a JSON-file
+            var date = new Date();
+            var obj = {
+                meta:{
+                   date: date,
+                   directory: scanPath
+                },
+                scans:{
+                    res
+                }
+            };
+
+            var fileName = createFileName();
+
+            try {
+                await fs.writeFile(path.join(filesPath, "scans", fileName + ".json"), JSON.stringify(obj))
+            } catch (error) {
+                console.log(error);
+                notification("Could not save session file");
+            }
+
+            //Update the session list
+            try {
+                await loadScans()
+            } catch (error) {
+                notification("Failed to update the scanned directories list");
+            }
+        })
+        .catch((err)=>{
+            notification(err);
+        })
+    })
+
     var res = document.createElement("div");
     res.className = "scan-result smooth-shadow";
     menu.appendChild(res);
-    
+    loadScans()
+    .catch((err)=>{
+        console.log(err);
+        notification("Could not load scans");
+    })
     var p = document.createElement("p");
-    p.innerText = "Your scanned directory will appear here";
+    p.innerText = "Your scanned directories will appear here";
     res.appendChild(p);
-    p.className = "empty";
+    p.className = "empty"
 
-    var reveal = document.createElement("button");
-    reveal.className = "outline";
-    menu.appendChild(reveal);
-    reveal.innerText = "Reveal previous scans";
-    reveal.style = `
+    var dir = document.createElement("button");
+    dir.className = "outline rounded";
+    menu.appendChild(dir);
+    dir.innerText = "Open scans folder";
+    dir.style = `
         margin-top: 1rem;
-    `
-    
-    reveal.addEventListener("click", async ()=>{
-        try {
-            var scans = await revealAllScans();
-        } catch (error) {
-            notification("An error occured");
-        }
-
-        console.log(scans);
+    `;
+    dir.addEventListener("click", ()=>{
+        require('child_process').exec('start "" "' + path.join(filesPath, "scans"));
     })
 
+}
+
+function createScanEntry(file) {
+    var el = document.createElement("div");
+    el.className = "entry";
+
+    var parent = document.querySelector("#main-container > div.menu-pane.scan > div > div.scan-result.smooth-shadow");
+    if(parent.querySelector(".empty")) {parent.innerHTML = "";}
+
+    parent.appendChild(el);
+
+    var date = new Date(file.meta.date);
+    
+    var days = [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday"
+    ]
+    
+    var hours = date.getHours()<10?"0" + date.getHours():date.getHours();
+    var minutes = date.getMinutes()<10?"0" + date.getMinutes():date.getMinutes();
+
+    var title = hours + ":" + minutes + " " + days[date.getDay()-1] + " " + date.getFullYear();
+    
+    var p = document.createElement("p");
+    p.innerHTML = title;
+    el.appendChild(p);
+}
+
+function loadScans() {
+    return new Promise(async (resolve, reject)=>{
+
+        try {
+            var files = await fs.readdir(path.join(filesPath, "scans"))
+        } catch (error) {
+            console.log(error);
+            reject(error);
+        }
+        console.log(files);
+        if(files.length < 1) {resolve({scans: false}); return;}
+        var x;
+        var cont = document.querySelector("#main-container > div.menu-pane.scan > div > div.scan-result.smooth-shadow");
+        cont.innerHTML = "";
+        for(x of files) {
+            try {
+                var file = await fs.readFile(path.join(filesPath, "scans", x), "utf8");
+            } catch (error) {
+                console.log(error);
+                reject(error);
+            }
+
+            createScanEntry(JSON.parse(file));
+            resolve({scans: true});
+        }
+    })
+}
+
+function scanDirectory(path) {
+    return new Promise((resolve, reject)=>{
+        console.log(typeof path);
+        if(!(typeof path == "string")) {reject("No path")}
+        if(path.length < 1) {reject("No path")}
+        retrieveStat([["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]],{perWorld:true},path)
+        .then((res)=>{
+            resolve(res);
+        })
+        .catch((err)=>{
+            console.log(err);
+            notification("Something went wrong while scanning your files");
+        })
+    })
 }
 
 
@@ -426,22 +550,127 @@ function revealAllScans() {
     })
 }
 
+var scanPath;
+
 async function openDirectoryModal1() {
     var result = await ipcRenderer.invoke("open-directory-modal", "pp");
     if(result.length < 1) return;
+    //Set the path variable as well
+    scanPath = result[0];
+
     var text = document.querySelector("#main-container > div.menu-pane > div > div > div > p")
     if(text instanceof HTMLElement) {
-        text.innerText = result;
+        text.innerText = result[0];
     }
 
 }
 
 async function settings(el) {
+
     var menu = await openMenu(el)
+    menu.closest(".menu-pane").classList.add("settings");
     var title = document.createElement("h1");
     title.className = "title";
     title.innerText = "Settings";
     menu.appendChild(title);
+
+    var paths = document.createElement("div");
+    paths.className = "path-selection-box";
+
+    var t = document.createElement("p");
+    t.innerText = "Minecraft path",
+    paths.appendChild(t);
+
+    var box = document.createElement("div");
+    box.className = "path-out smooth-shadow";
+    paths.appendChild(box);
+    var p = document.createElement("p");
+    box.appendChild(p);
+    p.innerText = userConfig.minecraftpath;
+    menu.appendChild(paths);
+
+    var browse = document.createElement("button");
+    browse.className = "smooth-shadow";
+    browse.style = `
+        margin-left: 1rem;
+    `
+    browse.innerText = "Browse";
+    paths.appendChild(browse);
+    browse.addEventListener("click", ()=>{
+        openDirectoryModal2()
+        .then(async (res)=>{
+            box.children[0].innerText = res;
+            userConfig.minecraftpath = res;
+            try {
+                await saveUserConfig(); 
+                notification("Saved new minecraft path")
+            } catch (error) {
+                console.log(error);
+                notification("Could not save the path choice");
+            }
+
+        })
+        .catch((err)=>{
+            notification("Could not fetch the path");
+        })
+    })
+
+    var appV = document.createElement("p");
+    appV.innerText = "App version - " + localStorage.getItem("app-version");
+    menu.appendChild(appV);
+    appV.style = `
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        opacity: 0.5;
+        margin: 0;
+    `;
+
+    var div = document.createElement("div");
+    div.className = "divider";
+    menu.appendChild(div);
+    var reset = document.createElement("button");
+    reset.innerText = "Reset program";
+    menu.appendChild(reset);
+    reset.style = `
+        
+    `;
+    reset.className = "smooth-shadow";
+    reset.addEventListener("click", async ()=>{
+        try {
+            await resetAppFiles();
+        } catch (error) {
+            notification("Could not reset the program");
+            return;
+        }
+
+        relaunchProgram();
+    })
+
+}
+
+function saveUserConfig() {
+    return new Promise(async(resolve, reject)=>{
+        try {
+            await fs.writeFile(path.join(filesPath, "configs", "userdata.json"), JSON.stringify(userConfig))
+        } catch (error) {
+            reject(error);
+        }
+        resolve();
+    })
+}
+
+function openDirectoryModal2() {
+    return new Promise(async (resolve, reject)=>{
+        try {
+            var result = await ipcRenderer.invoke("open-directory-modal", "pp");
+        } catch (error) {
+            reject(error);
+        }
+        if(result.length < 1) return;
+        //Set the path variable as well
+        resolve(result[0])
+    })
 }
 
 function getOffset(el) {

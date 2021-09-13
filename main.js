@@ -29,6 +29,9 @@ ipcRenderer.on("files-path", (ev, data)=>{
     localStorage.setItem("files-path", filesPath);
 });
 
+ipcRenderer.on("app-version", (ev, data)=>{
+    localStorage.setItem("app-version", data);
+});
 function gatherFilePath() {
     return new Promise((resolve, reject)=>{
         function loop() {
@@ -156,6 +159,7 @@ function checkForTermsAgreement() {
                 await resetAppFiles();
             } catch (error) {
                 notification("Could not reset stored data");
+                return;
             }
     
             //When all is done, restart the program
@@ -994,7 +998,7 @@ function saveSession() {
             date: date
         }
         
-        var fileName = date.getDate() + '' + parseInt(date.getMonth()+1) + '' + date.getFullYear() + '' + date.getHours() + '' + date.getMinutes() + '' + date.getSeconds();
+        var fileName = createFileName();
 
         fs.writeFile(path.join(filesPath, "recordeddata", fileName + ".json"), JSON.stringify(obj,null,4))
         .then(()=>{
@@ -1153,4 +1157,11 @@ function resetAppFiles() {
         resolve();
 
     })
+}
+
+
+function createFileName() {
+    var date = new Date();
+    var fileName = date.getDate() + '' + parseInt(date.getMonth()+1) + '' + date.getFullYear() + '' + date.getHours() + '' + date.getMinutes() + '' + date.getSeconds();
+    return fileName;
 }

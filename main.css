@@ -636,6 +636,7 @@ body > #main-container {
 
     .menu-pane .wrapper .path-selection-box .path-out {
         padding: 0.5rem;
+        padding-right: 1rem;
         background: #DFD3CD;
         width: 20rem;
         height: 2rem;
@@ -649,15 +650,16 @@ body > #main-container {
     }
 
     
-    .menu-pane .wrapper .path-selection-box .path-out p, .menu-pane.error .wrapper .path-selection-box .path-out p {
+    .menu-pane .wrapper .path-selection-box .path-out p {
         margin: 0;
         height: fit-content;
         font-size: 0.9rem;
         color: #5B7B7A;
+        white-space: nowrap;
     }
 
 
-    .menu-pane.scan .wrapper button, .menu-pane.error .wrapper button, .menu-pane.terms .wrapper button {
+    .menu-pane:not(.statistics) .wrapper button {
         height: 2rem;
         vertical-align: top;
         border: 0;
@@ -677,32 +679,108 @@ body > #main-container {
         transition: all 150ms ease-in-out;
     }
 
-    .menu-pane.scan .wrapper button:hover, .menu-pane.error .wrapper button:hover, .menu-pane.terms .wrapper button:hover{
+    .menu-pane .wrapper .information-paragraph {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        background: #E0F2E9;
+        box-sizing: border-box;
+        color: #3C887E;
+        width: 100%;
+        position: relative;
+        margin-bottom: 1rem;
+
+    }
+
+    .menu-pane:not(.statistics) .wrapper > .divider {
+        width: 80%;
+        height: 1px;
+        background: #E0F2E9;
+        display: block;
+        margin-top: 1rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .menu-pane .wrapper .information-paragraph p {
+        margin-left: 1rem;
+        margin-top: 0;
+        width: calc(100% - 1rem);
+        height: fit-content;
+        white-space: normal;
+    }
+
+    .menu-pane .wrapper .information-paragraph i {
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: #5B7B7A;
+        
+    }
+
+    .menu-pane:not(.statistics) .wrapper button:hover {
         transform: translate(0,-0.2rem);
     }
 
-    .menu-pane.scan .wrapper button.outline, .menu-pane.error .wrapper button.outline, .menu-pane.terms .wrapper button.outline {
+    .menu-pane:not(.statistics) .wrapper button.outline {
         background-color: transparent;
         border: 2px solid #E0F2E9;  
 
     }
 
-    .menu-pane.scan .wrapper button.rounded, .menu-pane.error .wrapper button.rounded, .menu-pane.terms .wrapper button.rounded{
+    .menu-pane:not(.statistics) .wrapper button.rounded {
         border-radius: 100rem;
     }
 
-    .menu-pane.scan .wrapper button.outline:hover, .menu-pane.error .wrapper button.outline:hover, .menu-pane.terms .wrapper button.outline:hover {
+    .menu-pane:not(.statistics) .wrapper button.outline:hover {
         transform: none;
     }
     .menu-pane.scan .wrapper .scan-result  {
         margin-top: 1rem;
-        padding: 1rem;
+        padding: 0.5rem;
         box-sizing: border-box;
         width: 100%;
         background: #E0F2E9;
         border-radius: 1rem;
         color: #3C887E;
-        
+        overflow: hidden;
+        max-height: 10rem;
+        overflow-y: auto;
+    }
+
+    .menu-pane.scan .wrapper .scan-result::-webkit-scrollbar{
+        display: none;
+    }
+
+    .menu-pane.scan .wrapper .scan-result .entry {
+        height: 2rem;
+        padding: 0.5rem;
+        box-sizing: border-box;
+        border-radius: 0.5rem;
+        width: 100%;
+        transition: all 100ms ease-in-out;
+        cursor: pointer;
+        position: relative;
+        animation: fade-in 200ms ease-in-out both 0.1s;
+    }
+
+    .menu-pane.scan .wrapper .scan-result .entry:hover::after {
+        content: "Click to show";
+        position: absolute;
+        color: #E0F2E9;
+        right: 1rem;
+        font-weight: lighter;
+        top: 50%;
+        transform: translate(0,-50%);
+    }
+    
+    .menu-pane.scan .wrapper .scan-result .entry:hover {
+        background: #3C887E;
+        color: #E0F2E9;
+    }
+
+    .menu-pane.scan .wrapper .scan-result .entry p {
+        line-height: 1rem;
+        height: 100%;
+        width: fit-content;
     }
 
     .menu-pane.error > .wrapper > .title {

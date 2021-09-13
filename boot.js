@@ -1,9 +1,12 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const find = require("find-process");
-//const updater = require("electron-updater");
-/*const debug = require('electron-debug');
+const { autoUpdater } = require("electron-updater");
+const log = require('electron-log');
+  
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
 
-debug();*/
+/*debug();*/
 const filesPath = app.getPath("userData");
 var win;
 
@@ -13,9 +16,13 @@ var obj = {
     installOnRestart: true,
     autoInstall: false
 }
+log.info("App starting..")
+autoUpdater.autoDownload = obj.autoUpdate;
+autoUpdater.autoInstallOnAppQuit = obj.installOnRestart;
 
-//updater.autoDownload = obj.autoUpdate;
-//updater.autoInstallOnAppQuit = obj.installOnRestart;
+autoUpdater.on("error", (ev)=>{
+    console.log("error", ev);
+})
 
 
 function createWindow() {
@@ -41,6 +48,7 @@ function createWindow() {
         win.webContents.on("did-finish-load", (ev)=>{
             
             win.webContents.send("files-path", filesPath);
+            win.webContents.send("app-version", app.getVersion())
         })
     
         win.on('blur', ()=>{
