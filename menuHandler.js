@@ -189,7 +189,7 @@ async function openAdvancedEstimateMenu() {
 
         function step2(){
             var i = document.createElement("p");
-            i.innerHTML = "What year did you start playing Minecraft?";
+            i.innerHTML = "What year did you start to play Minecraft?";
             cont.appendChild(i);
             i.className = "information";
 
@@ -214,13 +214,19 @@ async function openAdvancedEstimateMenu() {
 
                 var menu = setup.closest(".menu-pane");
                 menu.parentNode.removeChild(menu);
+                openAdvancedEstimateMenu();
             };
             
         }
 
-        await sleep(500);
+        await sleep(200);
+        setTimeout(()=>{
+            var menus = document.getElementsByClassName("advanced-statistics");
+            for(let i = 0; i < menus.length; i++) {
+                menus[0].parentNode.removeChild(menus[0]);
+            }
+        }, 100)
     }
-
 
 
     var menu = await stdMenu();
@@ -244,9 +250,7 @@ async function openAdvancedEstimateMenu() {
     canv.height = 1 * multiplier;
 
     var ctx = canv.getContext("2d");
-    ctx.beginPath();
-    ctx.strokeStyle = "#5B7B7A";
-    ctx.lineWidth = 10;
+
 
 
 
@@ -305,7 +309,6 @@ async function openAdvancedEstimateMenu() {
         }
 
         if(times.filter(e=>e.date == logFile.date).length == 0) {
-            console.log(logFile);
             var obj = {
                 date: logFile.date,
                 time: logFile.time
@@ -319,14 +322,51 @@ async function openAdvancedEstimateMenu() {
     }
 
     //All files have been scanned, and the data points can be plotted
-    plotDataPoints(times);
+    plotDataPoints(times, canv);
 }
 
-function plotDataPoints(times) {
+function plotDataPoints(times, canvas) {
+    
+    var firstDate = new Date();
+
+    var index = 0;
+    var points = [];
+
+    var xMax = 0;
+    var yMax = 0;
     var x;
     for(x of times) {
-        
+        if(index == 0) {
+            firstDate.setFullYear(x.date.split("-")[0]);
+            firstDate.setMonth(x.date.split("-")[1]);
+            firstDate.setDate(x.date.split("-")[2]);
+            index++
+        }
+        var date = new Date();
+        date.setFullYear(x.date.split("-")[0]);
+        date.setMonth(x.date.split("-")[1]);
+        date.setDate(x.date.split("-")[2]);
+
+        var diff = (date - firstDate)/1000;
+        if(diff > xMax) {xMax = diff}
+        if(x.time > yMax) {yMax = x.time}
+        points.push({x: diff, y: x.time});
     }
+
+    //Convert these to values that fit on a canvas that is 4000*1000
+    var c = canvas.getContext("2d");
+    
+
+    var y;
+    for(y of points) {
+        var cX =(Math.round((y.x/xMax)*4000));
+        var cY = 1000 - (Math.round((y.y/yMax)*1000)/1.5) - 50;
+        c.moveTo(cX+6,cY+6);
+        c.arc(cX,cY,12,0, Math.PI*2);
+        c.fillStyle = "#3C887E";
+        c.fill();
+    }
+
 }
 
 var disableMenu = false;
