@@ -37,7 +37,14 @@
                 <button class="button pill solid" onclick="settings(this)"><i class="material-icons">settings</i>Settings</button>
             </div>      
         
-
+            <div class="fp-card suggestions">
+                <div class="suggestion smooth-shadow">
+                    <p class="title">Calculate your total time</p>
+                    <p class="sub">Get to know your total playime - even without having the complete data history.</p>
+                    <button class="important" onclick=openAdvancedEstimateMenu()>Check it out</button>
+                    <button onclick="closeSuggestion(this)">Close</button>
+                </div>
+            </div>
             <div id="indicator" class="offline"><div class="filler"></div></div>
         </div>
         <div id="notification-container"></div>

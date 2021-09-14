@@ -1,5 +1,5 @@
 {
-  "name": "minecraft-counter",
+  "name": "MineTrack",
   "version": "0.1.7",
   "description": "",
   "main": "boot.js",
@@ -36,6 +36,7 @@
     "asar": true,
     "appId": "com.electron.minecraftcounter",
     "win": {
+      "icon":"icon.png",
       "target": "NSIS",
       "publish": [
         {

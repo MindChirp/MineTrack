@@ -19,7 +19,8 @@ const folders = [
     "configs",
     "worlddata",
     "recordeddata",
-    "scans"
+    "scans",
+    "logScans"
 ]
 
 const {gzip, ungzip} = require("node-gzip");
@@ -66,21 +67,6 @@ window.onload = async ()=>{
 
     appDataPath = path.dirname(filesPath);
 
-    /*
-    try {
-        await fs.access(path.join(filesPath, "configs", "userdata.json"))
-    } catch (error) {
-        notification("Could not start up correctly");
-        return;
-    }
-
-    try {
-        await gatherWorldInformation();
-    } catch (error) {
-        notification("Could not start up correctly");
-        return;
-    }
-    */
     checkResources()
     .then(async ()=>{
 
@@ -238,7 +224,29 @@ async function scanLogFiles() {
                 console.log(error)               
             }
 
+
             var time = await parseLogContents(unzipped.toString()) //Convert the buffer to a log, and then parse it
+            
+            if(time > 0) {                    
+                try {
+                    //Save a log entry for this file
+                    var stripped = x.replace(/[^0-9\-]/g,'');
+                    var dataToSave = {
+                        time: time,
+                        date: stripped.split("-")[0] + "-" + stripped.split("-")[1] + "-" + stripped.split("-")[2],
+                        index: stripped.split("-")[stripped.split("-").length-1]
+                    }
+                    if(stripped.replace(/[0-9]/g, "") != "---") { //Check if the file ends up with the correct name
+                        totalPercentage = totalPercentage + percentageStep;
+                        updateTimeCounting(totalSeconds + totalSecs); //kinda cool to see the time increment as the program scans the log files, might keep it
+                        continue;
+                    }
+                    await fs.writeFile(path.join(filesPath, "logScans", stripped + ".json"), JSON.stringify(dataToSave));
+                } catch (error) {
+                    notification("Failed to save log file - " + x);
+                }
+            } 
+
             totalPercentage = totalPercentage + percentageStep;
             totalSecs = totalSecs + time;
             //Handle the contents of the file
@@ -466,7 +474,11 @@ function loadData() {
             notification("Failed to load necessary files");
             reject(error)
         }
-        timeConfig = JSON.parse(scanned);
+        try {
+            timeConfig = JSON.parse(scanned);
+        } catch (error) {
+            notification("Malformed configuration files found");
+        }
         
         //convert values to a good format
         totalSeconds = timeConfig.singleplayertime;
@@ -785,10 +797,14 @@ function enterFirstTimeUse() {
             By clicking <strong>proceed</strong>, you agree to these terms.`
             wrapper.appendChild(policy);
             proceed.onclick = "";
-            proceed.addEventListener("click", ()=>{
+
+            var nextPage = ()=> {
                 setupInfo.termsAccepted = true;
                 step3();
-            })
+                proceed.removeEventListener("click", nextPage);
+            }
+
+            proceed.addEventListener("click", nextPage)
             
             calculateButtonPos();
         }
@@ -796,7 +812,6 @@ function enterFirstTimeUse() {
         async function step3() {
             progCounter.setPage(3);
             await cleanUp();
-
             proceed.onclick = async ()=>{
                 //Get input values
                 var name = usr.value;
@@ -1165,4 +1180,34 @@ function createFileName() {
     var date = new Date();
     var fileName = date.getDate() + '' + parseInt(date.getMonth()+1) + '' + date.getFullYear() + '' + date.getHours() + '' + date.getMinutes() + '' + date.getSeconds();
     return fileName;
+}
+
+function closeSuggestion(el) {
+    var cont = el.closest(".suggestion");
+    cont.style.animation = "fade-out 200ms ease-in-out both";
+    setTimeout(()=>{
+        cont.parentNode.removeChild(cont);
+
+        updateSuggestions();
+    }, 200)
+}
+
+function updateSuggestions() {
+    var cont = document.querySelector("#main-container > div.fp-card.suggestions");
+    
+    //Check if it has any content
+    if(cont.children.length == 0) {
+        var p = document.createElement("div");
+        p.className = "empty";
+        var ico = document.createElement("i");
+        ico.innerText = "auto_awesome";
+        ico.className = "material-icons";
+        p.appendChild(ico);
+        
+        var t = document.createElement("p");
+        t.innerText = "New features will be shown here once they are fresh out of the oven!";
+        p.appendChild(t);
+        //<i class='material-icons'>auto_awesome</i> <span>New features and suggestions will show up here.</span>
+        cont.appendChild(p);
+    }
 }

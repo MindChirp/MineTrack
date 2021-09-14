@@ -26,7 +26,11 @@ function openMenu(el) {
             wr.className = "wrapper";
             menu.appendChild(wr);
             menu.kill = ()=>{
-                menu.parentNode.removeChild(menu);
+                menu.style.animation = "none";
+                menu.style.animation = "fade-out 150ms ease-in-out both";
+                setTimeout(()=>{
+                    menu.parentNode.removeChild(menu);
+                }, 150)
             }
 
 
@@ -66,24 +70,6 @@ async function stats(el) {
     `;
     title.appendChild(info);
 
-    var topBar = document.createElement("div");
-    topBar.className = "stat-top-bar";
-    menu.appendChild(topBar);
-    
-    var sessionString = sessions.length == 1 ? "session":"sessions";
-    
-    var t1 = document.createElement("h1");
-    t1.innerHTML = sessions.length + " " + sessionString + " recorded";
-    topBar.appendChild(t1);
-
-    var t2 = document.createElement("h1");
-    t2.innerHTML = "statistic here";
-    topBar.appendChild(t2);
-
-    var t3 = document.createElement("h1");
-    t3.innerHTML = "statistic here";
-    topBar.appendChild(t3);
-
     var selector = document.createElement("div");
     selector.className = "page-selector";
     menu.appendChild(selector);
@@ -110,6 +96,237 @@ async function stats(el) {
 
     showStatPage(0);
 
+    //Create more buttons
+    var bWr = document.createElement("div");
+    bWr.className = "bottom-buttons-wrapper";
+    menu.appendChild(bWr);
+
+    var regCalc = document.createElement("button");
+    regCalc.innerText = "Estimate all playtime";
+    bWr.appendChild(regCalc);
+    regCalc.className = "smooth-shadow";
+
+    regCalc.onclick = openAdvancedEstimateMenu;
+
+
+    var butt = document.createElement("button");
+    butt.innerText = "Button";
+    bWr.appendChild(butt);
+    butt.className = "smooth-shadow";
+}
+
+function sleep(ms) {
+    return new Promise((resolve)=>{
+        setTimeout(()=>{
+            resolve();
+        }, ms)
+    })
+}
+
+async function openAdvancedEstimateMenu() {
+    //Close any open menu?
+    /*
+    var menus = document.getElementsByClassName("menu-pane");
+    var x;
+    if(menus.length > 0) {
+        for(x of menus) {
+            setTimeout(()=>{
+                x.kill();
+            }, 100)
+        }
+    }*/
+
+    //await sleep(50);
+
+    //Check if user has set up this function yet
+    if(!userConfig.startedPlaying) {
+
+        var cleanUp = ()=>{
+            setup.querySelector(".container").innerHTML = "";
+        }
+
+
+        var setup = await setupMenu();
+        setup.definePages(2);
+        setup.setPage(0);
+
+        var t = document.createElement("h1");
+        t.innerText = "set up feature";
+        t.className = "title";
+        setup.appendChild(t);
+
+        var back = setup.closest(".menu-pane").querySelector(".back");
+        back.style.color = "#E0F2E9";
+
+        var cont = document.createElement("div");
+        cont.className = "container";
+        setup.appendChild(cont);
+
+        var i = document.createElement("p");
+        i.innerHTML = `
+            If you wish to calculate all of your play time, even without having any log data or any worlds
+            from the time you started playing Minecraft, this tool will give you an indication. <br><br>
+
+            We will use your recorded log data, world data and the year 
+            you originally started playing Minecraft 
+            to calculate an estimate of your total playtime. 
+        `
+        cont.appendChild(i);
+        i.className = "information";
+
+
+        var proceed = document.createElement("button");
+        proceed.innerText = "Proceed";
+        proceed.className = "smooth-shadow next";
+        setup.appendChild(proceed);
+
+        proceed.onclick = ()=> {
+            setup.setPage(1);
+            cleanUp();
+            step2();
+        }
+
+
+        function step2(){
+            var i = document.createElement("p");
+            i.innerHTML = "What year did you start playing Minecraft?";
+            cont.appendChild(i);
+            i.className = "information";
+
+            var inp = document.createElement("input");
+            inp.type = "number";
+            inp.className = "smooth-shadow";
+            inp.min = 2009;
+            inp.max = new Date().getFullYear();
+            cont.appendChild(inp);
+
+            proceed.onclick = ()=>{
+
+                var val = inp.value;
+                if(val < 2009 || val > new Date().getFullYear()) {
+                    //Invalid year selection
+                    notification("Select a year between " + new Date().getFullYear() + " and 2009");
+                    return;
+                }
+
+                userConfig.startedPlaying = inp.value;
+                saveUserConfig();
+
+                var menu = setup.closest(".menu-pane");
+                menu.parentNode.removeChild(menu);
+            };
+            
+        }
+
+        await sleep(500);
+    }
+
+
+
+    var menu = await stdMenu();
+    menu.closest(".menu-pane").classList.add("advanced-statistics");
+
+    var t = document.createElement("h1");
+    t.innerText = "Advanced";
+    menu.appendChild(t);
+    t.className = "title";
+
+
+
+    var graph = document.createElement("div");
+    graph.className = "graph-output";
+    menu.appendChild(graph);
+
+    var canv = document.createElement("canvas");
+    graph.appendChild(canv);
+    var multiplier = 1000;
+    canv.width = 4 * multiplier;
+    canv.height = 1 * multiplier;
+
+    var ctx = canv.getContext("2d");
+    ctx.beginPath();
+    ctx.strokeStyle = "#5B7B7A";
+    ctx.lineWidth = 10;
+
+
+
+    var info = document.createElement("div");
+    info.className = "info-strip";
+    menu.appendChild(info);
+
+
+    /*
+    var p = document.createElement("p");
+    var year = document.createElement("input");
+    year.type = "text";
+    year.className = "year-input";
+    menu.appendChild(year);
+    */
+    try {
+        var logs = await fs.readdir(path.join(filesPath, "logScans"));
+    } catch (error) {
+        notification("Could not load log files");
+    }
+
+    //Get the oldest log
+    var x;
+    var years = [];
+    for(x of logs) {
+        var year = x.split("-")[0];
+        years.push(year);
+    }
+
+    Array.min = function( array ){
+        return Math.min.apply( Math, array );
+    };
+
+    var minimum = Array.min(years);
+
+    var logsT = document.createElement("p");
+    logsT.innerText = logs.length + " Logs scanned";
+    info.appendChild(logsT);
+
+    var first = document.createElement("p");
+    first.innerText = "First log from " + minimum;
+    info.appendChild(first);
+
+    var first = document.createElement("p");
+    first.innerText = "Started playing in " + userConfig.startedPlaying;
+    info.appendChild(first);
+
+    var times = []
+
+    var x;
+    for(x of logs) {
+        try {
+            var logFile = JSON.parse(await fs.readFile(path.join(filesPath, "logScans", x)));
+        } catch (error) {
+            notification("Could not read " + x);
+        }
+
+        if(times.filter(e=>e.date == logFile.date).length == 0) {
+            console.log(logFile);
+            var obj = {
+                date: logFile.date,
+                time: logFile.time
+            }
+            times.push(obj);
+        } else {
+            var index = times.findIndex(item => item.date == logFile.date);
+            times[index].time = times[index].time + logFile.time;
+
+        }
+    }
+
+    //All files have been scanned, and the data points can be plotted
+    plotDataPoints(times);
+}
+
+function plotDataPoints(times) {
+    var x;
+    for(x of times) {
+        
+    }
 }
 
 var disableMenu = false;
@@ -779,12 +996,16 @@ function getOffset(el) {
 
   function stdMenu() {
     var menu = document.createElement("div");
-    menu.className = "menu-pane";
+    menu.className = "menu-pane non-transitioning";
     var wr = document.createElement("div");
     wr.className = "wrapper";
     menu.appendChild(wr);
     menu.kill = ()=>{
-        menu.parentNode.removeChild(menu);
+        menu.style.animation = "none";
+        menu.style.animation = "fade-out 150ms ease-in-out both";
+        setTimeout(()=>{
+            menu.parentNode.removeChild(menu);
+        }, 150)
     }
 
 
@@ -796,4 +1017,32 @@ function getOffset(el) {
 
     document.getElementById("main-container").appendChild(menu);
     return wr;
+  }
+
+function setupMenu() {
+    return new Promise(async (resolve, reject)=>{
+        var menu = await stdMenu();
+        menu.closest(".menu-pane").classList.add("setup-menu");
+          
+        var page = document.createElement("div");
+        page.className = "page-indicator";
+        menu.parentNode.appendChild(page);
+
+        menu.definePages = (num)=>{
+            for(let i = 0; i < num; i++) {
+                var el = document.createElement("div");
+                el.className = "dot";
+                page.appendChild(el);
+            }
+        }
+
+        menu.setPage = (num) => {
+            if(page.querySelector(".active")) {
+                page.querySelector(".active").classList.remove("active");
+            }
+            page.children[num].classList.add("active");
+        }
+
+          resolve(menu);
+        })
   }
