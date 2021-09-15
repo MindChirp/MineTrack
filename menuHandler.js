@@ -215,6 +215,7 @@ async function openAdvancedEstimateMenu() {
                 var menu = setup.closest(".menu-pane");
                 menu.parentNode.removeChild(menu);
                 openAdvancedEstimateMenu();
+                notification("This menu can be accessed from 'Statistics' > 'Estimate all playtime'");
             };
             
         }
@@ -307,6 +308,14 @@ async function openAdvancedEstimateMenu() {
         } catch (error) {
             notification("Could not read " + x);
         }
+        /*
+        var obj = {
+            date: logFile.date,
+            time: logFile.time
+        }
+        console.log(obj.time);
+        times.push(obj);
+        */
 
         if(times.filter(e=>e.date == logFile.date).length == 0) {
             var obj = {
@@ -322,50 +331,176 @@ async function openAdvancedEstimateMenu() {
     }
 
     //All files have been scanned, and the data points can be plotted
-    plotDataPoints(times, canv);
+    plotDataPoints(times, canv)
+    .then((res)=>{
+        var p = document.createElement("p");
+        p.innerText = "Regression expression - " + res;
+        menu.appendChild(p);
+        p.style = `
+            animation: fade-in 200ms ease-in-out;
+            margin-top: 1rem;
+        `
+    })
 }
 
 function plotDataPoints(times, canvas) {
-    
-    var firstDate = new Date();
+    return new Promise((resolve, reject)=>{
 
-    var index = 0;
-    var points = [];
+        var firstDate = new Date();
 
-    var xMax = 0;
-    var yMax = 0;
-    var x;
-    for(x of times) {
-        if(index == 0) {
-            firstDate.setFullYear(x.date.split("-")[0]);
-            firstDate.setMonth(x.date.split("-")[1]);
-            firstDate.setDate(x.date.split("-")[2]);
-            index++
+        var index = 0;
+        var points = [];
+
+        var xMax = 0;
+        var yMax = 0;
+
+        var testCode = false;
+
+        var x;
+
+        if(!testCode) {
+            for(let i = 0; i < xMax;i++) {
+
+                var addDataToPoint = false;
+
+                
+                /*
+
+                    GOAL: Put in a point at y=0 for every day where minecraft has not been played (or at least multiplayer)
+                    without these points, we will only get the average from each minecraft session, and not each day.
+
+                */
+
+                //var ind = times.findIndex(item=>item.date == currentDate)
+            
+                if(index == 0) {
+                    firstDate.setFullYear(times[i].date.split("-")[0]);
+                    firstDate.setMonth(times[i].date.split("-")[1]);
+                    firstDate.setDate(times[i].date.split("-")[2]);
+                    index++
+                }
+                var date = new Date();
+                date.setFullYear(times[i].date.split("-")[0]);
+                date.setMonth(times[i].date.split("-")[1]);
+                date.setDate(times[i].date.split("-")[2]);
+                
+                var diff = Math.floor((date - firstDate)/1000/60/60/24);
+                if(diff > xMax) {xMax = diff}
+                if(x.time > yMax) {yMax = x.time}
+                points.push({x: diff, y: x.time});
+            }
         }
-        var date = new Date();
-        date.setFullYear(x.date.split("-")[0]);
-        date.setMonth(x.date.split("-")[1]);
-        date.setDate(x.date.split("-")[2]);
 
-        var diff = (date - firstDate)/1000;
-        if(diff > xMax) {xMax = diff}
-        if(x.time > yMax) {yMax = x.time}
-        points.push({x: diff, y: x.time});
-    }
+        if(testCode) {
+            var pointss = 700;
+            
+            for(let i = 0;i<pointss;i++) {
+                //Generate a random y value
+                var x = (4000/pointss)*i
+                var y = 2*i*(Math.random()+0.3)/1000;
+                if(x > xMax) {xMax = x};
+                if(y > yMax) {yMax = y};
+                points.push({x:x, y:y}); 
+            }
 
-    //Convert these to values that fit on a canvas that is 4000*1000
-    var c = canvas.getContext("2d");
-    
+          /*  
+            points = [{x:50,y:800},{x:3000,y:200}];
+            xMax = 4000;
+            yMax = 1000;
+        */
+        }
 
-    var y;
-    for(y of points) {
-        var cX =(Math.round((y.x/xMax)*4000));
-        var cY = 1000 - (Math.round((y.y/yMax)*1000)/1.5) - 50;
-        c.moveTo(cX+6,cY+6);
-        c.arc(cX,cY,12,0, Math.PI*2);
-        c.fillStyle = "#3C887E";
-        c.fill();
-    }
+        //Convert these to values that fit on a canvas that is 4000*1000
+        var c = canvas.getContext("2d");
+        
+        var yOffset = 0;
+
+        var yScale = 1000/yMax;
+        var xScale = 4000/xMax;
+
+        var y;
+        for(y of points) {
+            
+            var cX =(Math.round(y.x*xScale));
+            var cY = 1000 - yOffset - Math.round(yScale*y.y);
+            c.beginPath();
+            c.moveTo(cX+6,cY+6);
+            c.arc(cX,cY,12,0, Math.PI*2);
+            c.closePath();
+            c.fillStyle = "#3C887E";
+            c.strokeStyle = "#3C887E";
+            c.fill();
+            c.stroke();
+        }
+
+        var dataX = [];
+        var dataY = [];
+        var y;
+        for(y of points) {
+            dataX.push(parseInt(y.x));
+            dataY.push(parseInt(y.y));
+        }
+
+        var reg = linearRegression(dataY, dataX);
+
+        var y1 = expression(0, reg);
+        var y2 = expression(4000,reg);
+        console.log(y1);
+
+        var yAdj1 = y1*yScale;
+        console.log(yScale)
+        var yAdj2 = y2*yScale;
+
+        var c = canvas.getContext("2d");
+        c.beginPath();
+        c.moveTo(0,(1000-yOffset)-yAdj1);
+        c.lineTo(4000,(1000-yOffset)-yAdj2);
+        c.closePath();
+        c.strokeStyle = "#5B7B7A";
+        c.lineWidth = 15;
+        c.stroke();
+
+        function expression(x, res){
+            console.log(res.slope, res.intercept)
+            return ((res.slope*x)+res.intercept);
+        }
+
+        var integral = require("sm-integral");
+        
+        function f(x) {
+            return (reg.slope*x+reg.intercept);
+        }
+
+        console.log(integral.integrate(f,0,xMax*xScale));
+
+        resolve("y=" + reg.slope + "x+" + reg.intercept);
+
+        /*
+        performLinearRegression(data)
+        .then((res)=>{
+            //expression: y=mx+c res[0]=m, res[1]=c
+            //Draw the line
+
+            var y1 = expression(0, res);
+            var y2 = expression(4000,res);
+
+            var c = canvas.getContext("2d");
+            c.beginPath();
+            c.moveTo(0,1000-yOffset-(y1/yMax)*1000);
+            c.lineTo(4000,1000-yOffset-(y2/yMax)*1000);
+            c.closePath();
+            c.strokeStyle = "#A17C6B";
+            c.lineWidth = 15;
+            c.stroke();
+
+            function expression(x, res){
+                return res[0]*x+res[1];
+            }
+
+            resolve("y=" + res[0] + "x+" + res[1]);
+            
+        })*/
+    })
 
 }
 
