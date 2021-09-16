@@ -799,11 +799,9 @@ function enterFirstTimeUse() {
             var policy = document.createElement("p");
             policy.className ="sub-title policy";
             policy.innerHTML = `This program is strictly intented for counting the total time spent playing minecraft, and any use outside of what is
-            described in this body of text, is prohibited. The creator reserves his rights to disable any copy of the program if needed.<br>
-            This program scans through your minecraft game files, and tallies up the total play time from all of your worlds. No data will at any point be sent to any servers. 
+            described in this body of text, is prohibited. The creator reserves his rights to disable any copy of the program if needed.
+            This program scans through your minecraft game files, and tallies up the total play time from all of your worlds and logs. No data will at any point be sent to any servers. 
             The source code of this project can be found at github under the username MindChirp, as MineTrack.
-
-            <br><br>
             By clicking <strong>proceed</strong>, you agree to these terms.`
             wrapper.appendChild(policy);
             proceed.onclick = "";
@@ -877,16 +875,14 @@ function enterFirstTimeUse() {
             var info = document.createElement("p");
             info.className = "sub-title policy";
             info.innerHTML = `
-                When getting an initial estimate of your playtime, the program will <strong>not</strong> include the playtime on your servers. 
+                When getting an initial estimate of your playtime, the program will include the playtime spent on servers as well. This can however take some time.
                 When the program detects that you are in-game, however, everything you do inside of minecraft will be recorded as active playtime, even if you are idle in the start menu.
                 <br>
                 It is important that you have the program running to record your playtime. 
                 
                 It is also recommended to enable this program on startup. 
                 
-                To go through this setup process again, press the reset button in the settings menu.
-
-                To scan for new worlds, press the scan button in the settings or world menu.
+                To go through this setup process again, press the reset button in the settings menu. Doing this will reset all your user data.
             `;
             wrapper.appendChild(info)
 
@@ -1206,18 +1202,19 @@ function updateSuggestions() {
     var cont = document.querySelector("#main-container > div.fp-card.suggestions");
     
     //Check if it has any content
-    if(cont.children.length == 0) {
+    if(cont.querySelector(".wrapper").children.length == 0) {
         var p = document.createElement("div");
         p.className = "empty";
         var ico = document.createElement("img");
         ico.src = "icons/auto_awesome.svg"
         p.appendChild(ico);
-        
+        cont.querySelector(".wrapper").style.backgroundColor = "#C6E6E2";
+        cont.querySelector(".wrapper").style.padding = "0.5rem";
         var t = document.createElement("p");
         t.innerText = "New features will be shown here once they are fresh out of the oven!";
         p.appendChild(t);
         //<i class='material-icons'>auto_awesome</i> <span>New features and suggestions will show up here.</span>
-        cont.appendChild(p);
+        cont.querySelector(".wrapper").appendChild(p);
     }
 }
 
@@ -1370,7 +1367,7 @@ async function checkForNewFeatures() {
                     card.appendChild(b);
                 }
 
-                var cont = document.querySelector("#main-container > div.fp-card.suggestions");
+                var cont = document.querySelector("#main-container > div.fp-card.suggestions").querySelector(".wrapper");
                 cont.appendChild(card);
                 resolve();
                 return;

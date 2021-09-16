@@ -15,8 +15,10 @@
                     "click": "close"
                 }
             ],
-            "removed": true
-        },
+            "removed": false
+        }
+    ],
+    "stats": [
         {
             "title": "Scan extra files",
             "body": "Easily scan additional world files, and view their statistics.",
@@ -32,9 +34,8 @@
                     "click": "close"
                 }
             ],
-            "removed": true
+            "removed": false
         }
     ],
-    "stats": [],
     "miscellaneous": []
 }

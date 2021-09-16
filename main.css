@@ -574,9 +574,22 @@ body > #main-container {
         border-radius: 0.5rem;
     }
 
-    .fp-card.suggestions .suggestion {
-        height: fit-content;
+    .fp-card.suggestions .wrapper {
+        box-sizing: border-box;
         width: calc(100% - 3rem);
+        margin: auto;
+        height: fit-content;
+        border-radius: 0.5rem;
+    }
+
+    .fp-card.suggestions .title {
+        color: #3C887E;
+        margin: 0 0 0.2rem 1.5rem;
+    }
+
+    .fp-card.suggestions .wrapper .suggestion {
+        height: fit-content;
+        width: calc(100%);
         margin: auto;
         border-radius: 0.5rem;
         padding: 0.5rem;
@@ -584,17 +597,17 @@ body > #main-container {
         background: #C6E6E2;
     }
 
-    .fp-card.suggestions .suggestion .title {
+    .fp-card.suggestions .wrapper .suggestion .title {
         margin: 0;
         color: #3C887E;
     }
 
-    .fp-card.suggestions .suggestion .sub {
+    .fp-card.suggestions .wrapper .suggestion .sub {
         margin: 0;
         color: #5B7B7A;
     }
 
-    .fp-card.suggestions .suggestion button {
+    .fp-card.suggestions .wrapper .suggestion button {
         padding: 0.4rem;
         display: inline-block;
         text-transform: uppercase;
@@ -608,30 +621,30 @@ body > #main-container {
         background: transparent;
     }
 
-    .fp-card.suggestions .suggestion button:hover {
+    .fp-card.suggestions .wrapper .suggestion button:hover {
         transform: translate(0,-0.2rem);
     }
 
-    .fp-card.suggestions .suggestion button:not(:last-of-type) {
+    .fp-card.suggestions .wrapper .suggestion button:not(:last-of-type) {
         margin-right: 0.5rem;
     }
 
-    .fp-card.suggestions .suggestion button.important {
+    .fp-card.suggestions .wrapper .suggestion button.important {
         background: #3C887E;
         color: #E0F2E9;
     }
 
-    .fp-card.suggestions > div.empty {
+    .fp-card.suggestions .wrapper > div.empty {
         text-align: center;
     }
 
     
-    .fp-card.suggestions > div.empty img {
+    .fp-card.suggestions .wrapper > div.empty img {
         vertical-align: top;
         height: 4rem;
     }
 
-    .fp-card.suggestions > div.empty p {
+    .fp-card.suggestions .wrapper > div.empty p {
         color: #5B7B7A;
         margin: 0.5rem 0 0 0;
     }
