@@ -1,14 +1,18 @@
-const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, shell, Tray, Menu} = require("electron");
 const find = require("find-process");
 const { autoUpdater } = require("electron-updater");
 const log = require('electron-log');
-  
+const autoLaunch = require("auto-launch");
+const fs = require("fs-extra");
+const path = require("path");
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
-/*debug();*/
+var tray = null;
+
 const filesPath = app.getPath("userData");
 var win;
+
 
 //Set up the autoupdater
 var obj = {
@@ -29,7 +33,41 @@ autoUpdater.on("update-available", (ev)=>{
 })
 
 
-function createWindow() {
+var progLauncher = new autoLaunch({
+    name: "MineTrack"
+})
+
+
+
+var ctxMenu = Menu.buildFromTemplate([
+    {
+        label: "MineTracker",
+        enabled: false
+    },
+    {label: 'Show app', click: ()=>{
+        win.show();
+    }},
+    {label: "Quit", click: ()=>{
+        app.forceClose = true;
+        app.quit();
+    }}
+])
+
+async function createWindow() {
+    //Load the system config
+    
+    try {
+        var config = await fs.readFile(path.join(filesPath, "configs", "systemconfig.json"));
+    } catch (error) {
+        //no systemconfig
+        var config = {
+            show: true
+        }
+    }
+
+    var show = config.show || true;
+    console.log(show);
+
     try {
         win = new BrowserWindow({
             frame: false,
@@ -40,17 +78,26 @@ function createWindow() {
             maxWidth: 700,
             minHeight: 600,
             minWidth: 700,
+            show: show,
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: false,
-                enableRemoteModule: true,
-                backgroundThrottling: false
+                enableRemoteModule: true
             }
         })
     
         win.loadFile('index.html');
         
         win.webContents.on("did-finish-load", (ev)=>{
+
+            progLauncher.isEnabled()
+            .then((res)=>{
+                if(!res) {
+                    win.webContents.send("request-autostart", "");
+                }
+            })
+
+
             autoUpdater.checkForUpdatesAndNotify();
             win.webContents.send("files-path", filesPath);
             win.webContents.send("app-version", app.getVersion())
@@ -68,12 +115,36 @@ function createWindow() {
             shell.openExternal(url);
             return { action: 'deny' };
           });
+
+        win.on("close", (ev)=>{
+            if(!app.forceClose) {
+                ev.preventDefault();
+                if(tray){return win.hide()}
+                tray = new Tray('icon.png');
+                tray.setContextMenu(ctxMenu);
+                tray.setToolTip("MineTrack");
+                win.hide();
+            }
+
+            return;
+        })
         
     } catch (error) {
         console.log(error, "ERROR APPENDIX");
     }
 
 }
+
+
+
+
+ipcMain.handle("enable-autostart", (event, arg)=>{
+    progLauncher.enable();
+    progLauncher.isEnabled()
+    .then((res)=>{
+        return res;
+    })
+})
 
 ipcMain.on("close-program", ()=>{
     //Close the program

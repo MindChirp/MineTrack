@@ -103,8 +103,8 @@ window.onload = async ()=>{
 
             //Check for new features!
             checkForNewFeatures()
-            .then(()=>{
-                updateSuggestions();
+            .then((card)=>{
+                updateSuggestions(card);
             })
             .catch((err)=>{
                 updateSuggestions();
@@ -1198,11 +1198,11 @@ function closeSuggestion(el) {
     }, 200)
 }
 
-function updateSuggestions() {
+function updateSuggestions(card) {
     var cont = document.querySelector("#main-container > div.fp-card.suggestions");
     
     //Check if it has any content
-    if(cont.querySelector(".wrapper").children.length == 0) {
+    if(cont.querySelector(".wrapper").children.length == 0 && !(card instanceof HTMLElement)) {
         var p = document.createElement("div");
         p.className = "empty";
         var ico = document.createElement("img");
@@ -1215,6 +1215,8 @@ function updateSuggestions() {
         p.appendChild(t);
         //<i class='material-icons'>auto_awesome</i> <span>New features and suggestions will show up here.</span>
         cont.querySelector(".wrapper").appendChild(p);
+    } else if(cont.querySelector(".wrapper").children.length == 0 && card instanceof HTMLElement) {
+        cont.querySelector(".wrapper").appendChild(card)
     }
 }
 
@@ -1367,10 +1369,9 @@ async function checkForNewFeatures() {
                     card.appendChild(b);
                 }
 
-                var cont = document.querySelector("#main-container > div.fp-card.suggestions").querySelector(".wrapper");
-                cont.appendChild(card);
-                resolve();
-                return;
+                //var cont = document.querySelector("#main-container > div.fp-card.suggestions").querySelector(".wrapper");
+                //cont.appendChild(card);
+                resolve(card);
                 
 
             }
@@ -1378,4 +1379,67 @@ async function checkForNewFeatures() {
         resolve();
     })
     
+}
+
+function generateSuggestionCard(title, sub, buttons) {
+    var card = document.createElement("div");
+    card.className = "suggestion smooth-shadow";
+
+    var t = document.createElement("p");
+    t.className = "title";
+    t.innerText = title;
+    card.appendChild(t);
+
+    var p = document.createElement("p");
+    p.className = "sub";
+    p.innerText = sub;
+    card.appendChild(p);
+
+    var x;
+    for(x of buttons) {
+        var b = document.createElement("button");
+        b.innerText = x.label;
+        b.setAttribute("onclick", x.click); 
+        b.addEventListener("click", ()=>{
+            b.closest(".suggestion").parentNode.removeChild(b.closest(".suggestion"));
+        })
+
+        switch(x.type) {
+            case 0:
+                b.classList.add("important")
+            break;
+        }
+        card.appendChild(b);
+    }
+
+    return card;
+}
+
+ipcRenderer.on("request-autostart", (ev, arg)=>{
+    var card = generateSuggestionCard("Add program to startup?", "MineTrack works best if it is added as a startup program. Do you want to do this now?", [{label: "add to startup", click: "acceptAutoStartup()", type: 0}, {label: "no thanks", click: "checkFeatures()", type: 1}])
+    var cont = document.querySelector("#main-container > div.fp-card.suggestions > div") 
+    cont.innerHTML = "";
+    cont.appendChild(card);
+    cont.style.backgroundColor = "transparent";
+    cont.style.padding = "0";
+    updateSuggestions();
+})
+
+function checkFeatures() {
+    notification("We'll ask you again later.");
+    checkForNewFeatures()
+    .then((card)=>{
+        updateSuggestions(card);
+    })
+}
+
+async function acceptAutoStartup() {
+    checkForNewFeatures()
+    .then((card)=>{
+        updateSuggestions(card);
+    });
+    var res = await ipcRenderer.invoke("enable-autostart");
+    if(res == true) {
+        notification("Enabled auto-startup!");
+    }
 }

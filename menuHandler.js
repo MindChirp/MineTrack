@@ -769,7 +769,6 @@ async function showStatPage(index) {
                             })
 
                             var boxes = document.body.getElementsByClassName("stat-entry");
-                            console.log(boxes);
                             var val = x.value;
 
 

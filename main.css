@@ -595,6 +595,7 @@ body > #main-container {
         padding: 0.5rem;
         box-sizing: border-box;
         background: #C6E6E2;
+        animation: fade-in 300ms ease-in-out;
     }
 
     .fp-card.suggestions .wrapper .suggestion .title {
