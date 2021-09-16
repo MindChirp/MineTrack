@@ -1,4 +1,3 @@
-# minecraft-counter
 
 <pre>
  _______ __                               ___ __   
@@ -12,6 +11,5 @@
 |______||_____|_____|__|__||____|_____|__|  
 </pre>
 
-This is a counter that counts the amount your poor ass life has spent on Minecraft.
-Use this tool to estimate how much of your precious time has gone down to nothingness.
-Enjoy
+This is a counter that counts the amount of time that has been spent on Minecraft.
+
