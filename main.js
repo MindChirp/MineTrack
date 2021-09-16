@@ -47,7 +47,7 @@ function gatherFilePath() {
                 //Get the userConfig
                 resolve();
             } else {
-                loop();
+                setTimeout(loop, 10)
             }
         }
         loop();
@@ -100,6 +100,16 @@ window.onload = async ()=>{
             } else {
                 checkForTermsAgreement();
             }
+
+            //Check for new features!
+            checkForNewFeatures()
+            .then(()=>{
+                updateSuggestions();
+            })
+            .catch((err)=>{
+                updateSuggestions();
+            })
+
         })
         .catch((err)=>{
             console.log(err);
@@ -688,7 +698,7 @@ function enterFirstTimeUse() {
             info.className ="sub-title policy";
             info.innerHTML = `
                 Thank you for downloading the open source <strong>Minecraft Hour Counter</strong> by MindChirp. During these next few pages,
-                you will be guided through the initial setup process. You will be asked about your minecraft directory path, minecraft username, UUID and terms agreement. It is important that you answer correctly on all of these questions.
+                you will be guided through the initial setup process. You will be asked about your minecraft directory path, minecraft username, and terms agreement. It is important that you answer correctly on all of these questions.
                 If you are in doubt of what to do, read the instruction text carefully.
             `
             wrapper.appendChild(info);
@@ -791,7 +801,7 @@ function enterFirstTimeUse() {
             policy.innerHTML = `This program is strictly intented for counting the total time spent playing minecraft, and any use outside of what is
             described in this body of text, is prohibited. The creator reserves his rights to disable any copy of the program if needed.<br>
             This program scans through your minecraft game files, and tallies up the total play time from all of your worlds. No data will at any point be sent to any servers. 
-            The source code of this project can be found at github under the username MindChirp, as minecraft-counter.
+            The source code of this project can be found at github under the username MindChirp, as MineTrack.
 
             <br><br>
             By clicking <strong>proceed</strong>, you agree to these terms.`
@@ -1257,3 +1267,99 @@ function linearRegression(y,x){
 ipcRenderer.on("update-ready", (ev, data)=>{
     //An update has been found.
 })
+
+
+async function checkForNewFeatures() {
+    return new Promise(async (resolve, reject)=>{
+
+        //Try to access the feature file
+        try {
+            var features = JSON.parse(await fs.readFile(path.join(__dirname, "newFeatures.json"), "utf8"));
+        } catch (error) {
+            notification("Failed to check for new features");
+            reject(error);
+            return;
+        }
+
+        //Get all the cards that have not been removed, and show the first one.
+        var x;
+        for(var key in features) {
+            var y;
+            var ind = 0;
+            for(y of features[key]) {
+                ind++
+                if(y.removed == true) continue;
+                var card = document.createElement("div");
+                card.className = "suggestion smooth-shadow";
+                var t = document.createElement("p");
+                t.className = "title";
+                t.innerText = y.title;
+                card.appendChild(t);
+
+                var p = document.createElement("p");
+                p.className = "sub";
+                p.innerText = y.body;
+                card.appendChild(p);
+
+                //Create the buttons
+
+                var z;
+                for(z of y.buttons) {
+                    
+                    var b = document.createElement("button");
+                    b.innerText = z.label || "none";
+                        
+                    if(z.click != "close") {
+                        b.setAttribute("onclick", z.click);
+                        b.addEventListener("click", async(e)=>{
+                            //Now don't suggest this button again
+                            features[indexes[0]][indexes[1]].removed = true;
+                            try {
+                                await fs.writeFile(path.join(__dirname, "newFeatures.json"), JSON.stringify(features, null, 4));
+                            } catch (error) {
+                                console.log(error);
+                                notification("Error")
+                            }
+                            
+                        })
+                    } else {
+                        var indexes = [key, ind-1]
+                        b.addEventListener("click", async(e)=>{
+                            //Save this to the json file
+                            try {
+                                features[indexes[0]][indexes[1]].removed = true;
+                                await fs.writeFile(path.join(__dirname, "newFeatures.json"), JSON.stringify(features, null, 4));
+                            } catch (error) {
+                                console.error(error);
+                                notification("Could not close");
+                                return;
+                            }
+                            //Close the suggestion
+                            closeSuggestion(e.target);
+                        })
+                    }
+
+                    switch(z.type) {
+                        case 0:
+                            b.classList.add("important"); 
+                        break;
+                        case 1:
+
+                        break;
+                    }
+
+                    card.appendChild(b);
+                }
+
+                var cont = document.querySelector("#main-container > div.fp-card.suggestions");
+                cont.appendChild(card);
+                resolve();
+                return;
+                
+
+            }
+        }
+        resolve();
+    })
+    
+}

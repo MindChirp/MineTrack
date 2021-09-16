@@ -1,0 +1,40 @@
+{
+    "tools": [
+        {
+            "title": "Calculate your total time",
+            "body": "Get to know your total playtime - even without having the complete data history.",
+            "buttons": [
+                {
+                    "type": 0,
+                    "label": "check it out",
+                    "click": "openAdvancedEstimateMenu()"
+                },
+                {
+                    "type": 1,
+                    "label": "close",
+                    "click": "close"
+                }
+            ],
+            "removed": true
+        },
+        {
+            "title": "Calculate your total gayness",
+            "body": "Get to know your total gayness - even without having the complete data history.",
+            "buttons": [
+                {
+                    "type": 0,
+                    "label": "check it out",
+                    "click": "openAdvancedEstimateMenu()"
+                },
+                {
+                    "type": 1,
+                    "label": "close",
+                    "click": "close"
+                }
+            ],
+            "removed": true
+        }
+    ],
+    "stats": [],
+    "miscellaneous": []
+}
