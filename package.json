@@ -35,6 +35,15 @@
     "electron-builder": "~22.10.5"
   },
   "build": {
+    "extraResources": [
+      {
+        "from": "./extraResources",
+        "to": "extraResources",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
     "asar": true,
     "appId": "com.electron.minetrack",
     "win": {

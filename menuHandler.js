@@ -1032,6 +1032,36 @@ function createScanEntry(file) {
     var p = document.createElement("p");
     p.innerHTML = title;
     el.appendChild(p);
+
+    el.addEventListener("click", ()=>{
+        var scanMenu = stdMenu();
+
+        var t = document.createElement("h1");
+        t.className = "title";
+        t.style.marginBottom = "0";
+        t.innerText = title;
+        t.style.fontSize = "3rem";
+        scanMenu.appendChild(t);
+
+        var amt = document.createElement("p");
+        amt.className = "sub-title";
+        amt.style = `
+            width: fit-content;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            text-align: center;
+            margin: auto;
+            margin-top: 0;
+            margin-bottom: 0;
+            background: #E0F2E9;
+            color: #3C887E;
+        `
+        amt.innerText = file.scans.res.length + " Worlds found";
+        scanMenu.appendChild(amt)
+
+
+    });
+
 }
 
 function loadScans() {
@@ -1314,16 +1344,12 @@ function getOffset(el) {
 
   function stdMenu() {
     var menu = document.createElement("div");
-    menu.className = "menu-pane non-transitioning";
+    menu.className = "menu-pane non-transitioning std-menu smooth-shadow";
     var wr = document.createElement("div");
     wr.className = "wrapper";
     menu.appendChild(wr);
     menu.kill = ()=>{
-        menu.style.animation = "none";
-        menu.style.animation = "fade-out 150ms ease-in-out both";
-        setTimeout(()=>{
-            menu.parentNode.removeChild(menu);
-        }, 150)
+        menu.parentNode.removeChild(menu);
     }
 
 
@@ -1331,7 +1357,14 @@ function getOffset(el) {
     back.className = "button pill solid back secondary material-icons";
     back.innerHTML = "arrow_back";
     menu.appendChild(back);
-    back.onclick = menu.kill;
+    back.addEventListener("click",()=>{
+        menu.style.animation = "none";
+        menu.style.animation = "slide-out-stdMenu 200ms ease-in-out both";
+        setTimeout(()=>{
+            menu.kill();
+        }, 200)
+
+    });
 
     document.getElementById("main-container").appendChild(menu);
     return wr;

@@ -1209,9 +1209,8 @@ function updateSuggestions() {
     if(cont.children.length == 0) {
         var p = document.createElement("div");
         p.className = "empty";
-        var ico = document.createElement("i");
-        ico.innerText = "auto_awesome";
-        ico.className = "material-icons";
+        var ico = document.createElement("img");
+        ico.src = "icons/auto_awesome.svg"
         p.appendChild(ico);
         
         var t = document.createElement("p");
@@ -1274,12 +1273,19 @@ async function checkForNewFeatures() {
 
         //Try to access the feature file
         try {
-            var features = JSON.parse(await fs.readFile(path.join(__dirname, "newFeatures.json"), "utf8"));
+            var features = JSON.parse(await fs.readFile(path.join(__dirname, "extraResources", "newFeatures.json"), "utf8"));
         } catch (error) {
-            notification("Failed to check for new features");
-            reject(error);
-            return;
+            try {
+                var features = JSON.parse(await fs.readFile(path.join(path.dirname(__dirname), "extraResources", "newFeatures.json"), "utf8"));
+            } catch (error) {
+                notification("Failed to check for new features");
+                reject(error);
+                return;
+            }
+                
         }
+
+        console.log(features);
 
         //Get all the cards that have not been removed, and show the first one.
         var x;
@@ -1315,11 +1321,17 @@ async function checkForNewFeatures() {
                             //Now don't suggest this button again
                             features[indexes[0]][indexes[1]].removed = true;
                             try {
-                                await fs.writeFile(path.join(__dirname, "newFeatures.json"), JSON.stringify(features, null, 4));
+                                await fs.writeFile(path.join(__dirname, "extraResources", "newFeatures.json"), JSON.stringify(features, null, 4));
                             } catch (error) {
-                                console.log(error);
-                                notification("Error")
+                                try {
+                                    await fs.writeFile(path.join(path.dirname(__dirname), "extraResources", "newFeatures.json"), JSON.stringify(features, null, 4));
+                                    
+                                } catch (error) {
+                                    console.log(error);
+                                    notification("Error");
+                                }
                             }
+                            
                             
                         })
                     } else {
@@ -1328,11 +1340,18 @@ async function checkForNewFeatures() {
                             //Save this to the json file
                             try {
                                 features[indexes[0]][indexes[1]].removed = true;
-                                await fs.writeFile(path.join(__dirname, "newFeatures.json"), JSON.stringify(features, null, 4));
+                                console.log(features);
+                                await fs.writeFile(path.join(__dirname, "extraResources", "newFeatures.json"), JSON.stringify(features, null, 4));
+
+                                
                             } catch (error) {
-                                console.error(error);
-                                notification("Could not close");
-                                return;
+                                try {
+                                    await fs.writeFile(path.join(path.dirname(__dirname), "extraResources", "newFeatures.json"), JSON.stringify(features, null, 4));
+                                } catch (error) {
+                                    console.error(error);
+                                    notification("Could not close");
+                                    return;
+                                }
                             }
                             //Close the suggestion
                             closeSuggestion(e.target);

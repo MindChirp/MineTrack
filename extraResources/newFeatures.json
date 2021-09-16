@@ -2,7 +2,7 @@
     "tools": [
         {
             "title": "Calculate your total time",
-            "body": "Get to know your total playtime - even without having the complete data history.",
+            "body": "Get to know your total playtime - even without having the complete data history. Check it out to train your model now!",
             "buttons": [
                 {
                     "type": 0,
@@ -18,13 +18,30 @@
             "removed": true
         },
         {
-            "title": "Calculate your total gayness",
-            "body": "Get to know your total gayness - even without having the complete data history.",
+            "title": "See detailed statistics",
+            "body": "Want to know how far you've walked in total?",
             "buttons": [
                 {
                     "type": 0,
                     "label": "check it out",
-                    "click": "openAdvancedEstimateMenu()"
+                    "click": "stats(this)"
+                },
+                {
+                    "type": 1,
+                    "label": "close",
+                    "click": "close"
+                }
+            ],
+            "removed": true
+        },
+        {
+            "title": "Scan extra files",
+            "body": "Easily scan additional world files, and view their statistics.",
+            "buttons": [
+                {
+                    "type": 0,
+                    "label": "check it out",
+                    "click": "scan(this)"
                 },
                 {
                     "type": 1,

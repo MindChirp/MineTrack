@@ -14,6 +14,10 @@ body {
     animation: fade-in 200ms ease-in-out 0.5s both;
 }
 
+body img {
+    -webkit-user-drag: none;
+}
+
 @font-face {
     font-family: 'roboto';
     src: url('./Roboto-Regular.ttf');
@@ -622,10 +626,9 @@ body > #main-container {
     }
 
     
-    .fp-card.suggestions > div.empty i {
+    .fp-card.suggestions > div.empty img {
         vertical-align: top;
-        font-size: 4rem;
-        color: #5B7B7A;
+        height: 4rem;
     }
 
     .fp-card.suggestions > div.empty p {
@@ -634,6 +637,19 @@ body > #main-container {
     }
     .action-buttons button {
         display: inline-block;
+        padding: 0.5rem 1rem;
+    }
+
+    .action-buttons button span {
+        height: 1.5rem;
+        vertical-align: top;
+        line-height: 1.5rem;
+        margin: 0 0 0 0.3rem;
+    }
+
+    .action-buttons button img {
+        height: 1.5rem;
+        vertical-align: top;
     }
 
     .expanding-menu-transition-pane {
@@ -653,12 +669,24 @@ body > #main-container {
         100%{height: 400vh; width: 400vh; opacity: 1;}
     }
 
+    @keyframes slide-in-stdMenu {
+        0%{transform: translate(-10rem); opacity: 0}
+        100%{transform: translate(0); opacity: 1}
+    }
+
+    @keyframes slide-out-stdMenu {
+        0%{transform: translate(0rem); opacity: 1}
+        100%{transform: translate(-10rem); opacity: 0}
+    }
+
 
     .menu-pane.setup-menu {
         background: #E0F2E9;
         z-index: 1001 !important;
     
     }
+
+
 
     .menu-pane.WIP::before {
         position: absolute;
@@ -767,7 +795,11 @@ body > #main-container {
 
     .menu-pane.non-transitioning {
         z-index: 1000;
-        animation: fade-in 200ms ease-in-out;
+
+    }
+
+    .menu-pane.std-menu {
+        animation: slide-in-stdMenu 200ms ease-in-out;
     }
 
     .menu-pane > .wrapper {
@@ -793,6 +825,7 @@ body > #main-container {
         font-size: 4rem;
         margin-right: 0;
         max-width: none;
+        color: #B9DFDA;
     }
 
     .menu-pane > .wrapper p {
@@ -814,7 +847,7 @@ body > #main-container {
     .menu-pane .wrapper .path-selection-box .path-out {
         padding: 0.5rem;
         padding-right: 1rem;
-        background: #DFD3CD;
+        background: #B9DFDA;
         width: 20rem;
         height: 2rem;
         box-sizing: border-box;
@@ -1086,7 +1119,7 @@ body > #main-container {
     .menu-pane.advanced-statistics .wrapper .info-strip {
         margin-top: 1rem;
         border-radius: 0.5rem;
-        background: #E0F2E9;
+        background: #B3BFB0;
         padding: 0.5rem;
         box-sizing: border-box;
         display: grid;
@@ -1097,7 +1130,7 @@ body > #main-container {
     }
 
     .menu-pane.advanced-statistics .wrapper .info-strip p {
-        color: #3C887E;
+        color: #E0F2E9;
         width: 100% !important;
         max-width: none !important;
         text-align: center;
@@ -1182,7 +1215,7 @@ body > #main-container {
         width: calc(100%);
         margin: auto;
         margin-top: 1rem;
-        background: rgba(206, 181, 167, 1);
+        background: #B3BFB0;
         border-radius: 1rem;
         box-sizing: border-box;
         padding: 1rem;
@@ -1300,7 +1333,7 @@ body > #main-container {
         width: calc(100%);
         height: 2rem;
         border-radius: 1.5rem;
-        background-color: #CEB5A7;
+        background-color: #B3BFB0;
         margin: auto;
         margin-top: 1rem;
         display: grid;
