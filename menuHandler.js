@@ -109,11 +109,11 @@ async function stats(el) {
 
     regCalc.onclick = openAdvancedEstimateMenu;
 
-
+/*
     var butt = document.createElement("button");
     butt.innerText = "Button";
     bWr.appendChild(butt);
-    butt.className = "smooth-shadow";
+    butt.className = "smooth-shadow";*/
 }
 
 function sleep(ms) {
@@ -171,6 +171,8 @@ async function openAdvancedEstimateMenu() {
             We will use your recorded log data, world data and the year 
             you originally started playing Minecraft 
             to calculate an estimate of your total playtime. 
+            <br><br>
+            Please note that this feature still is in early beta, and might not work properly. You will be notified on the main screen when it can be used.
         `
         cont.appendChild(i);
         i.className = "information";

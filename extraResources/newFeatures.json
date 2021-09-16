@@ -1,23 +1,6 @@
 {
     "tools": [
         {
-            "title": "Calculate your total time",
-            "body": "Get to know your total playtime - even without having the complete data history. Check it out to train your model now!",
-            "buttons": [
-                {
-                    "type": 0,
-                    "label": "check it out",
-                    "click": "openAdvancedEstimateMenu()"
-                },
-                {
-                    "type": 1,
-                    "label": "close",
-                    "click": "close"
-                }
-            ],
-            "removed": true
-        },
-        {
             "title": "See detailed statistics",
             "body": "Want to know how far you've walked in total?",
             "buttons": [

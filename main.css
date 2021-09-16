@@ -46,7 +46,7 @@ body > #main-container {
     grid-template-rows: 100%;
     overflow: hidden;
     position: relative;
-    z-index: 1000;
+    z-index: 2000;
 }
 
 
