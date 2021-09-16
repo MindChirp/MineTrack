@@ -653,6 +653,11 @@ body > #main-container {
         padding: 0.5rem 1rem;
     }
 
+    .action-buttons button:disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
     .action-buttons button span {
         height: 1.5rem;
         vertical-align: top;

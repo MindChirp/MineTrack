@@ -868,7 +868,7 @@ async function showStatPage(index) {
         var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content");
         wrapper.innerHTML = "";
         var t = document.createElement("p");
-        t.innerText ="Placeholder";
+        t.innerText ="There will be more content to be found soon!";
         wrapper.appendChild(t);
     }
     
@@ -1058,9 +1058,43 @@ function createScanEntry(file) {
             background: #E0F2E9;
             color: #3C887E;
         `
+        if(file.scans.res.length < 1) {
+            amt.innerText = "No worlds found";
+            return;
+        }
         amt.innerText = file.scans.res.length + " Worlds found";
         scanMenu.appendChild(amt)
 
+        var worlds = file.scans.res;
+        var x;
+        var totalTime = 0;
+        for(x of worlds) {
+            totalTime = totalTime + x.value;
+        }
+
+        var p = document.createElement("p");
+        var time = convertHMS(totalTime/20);
+        p.innerText = time[0] + " Hours " + time[1] + " Minutes and " + time[2] + " seconds played";
+        scanMenu.appendChild(p); 
+
+        p.style = `
+            text-align: center;
+            margin: auto;
+            margin-top: 2rem;
+        `;
+
+        var info = document.createElement("p");
+        info.innerText = "More data will be added to this page soon!";
+        info.style = `
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            background: #E0F2E9;
+            margin: auto;
+            text-align: center;
+            color: #3C887E;
+            margin-top: 0.5rem;
+        `;
+        scanMenu.appendChild(info);
 
     });
 

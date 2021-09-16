@@ -86,11 +86,11 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
             }
         }
         if(properties.total == true) {
-            resolve(total);
+            resolve(total); //Returns ticks as timevalue
         } else if(properties.perWorld == true) {
-            resolve(worldArr);
+            resolve(worldArr); //Returns array, with ticks as timevalue
         } else {
-            resolve(total);
+            resolve(total); //Returns ticks
         }
 
     })
