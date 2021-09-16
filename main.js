@@ -823,7 +823,6 @@ function enterFirstTimeUse() {
                     return;
                 }
 
-                alert(name)
 
                 if(name.trim().length == 0 || id.trim().length == 0) {
                     setupError("The field must have a value");
@@ -1254,3 +1253,7 @@ function linearRegression(y,x){
 
     return lr;
 }
+
+ipcRenderer.on("update-ready", (ev, data)=>{
+    //An update has been found.
+})

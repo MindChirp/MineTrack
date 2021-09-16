@@ -24,6 +24,10 @@ autoUpdater.on("error", (ev)=>{
     console.log("error", ev);
 })
 
+autoUpdater.on("update-available", (ev)=>{
+    win.webContents.send("update-ready", "");
+})
+
 
 function createWindow() {
     try {
@@ -39,14 +43,15 @@ function createWindow() {
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: false,
-                enableRemoteModule: true
+                enableRemoteModule: true,
+                backgroundThrottling: false
             }
         })
     
         win.loadFile('index.html');
         
         win.webContents.on("did-finish-load", (ev)=>{
-            
+            autoUpdater.checkForUpdatesAndNotify();
             win.webContents.send("files-path", filesPath);
             win.webContents.send("app-version", app.getVersion())
         })

@@ -1,4 +1,5 @@
 
+var multiplier = 100;
 
 function openMenu(el) {
     return new Promise((resolve)=>{
@@ -244,9 +245,16 @@ async function openAdvancedEstimateMenu() {
     graph.className = "graph-output";
     menu.appendChild(graph);
 
+    for(let i = 0; i < 3; i++) {
+        var ind = document.createElement("div");
+        ind.className = "graph-indicator";
+        graph.appendChild(ind);
+    }
+
+
+
     var canv = document.createElement("canvas");
     graph.appendChild(canv);
-    var multiplier = 1000;
     canv.width = 4 * multiplier;
     canv.height = 1 * multiplier;
 
@@ -309,13 +317,14 @@ async function openAdvancedEstimateMenu() {
             notification("Could not read " + x);
         }
         /*
+        
         var obj = {
             date: logFile.date,
             time: logFile.time
         }
-        console.log(obj.time);
         times.push(obj);
         */
+        
 
         if(times.filter(e=>e.date == logFile.date).length == 0) {
             var obj = {
@@ -328,27 +337,116 @@ async function openAdvancedEstimateMenu() {
             times[index].time = times[index].time + logFile.time;
 
         }
+        
+
+
     }
 
+    console.log(times.length)
+
+    //Get the object that should be placed first on the x-axis
+    var date = new Date();
+    var minXval = [parseInt(date.getFullYear())+10, 100, 100];
+    var counter = 0;
+    var x;
+    for(x of times) {
+        var split = x.date.split("-");
+        var yr = split[0];
+        var mon = parseInt(split[1])-1;
+        var day = split[2];
+
+        var minYr  = parseInt(minXval[0]);
+        var minMon = parseInt(minXval[1]);
+        var minDay = parseInt(minXval[2]);
+        if(yr < minYr) {
+            minXval = [yr, mon, day, counter];
+            counter++
+            continue;
+        }
+
+        if(yr <= minYr && mon <= minMon && day < minDay) {
+            minXval = [yr, mon, day, counter];
+            counter++
+            continue;
+        }
+
+        if(yr <= minYr && mon < minMon) {
+            minXval = [yr, mon, day, counter];
+            counter++
+            continue;
+        }
+
+    }
+
+
+    var date = new Date();
+    var maxXval = [0, 0, 0];
+    var counter = 0;
+    var x;
+    for(x of times) {
+        var split = x.date.split("-");
+        var yr = split[0];
+        var mon = parseInt(split[1])-1
+        var day = split[2];
+
+        var maxYr = parseInt(parseInt(maxXval[0]));
+        var maxMon = parseInt(parseInt(maxXval[1]));
+        var maxDay = parseInt(parseInt(maxXval[2]));
+        if(yr > minYr) {
+            maxXval = [yr, mon, day, counter];
+            counter++
+            continue;
+        }
+
+        if(yr >= maxYr && mon >= maxMon && day > maxDay) {
+            maxXval = [yr, mon, day, counter];
+            counter++
+            continue;
+        }
+
+        if(yr >= maxYr && mon > maxMon) {
+            maxXval = [yr, mon, day, counter];
+            counter++
+            continue;
+        }
+
+    }
+
+
+
     //All files have been scanned, and the data points can be plotted
-    plotDataPoints(times, canv)
+    plotDataPoints(times, canv, minXval, maxXval)
     .then((res)=>{
         var p = document.createElement("p");
-        p.innerText = "Regression expression - " + res;
+        p.innerText = "Regression expression - " + res.regEq;
         menu.appendChild(p);
         p.style = `
             animation: fade-in 200ms ease-in-out;
             margin-top: 1rem;
-        `
+        `;
+
+        //Create the numbers on the graph
+
+        var inds = graph.getElementsByClassName("graph-indicator");
+
+        var p = document.createElement("p");
+        p.innerText = (res.upperVal/60/60).toFixed(1) + " hours";
+        inds[0].appendChild(p);
+
+        var p = document.createElement("p");
+        p.innerText = (res.upperVal/2/60/60).toFixed(1) + " hours";
+        inds[1].appendChild(p);
+
+        var p = document.createElement("p");
+        p.innerText = "0 hours";
+        inds[2].appendChild(p);
     })
 }
 
-function plotDataPoints(times, canvas) {
+function plotDataPoints(times, canvas, minXval, maxXval) {
     return new Promise((resolve, reject)=>{
 
-        var firstDate = new Date();
-
-        var index = 0;
+        var iteratorDate = new Date();
         var points = [];
 
         var xMax = 0;
@@ -356,13 +454,33 @@ function plotDataPoints(times, canvas) {
 
         var testCode = false;
 
+        //Calculate the amount of days between minXval and maxXval
+        var minDate = new Date();
+        var maxDate = new Date();
+
+        minDate.setFullYear(minXval[0]);
+        minDate.setMonth(minXval[1]);
+        minDate.setDate(parseInt(minXval[2]));
+
+        maxDate.setFullYear(maxXval[0]);
+        maxDate.setMonth(maxXval[1]);
+        maxDate.setDate(maxXval[2]);
+
+        //Get MS between the two dates
+        var ms = maxDate - minDate;
+        var days = Math.floor(ms/1000/60/60/24)+2;
+        iteratorDate = new Date();
+        iteratorDate.setFullYear(minXval[0]);
+        iteratorDate.setMonth(minXval[1]);
+        iteratorDate.setDate(minXval[2]);
+
+        var realDates = [];
+
+        console.log(maxXval[0], maxXval[1], maxXval[2])
+        console.log(days);
         var x;
-
         if(!testCode) {
-            for(let i = 0; i < xMax;i++) {
-
-                var addDataToPoint = false;
-
+            for(let i = 0; i < days;i++) {
                 
                 /*
 
@@ -371,33 +489,64 @@ function plotDataPoints(times, canvas) {
 
                 */
 
-                //var ind = times.findIndex(item=>item.date == currentDate)
-            
-                if(index == 0) {
-                    firstDate.setFullYear(times[i].date.split("-")[0]);
-                    firstDate.setMonth(times[i].date.split("-")[1]);
-                    firstDate.setDate(times[i].date.split("-")[2]);
-                    index++
-                }
-                var date = new Date();
-                date.setFullYear(times[i].date.split("-")[0]);
-                date.setMonth(times[i].date.split("-")[1]);
-                date.setDate(times[i].date.split("-")[2]);
+                //Get objects with this date value
+
+                var yr = iteratorDate.getFullYear();
+                var mon = iteratorDate.getMonth()+1;
+                var day = iteratorDate.getDate();
+
+                mon = mon<10?"0"+mon:mon;
+                day = day<10?"0"+day:day;
+
                 
-                var diff = Math.floor((date - firstDate)/1000/60/60/24);
-                if(diff > xMax) {xMax = diff}
-                if(x.time > yMax) {yMax = x.time}
-                points.push({x: diff, y: x.time});
+                var currentDate = yr + "-" + mon + "-" + day;
+                var ind = times.findIndex(item=>item.date == currentDate)
+                //Get day difference
+                var dDiff = Math.floor((iteratorDate - minDate)/1000/60/60/24);
+                //Advanve the iteratordate by one day
+                iteratorDate.setDate(iteratorDate.getDate()+1);
+
+                //Check if there is an element that has its x value on the given day
+                if(dDiff > xMax) {
+                    xMax = dDiff
+                }
+                
+                if(ind!=-1) {
+                    realDates.push(times[ind].date)
+                    if(times[ind].time > yMax) {yMax = times[ind].time} //Set the yMax if possible
+                    points.push({x: dDiff, y: times[ind].time});
+                } else {
+                    points.push({x: dDiff, y: 0})
+                    //The yMax won't be set in this case, because there will always be a value
+                    //equal to or greater than zero.
+                }
             }
+            console.log(realDates.length)
+            var z;
+            var notFound = [];
+            for(z of times) {
+                var m;
+                var found = false;
+                for(m of realDates) {
+                    if(z.date == m) {
+                        found = true;
+                    }
+                }
+                if(found == false) {
+                    notFound.push(z.date);
+                }
+            }
+            console.log(notFound)
+
         }
 
         if(testCode) {
-            var pointss = 700;
+            var pointss = 100;
             
             for(let i = 0;i<pointss;i++) {
                 //Generate a random y value
-                var x = (4000/pointss)*i
-                var y = 2*i*(Math.random()+0.3)/1000;
+                var x = (4*multiplier/pointss)*i
+                var y = 2*i*(Math.random()+0.3)/1*multiplier;
                 if(x > xMax) {xMax = x};
                 if(y > yMax) {yMax = y};
                 points.push({x:x, y:y}); 
@@ -414,18 +563,17 @@ function plotDataPoints(times, canvas) {
         var c = canvas.getContext("2d");
         
         var yOffset = 0;
-
-        var yScale = 1000/yMax;
-        var xScale = 4000/xMax;
-
+        var yScale = (1*multiplier)/yMax;
+        var xScale = (4*multiplier)/xMax;
         var y;
         for(y of points) {
-            
             var cX =(Math.round(y.x*xScale));
-            var cY = 1000 - yOffset - Math.round(yScale*y.y);
+            var cY = 1*multiplier - yOffset - Math.round(yScale*y.y);
+
+            console.log(cX, cY)
             c.beginPath();
-            c.moveTo(cX+6,cY+6);
-            c.arc(cX,cY,12,0, Math.PI*2);
+            c.moveTo(cX,cY);
+            c.arc(cX,cY,1,0, Math.PI*2);
             c.closePath();
             c.fillStyle = "#3C887E";
             c.strokeStyle = "#3C887E";
@@ -436,32 +584,28 @@ function plotDataPoints(times, canvas) {
         var dataX = [];
         var dataY = [];
         var y;
+        console.log(points);
         for(y of points) {
             dataX.push(parseInt(y.x));
             dataY.push(parseInt(y.y));
         }
 
         var reg = linearRegression(dataY, dataX);
-
         var y1 = expression(0, reg);
-        var y2 = expression(4000,reg);
-        console.log(y1);
+        var y2 = expression(4*multiplier,reg);
 
         var yAdj1 = y1*yScale;
-        console.log(yScale)
         var yAdj2 = y2*yScale;
-
         var c = canvas.getContext("2d");
         c.beginPath();
-        c.moveTo(0,(1000-yOffset)-yAdj1);
-        c.lineTo(4000,(1000-yOffset)-yAdj2);
+        c.moveTo(0,(1*multiplier-yOffset)-yAdj1);
+        c.lineTo(4*multiplier,(1*multiplier-yOffset)-yAdj2);
         c.closePath();
-        c.strokeStyle = "#5B7B7A";
-        c.lineWidth = 15;
+        c.strokeStyle = "#A17C6B";
+        c.lineWidth = 2;
         c.stroke();
 
         function expression(x, res){
-            console.log(res.slope, res.intercept)
             return ((res.slope*x)+res.intercept);
         }
 
@@ -471,9 +615,8 @@ function plotDataPoints(times, canvas) {
             return (reg.slope*x+reg.intercept);
         }
 
-        console.log(integral.integrate(f,0,xMax*xScale));
 
-        resolve("y=" + reg.slope + "x+" + reg.intercept);
+        resolve({regEq:"y=" + reg.slope + "x+" + reg.intercept, upperVal: yMax});
 
         /*
         performLinearRegression(data)
