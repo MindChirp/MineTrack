@@ -41,7 +41,7 @@ var progLauncher = new autoLaunch({
 
 var ctxMenu = Menu.buildFromTemplate([
     {
-        label: "MineTracker",
+        label: "MineTrack",
         enabled: false
     },
     {label: 'Show app', click: ()=>{
@@ -82,7 +82,8 @@ async function createWindow() {
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: false,
-                enableRemoteModule: true
+                enableRemoteModule: true,
+                backgroundThrottling: false
             }
         })
     
@@ -110,21 +111,30 @@ async function createWindow() {
         win.on('focus', ()=>{
             win.webContents.send("deny-checking-for-minecraft","")
         })   
-            
+        
+        /*
         win.webContents.setWindowOpenHandler(({ url }) => {
             shell.openExternal(url);
             return { action: 'deny' };
           });
-
+        */
         win.on("close", (ev)=>{
-            if(!app.forceClose) {
-                ev.preventDefault();
-                if(tray){return win.hide()}
-                tray = new Tray('icon.png');
-                tray.setContextMenu(ctxMenu);
-                tray.setToolTip("MineTrack");
-                win.hide();
+            win.webContents.send("backend-messages", "Closing");
+            try {
+                if(!app.forceClose) {
+                    ev.preventDefault();
+                    if(tray){return win.hide()}
+                    win.webContents.send("backend-messages", "Creating tray");
+                    tray = new Tray(path.join(__dirname, "icon.png"));
+                    tray.setContextMenu(ctxMenu);
+                    tray.setToolTip("MineTrack");
+                    win.hide();
+                }
+            } catch (error) {
+                win.webContents.send("backend-messages", error.toString());
+                
             }
+            
 
             return;
         })

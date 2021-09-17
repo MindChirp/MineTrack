@@ -591,13 +591,7 @@ function checkResources() {
 
 
 function closeProgram() {
-    ipcRenderer.send("close-program")
-    .then(()=>{
-        console.log("closing");
-    })
-    .catch((err)=>{
-        console.log(err);
-    })
+    ipcRenderer.send("close-program", "")
 }
 
 function minimizeProgram() {
@@ -1443,3 +1437,8 @@ async function acceptAutoStartup() {
         notification("Enabled auto-startup!");
     }
 }
+
+
+ipcRenderer.on("backend-messages", (ev, data)=>{
+    console.log(data);
+})
