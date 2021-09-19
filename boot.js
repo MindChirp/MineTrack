@@ -5,6 +5,7 @@ const log = require('electron-log');
 const autoLaunch = require("auto-launch");
 const fs = require("fs-extra");
 const path = require("path");
+
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
@@ -12,7 +13,26 @@ var tray = null;
 
 const filesPath = app.getPath("userData");
 var win;
+let myWindow = null
 
+const instanceLock = app.requestSingleInstanceLock();
+
+//Quits the program if the lock for a single instance is initiated
+if (!instanceLock) {
+    app.quit()
+  } else {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+      // Someone tried to run a second instance, we should focus our window. Haven't figured out why this isn't working yet
+      if (myWindow) {
+        if (myWindow.isMinimized()) myWindow.restore()
+        myWindow.focus()
+      }
+    })
+      
+    // Create win, load the rest of the app, etc...
+    app.on('ready', () => {
+    })
+  }
 
 //Set up the autoupdater
 var obj = {
