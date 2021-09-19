@@ -1048,6 +1048,10 @@ function createScanEntry(file) {
     p.innerHTML = title;
     el.appendChild(p);
 
+
+    /*
+        I KODEN NEDENFOR SKAL DU HOLDE PÅ, WILLIAM
+    */
     el.addEventListener("click", ()=>{
         var scanMenu = stdMenu();
 
