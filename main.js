@@ -14,6 +14,8 @@ var timeConfig = {
     singleplayertime: 0,
     totalSessionTime: 0
 };
+var ongoingSession = false;
+
 
 const folders = [
     "configs",
@@ -401,6 +403,7 @@ async function startCheckingForMinecraft() {
 
 
         if(res == true) {
+            ongoingSession = true;
             minecraftOpen = true;
             //Update the status bar
             var ind = document.getElementById("indicator");
@@ -428,6 +431,7 @@ async function startCheckingForMinecraft() {
                 if(!on) {
                     try {
                         await saveSession()
+                        ongoingSession = false;
                     } catch (error) {
                         notification("Could not save session");
                     }
@@ -559,7 +563,8 @@ function createFolders() {
 function checkResources() {
     return new Promise((resolve, reject)=>{
 
-        //Check if configs folder extists
+        //Check if configs folder extists, if not enter setup
+        //THIS CODE IS KINDA BAD AND FRAGILE, IT SHOULD BE FIXED!
         fs.access(path.join(filesPath, "configs"))
         .then(()=>{
             resolve();
@@ -1001,6 +1006,9 @@ function updateTimeCounting(main, session) {
 
 function saveSession() {
     return new Promise((resolve, reject)=>{
+
+        //Check if there is an ongoing session
+        if(!ongoingSession) reject("No session being recorded");
 
         //Get the session time
         var time = sessionTime; //In seconds

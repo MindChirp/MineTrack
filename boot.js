@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell, Tray, Menu} = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, shell, Tray, Menu, Notification} = require("electron");
 const find = require("find-process");
 const { autoUpdater } = require("electron-updater");
 const log = require('electron-log');
@@ -11,7 +11,12 @@ autoUpdater.logger.transports.file.level = 'info';
 var tray = null;
 
 const filesPath = app.getPath("userData");
+app.setAppUserModelId('MineTrack');
 var win;
+
+function showNotification(title, body) {
+    new Notification({title: title, body:body}).show();
+}
 
 
 //Set up the autoupdater

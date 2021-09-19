@@ -52,7 +52,11 @@ var menu;
 async function stats(el) {
     menu = await openMenu(el)
     menu.closest(".menu-pane").classList.add("statistics");
-    var sessions = await fs.readdir(path.join(filesPath, "recordeddata"));
+    try {
+        var sessions = await fs.readdir(path.join(filesPath, "recordeddata"));
+    } catch (error) {
+        notification("Something went wrong");
+    }
 
     var title = document.createElement("h1");
     title.className = "title";
@@ -140,6 +144,12 @@ async function openAdvancedEstimateMenu() {
     //await sleep(50);
 
     //Check if user has set up this function yet
+    if(typeof userConfig != "object") {
+        notification("Could not display advanced statistics");
+        return;
+    }
+
+
     if(!userConfig.startedPlaying) {
 
         var cleanUp = ()=>{
@@ -999,7 +1009,11 @@ async function scan(el) {
         margin-top: 1rem;
     `;
     dir.addEventListener("click", ()=>{
-        require('child_process').exec('start "" "' + path.join(filesPath, "scans"));
+        try {
+            require('child_process').exec('start "" "' + path.join(filesPath, "scans"));
+        } catch (error) {
+            notification("Could not open the folder");
+        }
     })
 
 }
@@ -1153,7 +1167,11 @@ function revealAllScans() {
 var scanPath;
 
 async function openDirectoryModal1() {
-    var result = await ipcRenderer.invoke("open-directory-modal", "pp");
+    try {
+        var result = await ipcRenderer.invoke("open-directory-modal", "pp");
+    } catch (error) {
+        notification("Could not open file dialog");
+    }
     if(result.length < 1) return;
     //Set the path variable as well
     scanPath = result[0];
@@ -1167,12 +1185,20 @@ async function openDirectoryModal1() {
 
 async function settings(el) {
 
+
+
+
     var menu = await openMenu(el)
     menu.closest(".menu-pane").classList.add("settings");
     var title = document.createElement("h1");
     title.className = "title";
     title.innerText = "Settings";
     menu.appendChild(title);
+
+    if(typeof userConfig != "object") {
+        notification("Could not display settings");
+        return;
+    }
 
     var paths = document.createElement("div");
     paths.className = "path-selection-box";
