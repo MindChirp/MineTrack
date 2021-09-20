@@ -8,7 +8,7 @@
             "buttons": [
                 {
                     "type": 0,
-                    "label": "Sure",
+                    "label": "Check it out",
                     "click": "advancedSettings()"
                 },
                 {

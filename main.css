@@ -44,7 +44,7 @@ body img {
 }
 
 /* The slider */
-.slider {
+.switch .slider {
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -57,7 +57,7 @@ body img {
 }
 
 
-.slider:before {
+.switch .slider:before {
     position: absolute;
     content: "";
     height: 1.1rem;
@@ -85,9 +85,8 @@ body img {
 }
 
 .switch input:checked + .slider:before {
-    -webkit-transform: translateX(26px);
-    -ms-transform: translateX(26px);
-    transform: translateX(26px);
+
+    transform: translateX(1.75rem);
 }
 
 
@@ -688,6 +687,7 @@ body > #main-container {
         box-sizing: border-box;
         margin: auto;
         border-radius: 0.5rem;
+        display: none;
     }
 
     .fp-card.suggestions .wrapper {
@@ -1277,6 +1277,23 @@ body > #main-container {
         width: fit-content;
         vertical-align: top;
         height: fit-content;
+        margin: auto;
+    }
+
+    /*
+    .menu-pane.advanced-settings .settings-tile:not(:last-of-type) {
+        margin-right: 2rem;
+    }*/
+
+    .menu-pane.advanced-settings > .wrapper {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        grid-template-rows: 10rem 5rem auto;
+    }
+
+    .menu-pane.advanced-settings > .wrapper .title {
+        grid-column: span 3;
+        height: fit-content;
     }
 
     .menu-pane.advanced-settings .settings-tile p {
@@ -1284,9 +1301,7 @@ body > #main-container {
         max-width: 20rem !important;
     }
 
-    .menu-pane.advanced-settings .settings-tile:not(:last-of-type) {
-        margin-right: 2rem;
-    }
+
 
     .session-popup-finished {
         animation: slide-in-bottom 300ms ease-in-out, slide-out-bottom 300ms ease-in-out 4.7s forwards;

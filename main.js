@@ -115,10 +115,28 @@ window.onload = async ()=>{
                 updateSuggestions();
             })
 
+
+            applyConfig();
+
         })
         .catch((err)=>{
             console.log(err);
         });
+    })
+}
+
+
+function applyConfig() {
+    return new Promise((resolve, reject)=>{
+        //userConfig
+
+        if(userConfig.autoSuggestions) {
+            var el = document.querySelector("#main-container > div.fp-card.suggestions");
+            el.style.display = "block";
+        } else {
+            var el = document.querySelector("#main-container > div.fp-card.suggestions");
+            el.style.display = "none";
+        }
     })
 }
 
@@ -987,6 +1005,14 @@ ipcRenderer.on("deny-checking-for-minecraft", (ev)=>{
     clearTimeout(timeout);
     */
 })
+
+
+function updateMainProcessConfigs() {
+    ipcRenderer.invoke("update-configs", "")
+    .catch(()=>{
+        notification("Could not update main process");
+    })
+}
 
 
 

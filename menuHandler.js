@@ -1457,7 +1457,13 @@ function advancedSettings() {
         }
 
 
-        saveSystemConfig();
+        saveSystemConfig()
+        .then(()=>{
+            updateMainProcessConfigs();
+        })
+        .catch((err)=>{
+            notification("Could not update main process configs");
+        })
     });
 
 
@@ -1467,7 +1473,13 @@ function advancedSettings() {
     t2.children[1].addEventListener("change", (ev)=>{
         var val = ev.target.checked;
         systemConfig.startInTray = val;
-        saveSystemConfig();
+        saveSystemConfig()
+        .then(()=>{
+            updateMainProcessConfigs();
+        })
+        .catch((err)=>{
+            notification("Could not update main process configs");
+        })
     });
 
     if(systemConfig.enableTray == false) {
@@ -1480,6 +1492,7 @@ function advancedSettings() {
         var val = ev.target.checked;
         userConfig.autoSuggestions = val;
         saveUserConfig();
+        applyConfig();
     });
 
 }
