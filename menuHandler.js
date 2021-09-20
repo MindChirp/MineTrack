@@ -1327,16 +1327,41 @@ async function settings(el) {
     id.innerText = userConfig.uuid;
     menu.appendChild(id);
 
-
     divider();
+    
+    var adv = document.createElement("button");
+    adv.innerText = "Advanced settings";
+    menu.appendChild(adv);
+    adv.className = "smooth-shadow";
+    adv.style = `
+        display: block;
+        margin-top: 0.7rem;
+    `
+    adv.addEventListener("click", ()=>{
+        advancedSettings();
+    })
+
+
+
     var reset = document.createElement("button");
     reset.innerText = "Reset program";
     menu.appendChild(reset);
-    reset.style = `
-        
-    `;
     reset.className = "smooth-shadow";
+    reset.style = `
+        margin-top: 0.7rem;
+        display: block;
+    `
+
+    var clickedAgain = false;
     reset.addEventListener("click", async ()=>{
+        if(!clickedAgain) {
+            notification("Click again to confirm");
+            clickedAgain = true; 
+            setTimeout(()=>{
+                clickedAgain = false;
+            }, 5000)
+            return;
+        }
         try {
             await resetAppFiles();
         } catch (error) {
@@ -1355,6 +1380,124 @@ async function settings(el) {
 
 }
 
+
+const inputs = {
+    toggle: ()=>{
+        var el = document.createElement("label");
+        el.className ="switch";
+        var inp = document.createElement("input");
+        inp.type = "checkbox";
+        el.appendChild(inp);
+        var slider = document.createElement("span");
+        slider.className = "slider";
+        el.appendChild(slider);
+        return el;
+    },
+    checkbox: ()=>{
+        var el = document.createElement("label");
+        el.className = "checkbox";
+        var inp = document.createElement("input");
+        inp.type = "checkbox";
+        el.appendChild(inp);
+
+        var ico = document.createElement("img");
+        ico.className = "icon";
+        el.appendChild(ico);
+        ico.src = "icons/check.svg";
+
+        var slider = document.createElement("span");
+        slider.className = "transition-slider";
+        el.appendChild(slider);
+        return el;
+    }
+}
+
+function advancedSettings() {
+
+    //configuration variables: 
+    //userConfig
+    //systemConfig
+
+    var switchTile = (title) =>{
+        var tile = document.createElement("div");
+        tile.className = "settings-tile";
+        var p = document.createElement("p");
+        p.innerText = title;
+        tile.appendChild(p);
+        var s1 = inputs.toggle();
+        tile.appendChild(s1);
+        console.log(systemConfig.enableTray)
+        s1.children[0].checked = systemConfig.enableTray;
+        menu.appendChild(tile);
+        return tile;
+    }
+
+    var menu = stdMenu();
+    menu.closest(".menu-pane").classList.add("advanced-settings");
+    var title = document.createElement("h1");
+    title.className = "title";
+    title.innerText = "Advanced";
+    menu.appendChild(title);
+
+
+    var t1 = switchTile("Minimize to system tray");
+    t1.children[1].children[0].checked = systemConfig.enableTray;
+
+    t1.children[1].addEventListener("change", (ev)=>{
+        var val = ev.target.checked;
+        systemConfig.enableTray = val;
+
+        //If this one is clicked, the other MUST be false
+        if(val == false) {
+            t2.children[1].children[0].checked = false;
+            systemConfig.startInTray = false;
+            t2.children[1].classList.add("disabled")
+        } else {
+            t2.children[1].classList.remove("disabled");
+        }
+
+
+        saveSystemConfig()
+        .then(()=>{
+            updateMainProcessConfigs();
+        })
+        .catch((err)=>{
+            notification("Could not update main process configs");
+        })
+    });
+
+
+
+    var t2 = switchTile("Start in system tray");
+    t2.children[1].children[0].checked = systemConfig.startInTray;
+    t2.children[1].addEventListener("change", (ev)=>{
+        var val = ev.target.checked;
+        systemConfig.startInTray = val;
+        saveSystemConfig()
+        .then(()=>{
+            updateMainProcessConfigs();
+        })
+        .catch((err)=>{
+            notification("Could not update main process configs");
+        })
+    });
+
+    if(systemConfig.enableTray == false) {
+        t2.children[1].classList.add("disabled"); //Disable this toggle if the previous is disabled
+    }
+
+    var t3 = switchTile("Enable autosuggestions");
+    t3.children[1].children[0].checked = userConfig.autoSuggestions;
+    t3.children[1].addEventListener("change", (ev)=>{
+        var val = ev.target.checked;
+        userConfig.autoSuggestions = val;
+        saveUserConfig();
+        applyConfig();
+    });
+
+}
+
+
 function saveUserConfig(custom) {
     return new Promise(async(resolve, reject)=>{
         var config = userConfig;
@@ -1363,6 +1506,21 @@ function saveUserConfig(custom) {
         }
         try {
             await fs.writeFile(path.join(filesPath, "configs", "userdata.json"), JSON.stringify(config))
+        } catch (error) {
+            reject(error);
+        }
+        resolve();
+    })
+}
+
+function saveSystemConfig(custom) {
+    return new Promise(async(resolve, reject)=>{
+        var config = systemConfig;
+        if(custom) {
+            config = custom;
+        }
+        try {
+            await fs.writeFile(path.join(filesPath, "systemconfig.json"), JSON.stringify(config, null, 4))
         } catch (error) {
             reject(error);
         }

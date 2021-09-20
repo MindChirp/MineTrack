@@ -14,6 +14,9 @@ var timeConfig = {
     singleplayertime: 0,
     totalSessionTime: 0
 };
+
+var systemConfig;
+
 var ongoingSession = false;
 
 
@@ -112,10 +115,28 @@ window.onload = async ()=>{
                 updateSuggestions();
             })
 
+
+            applyConfig();
+
         })
         .catch((err)=>{
             console.log(err);
         });
+    })
+}
+
+
+function applyConfig() {
+    return new Promise((resolve, reject)=>{
+        //userConfig
+
+        if(userConfig.autoSuggestions) {
+            var el = document.querySelector("#main-container > div.fp-card.suggestions");
+            el.style.display = "block";
+        } else {
+            var el = document.querySelector("#main-container > div.fp-card.suggestions");
+            el.style.display = "none";
+        }
     })
 }
 
@@ -514,6 +535,12 @@ function loadData() {
             reject(error)
         }
 
+        try {
+            systemConfig = JSON.parse(await fs.readFile(path.join(filesPath, "systemconfig.json")));
+        } catch (error) {
+            notification("Could not read system configuration files");
+        }
+
         
 
         resolve();
@@ -544,7 +571,8 @@ function createFolders() {
             username: setupInfo.username,
             uuid: setupInfo.uuid,
             minecraftpath: setupInfo.minecraftpath,
-            termsAccepted: setupInfo.termsAccepted
+            termsAccepted: setupInfo.termsAccepted,
+            autoSuggestions: true
         }
 
         userConfig = config;
@@ -727,7 +755,7 @@ function enterFirstTimeUse() {
             progCounter.setPage(1);
             var t = document.createElement("p");
             t.className = "sub-title";
-            t.innerText = "Check if this path leads to your minecraft installation folder";
+            t.innerText = "Does this path lead to your Minecraft directory?";
             
             var div = document.createElement("div");
             div.style = `
@@ -977,6 +1005,14 @@ ipcRenderer.on("deny-checking-for-minecraft", (ev)=>{
     clearTimeout(timeout);
     */
 })
+
+
+function updateMainProcessConfigs() {
+    ipcRenderer.invoke("update-configs", "")
+    .catch(()=>{
+        notification("Could not update main process");
+    })
+}
 
 
 
