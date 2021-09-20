@@ -1327,16 +1327,41 @@ async function settings(el) {
     id.innerText = userConfig.uuid;
     menu.appendChild(id);
 
-
     divider();
+    
+    var adv = document.createElement("button");
+    adv.innerText = "Advanced settings";
+    menu.appendChild(adv);
+    adv.className = "smooth-shadow";
+    adv.style = `
+        display: block;
+        margin-top: 0.7rem;
+    `
+    adv.addEventListener("click", ()=>{
+        advancedSettings();
+    })
+
+
+
     var reset = document.createElement("button");
     reset.innerText = "Reset program";
     menu.appendChild(reset);
-    reset.style = `
-        
-    `;
     reset.className = "smooth-shadow";
+    reset.style = `
+        margin-top: 0.7rem;
+        display: block;
+    `
+
+    var clickedAgain = false;
     reset.addEventListener("click", async ()=>{
+        if(!clickedAgain) {
+            notification("Click again to confirm");
+            clickedAgain = true; 
+            setTimeout(()=>{
+                clickedAgain = false;
+            }, 5000)
+            return;
+        }
         try {
             await resetAppFiles();
         } catch (error) {
@@ -1354,6 +1379,17 @@ async function settings(el) {
     }
 
 }
+
+
+function advancedSettings() {
+    var menu = stdMenu();
+    menu.closest(".menu-pane").classList.add("advanced-settings");
+    var title = document.createElement("h1");
+    title.className = "title";
+    title.innerText = "Advanced";
+    menu.appendChild(title);
+}
+
 
 function saveUserConfig(custom) {
     return new Promise(async(resolve, reject)=>{

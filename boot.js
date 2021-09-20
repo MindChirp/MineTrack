@@ -6,6 +6,9 @@ const autoLaunch = require("auto-launch");
 const fs = require("fs-extra");
 const path = require("path");
 
+var backEndMessageBuffer = [] //This stores any errors that occur before the creation of the window object. It will be sent over to the renderer process when it has been opened.
+var config;
+
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
@@ -81,17 +84,11 @@ var ctxMenu = Menu.buildFromTemplate([
 
 async function createWindow() {
     //Load the system config
-    
     try {
-        var config = await fs.readFile(path.join(filesPath, "configs", "systemconfig.json"));
+        var show = !config.startInTray || true;
     } catch (error) {
-        //no systemconfig
-        var config = {
-            show: true
-        }
+        var show = true;
     }
-
-    var show = config.show || true;
     console.log(show);
 
     try {
@@ -149,6 +146,15 @@ async function createWindow() {
             try {
                 if(!app.forceClose) {
                     ev.preventDefault();
+
+                    //Check if this is the first time closing the program. If that's the case, notify the user of what is going to happen
+                    if(config.closedBefore == false) {
+                        showNotification("The program is still running", "MineTrack is still running in the system tray. This can be disabled in the settings menu.");
+                        config.closedBefore = true;
+                        saveConfig();
+                    }
+
+
                     if(tray){return win.hide()}
                     win.webContents.send("backend-messages", "Creating tray");
                     tray = new Tray(path.join(__dirname, "icon.png"));
@@ -166,9 +172,49 @@ async function createWindow() {
         })
         
     } catch (error) {
-        console.log(error, "ERROR APPENDIX");
+        console.log(error);
     }
 
+}
+
+
+function saveConfig() {
+    return new Promise((resolve, reject)=>{
+        try {
+            fs.writeFile(path.join(filesPath, "systemconfig.json"), JSON.stringify(config, null, 4));
+            resolve();
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+//Check if the system configuration files exist
+function checkConfigs() {
+    return new Promise(async (resolve, reject)=>{
+        try {
+            config = await fs.readFile(path.join(filesPath, "systemconfig.json"));
+            config = JSON.parse(config);
+            //This config file is accessable throughout the boot.js file, because its declaration is hoisted to the top of the document (line 10)
+            resolve();
+        } catch (error) {
+            config = {
+                closedBefore: false, //This is used to determine if the program should display the first time closing notification
+                startInTray: false //This one will be editable in the program settings
+            }
+            try {
+                console.log(config)
+                await fs.writeFile(path.join(filesPath, "systemconfig.json"), JSON.stringify(config, null, 4/*Pretty print*/));   
+                resolve();
+            } catch (error) {
+                backEndMessageBuffer.push({
+                    messageType: "error",
+                    errorString: error.toString()
+                })
+                reject(error);
+            }
+        }
+    })    
 }
 
 
@@ -207,8 +253,17 @@ ipcMain.handle("open-directory-modal", async (event, arg)=>{
 })
 
 app.whenReady().then(()=>{
-    console.log("asdasda")
-    createWindow();
+    
+    checkConfigs()
+    .then(()=>{
+        createWindow();
+    })
+    .catch((err)=>{
+        console.log(err);
+        //If an error occurs while checking for the system configuration files, continue the startup process anyway.
+        createWindow();
+    })
+    //createWindow();
 })
 
 ipcMain.handle("check-for-minecraft", async(event, arg) =>{
