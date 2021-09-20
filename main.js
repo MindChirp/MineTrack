@@ -755,7 +755,7 @@ function enterFirstTimeUse() {
             progCounter.setPage(1);
             var t = document.createElement("p");
             t.className = "sub-title";
-            t.innerText = "Check if this path leads to your minecraft installation folder";
+            t.innerText = "Does this path lead to your Minecraft directory?";
             
             var div = document.createElement("div");
             div.style = `
