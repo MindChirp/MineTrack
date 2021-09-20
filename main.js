@@ -14,6 +14,9 @@ var timeConfig = {
     singleplayertime: 0,
     totalSessionTime: 0
 };
+
+var systemConfig;
+
 var ongoingSession = false;
 
 
@@ -514,6 +517,12 @@ function loadData() {
             reject(error)
         }
 
+        try {
+            systemConfig = JSON.parse(await fs.readFile(path.join(filesPath, "systemconfig.json")));
+        } catch (error) {
+            notification("Could not read system configuration files");
+        }
+
         
 
         resolve();
@@ -544,7 +553,8 @@ function createFolders() {
             username: setupInfo.username,
             uuid: setupInfo.uuid,
             minecraftpath: setupInfo.minecraftpath,
-            termsAccepted: setupInfo.termsAccepted
+            termsAccepted: setupInfo.termsAccepted,
+            autoSuggestions: true
         }
 
         userConfig = config;

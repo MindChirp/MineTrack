@@ -1,18 +1,23 @@
 {
     "tools": [],
-    "stats": [
+    "stats": [],
+    "miscellaneous": [
         {
-            "title": "Important bug fix",
-            "body": "We've fixed some important bugs. If you previously had issues with closing the program, this should be resolved now.",
+            "title": "Advanced settings",
+            "body": "We've added some new options and toggles. Go ahead and check it out!",
             "buttons": [
                 {
                     "type": 0,
+                    "label": "Sure",
+                    "click": "advancedSettings()"
+                },
+                {
+                    "type": 1,
                     "label": "close",
                     "click": "close"
                 }
             ],
             "removed": true
         }
-    ],
-    "miscellaneous": []
+    ]
 }

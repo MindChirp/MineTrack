@@ -135,12 +135,12 @@ async function createWindow() {
             win.webContents.send("deny-checking-for-minecraft","")
         })   
         
-        /*
+        
         win.webContents.setWindowOpenHandler(({ url }) => {
             shell.openExternal(url);
             return { action: 'deny' };
           });
-        */
+        
         win.on("close", (ev)=>{
             win.webContents.send("backend-messages", "Closing");
             try {
@@ -200,7 +200,8 @@ function checkConfigs() {
         } catch (error) {
             config = {
                 closedBefore: false, //This is used to determine if the program should display the first time closing notification
-                startInTray: false //This one will be editable in the program settings
+                startInTray: false, //This one will be editable in the program settings
+                enableTray: true
             }
             try {
                 console.log(config)
