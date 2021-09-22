@@ -1053,69 +1053,75 @@ function createScanEntry(file) {
         I KODEN NEDENFOR SKAL DU HOLDE PÅ, WILLIAM
     */
     el.addEventListener("click", ()=>{
-        var scanMenu = stdMenu();
-
-        var t = document.createElement("h1");
-        t.className = "title";
-        t.style.marginBottom = "0";
-        t.innerText = title;
-        t.style.fontSize = "3rem";
-        scanMenu.appendChild(t);
-
-        var amt = document.createElement("p");
-        amt.className = "sub-title";
-        amt.style = `
-            width: fit-content;
-            padding: 0.2rem 0.5rem;
-            border-radius: 0.25rem;
-            text-align: center;
-            margin: auto;
-            margin-top: 0;
-            margin-bottom: 0;
-            background: #E0F2E9;
-            color: #3C887E;
-        `
-        if(file.scans.res.length < 1) {
-            amt.innerText = "No worlds found";
-            return;
-        }
-        amt.innerText = file.scans.res.length + " Worlds found";
-        scanMenu.appendChild(amt)
-
-        var worlds = file.scans.res;
-        var x;
-        var totalTime = 0;
-        for(x of worlds) {
-            totalTime = totalTime + x.value;
-        }
-
-        var p = document.createElement("p");
-        var time = convertHMS(totalTime/20);
-        p.innerText = time[0] + " Hours " + time[1] + " Minutes and " + time[2] + " seconds played";
-        scanMenu.appendChild(p); 
-
-        p.style = `
-            text-align: center;
-            margin: auto;
-            margin-top: 2rem;
-        `;
-
-        var info = document.createElement("p");
-        info.innerText = "More data will be added to this page soon!";
-        info.style = `
-            padding: 0.5rem 1rem;
-            border-radius: 1rem;
-            background: #E0F2E9;
-            margin: auto;
-            text-align: center;
-            color: #3C887E;
-            margin-top: 0.5rem;
-        `;
-        scanMenu.appendChild(info);
-
-    });
+        showFileScanResults(file, title);
+    })
 
 }
+
+
+function showFileScanResults(file, title) {
+    var scanMenu = stdMenu();
+
+    var t = document.createElement("h1");
+    t.className = "title";
+    t.style.marginBottom = "0";
+    t.innerText = title;
+    t.style.fontSize = "3rem";
+    scanMenu.appendChild(t);
+
+    var amt = document.createElement("p");
+    amt.className = "sub-title";
+    amt.style = `
+        width: fit-content;
+        padding: 0.2rem 0.5rem;
+        border-radius: 0.25rem;
+        text-align: center;
+        margin: auto;
+        margin-top: 0;
+        margin-bottom: 0;
+        background: #E0F2E9;
+        color: #3C887E;
+    `
+    if(file.scans.res.length < 1) {
+        amt.innerText = "No worlds found";
+        return;
+    }
+    amt.innerText = file.scans.res.length + " Worlds found";
+    scanMenu.appendChild(amt)
+
+    var worlds = file.scans.res;
+    var x;
+    var totalTime = 0;
+    for(x of worlds) {
+        totalTime = totalTime + x.value;
+    }
+
+    var p = document.createElement("p");
+    var time = convertHMS(totalTime/20);
+    p.innerText = time[0] + " Hours " + time[1] + " Minutes and " + time[2] + " seconds played";
+    scanMenu.appendChild(p); 
+
+    p.style = `
+        text-align: center;
+        margin: auto;
+        margin-top: 2rem;
+    `;
+
+    var info = document.createElement("p");
+    info.innerText = "More data will be added to this page soon!";
+    info.style = `
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        background: #E0F2E9;
+        margin: auto;
+        text-align: center;
+        color: #3C887E;
+        margin-top: 0.5rem;
+    `;
+    scanMenu.appendChild(info);
+
+    
+} 
 
 function loadScans() {
     return new Promise(async (resolve, reject)=>{

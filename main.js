@@ -1,6 +1,9 @@
 
 const { ipcRenderer } = require("electron");
 const path = require("path");
+const { dbHandler } = require("./dbModule");
+
+
 var allowchecking = true;
 var fs = require("fs-extra");
 var filesPath;
@@ -15,6 +18,10 @@ var timeConfig = {
     totalSessionTime: 0
 };
 
+module.exports = { filesPath };
+
+var cachedNames;
+
 var systemConfig;
 
 var ongoingSession = false;
@@ -25,8 +32,9 @@ const folders = [
     "worlddata",
     "recordeddata",
     "scans",
-    "logScans"
-]
+    "logScans",
+    "database"
+];
 
 const {gzip, ungzip} = require("node-gzip");
 
@@ -115,12 +123,11 @@ window.onload = async ()=>{
                 updateSuggestions();
             })
 
-
+            createDb();
             applyConfig();
-
         })
         .catch((err)=>{
-            console.log(err);
+            console.error(err);
         });
     })
 }
@@ -1486,3 +1493,22 @@ async function acceptAutoStartup() {
 ipcRenderer.on("backend-messages", (ev, data)=>{
     console.log(data);
 })
+
+
+function createDb () {
+    const { dbHandler } = require("./dbModule");
+
+    dbHandler.create("test", path.join(filesPath, "database"))
+    .then(async(db)=>{
+        await db.CREATE("username", "string");        
+        await db.CREATE("uuid", "string");
+        await db.INSERT({username: "farlige_frikk", uuid: "1298371asdjabsd848"});        
+        await db.INSERT({username: "Erland", uuid: "10823182iwsd1231"});
+
+        var vals = await db.SELECT("username", "farlige_frikk");
+        console.log(vals)
+    })
+    .catch(err=>{
+        throw err;
+    })
+}

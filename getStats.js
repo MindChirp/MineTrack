@@ -3,6 +3,19 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
         if(statisticPath.length < 1) reject("NO PATH");
         //We get an array as the statpath
         
+        function getNamesFromUUID(uuid=String) {
+            return new Promise((resolve, reject)=>{
+                if(typeof uuid != "string") reject(new Error("UUID required"))
+                fetch("https://api.mojang.com/user/profiles/" + uuid + "/names")
+                .then(res => res.json())
+                .then(dat => resolve(dat))
+                .catch(err=>{
+                    reject(err);
+                })
+            })
+        }
+
+
         //FORMAT: [["path", "1"], ["alternate", "path2"], ["alternate", "path3"]]
         
         //Get the minecraft worlds
