@@ -1,7 +1,7 @@
 
 const { ipcRenderer } = require("electron");
 const path = require("path");
-const { dbHandler } = require("./dbModule");
+var { dbHandler } = require("./dbModule");
 
 
 var allowchecking = true;
@@ -953,6 +953,7 @@ async function openDirectoryModal() {
 
 
 function getId(playername) {
+    alert("asd");
     return fetch(`https://api.mojang.com/users/profiles/minecraft/${playername}`)
       .then(data => data.json())
       .then(player => player.id);
@@ -1329,7 +1330,6 @@ async function checkForNewFeatures() {
                 
         }
 
-        console.log(features);
 
         //Get all the cards that have not been removed, and show the first one.
         var x;

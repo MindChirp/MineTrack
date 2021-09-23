@@ -744,6 +744,13 @@ async function showStatPage(index) {
                 retrieveStat(path,properties)
                 .then(async (res)=>{
                     if(properties.total) {
+                        try {
+                            var formatted = await replaceWithNames(res); //Replace the stat list that has been returned (that only contains uuids, and some usernames, into only usernames)
+                        } catch (error) {
+                            console.error(error)
+                        }
+
+                        console.log(formatted);
                         var entry = returnBox();
                         var ico = document.createElement("i");
                         ico.className = "material-icons";
@@ -815,62 +822,55 @@ async function showStatPage(index) {
         }
 
         var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content");
-        createEntry([["minecraft:custom", "minecraft:walk_one_cm"],["stat.walkOneCm"]], properties, 0.01, "Meters walked", "directions_walk")
-        .then((el)=>{
-            wrapper.appendChild(el);
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
+        try {
+            var el = await createEntry([["minecraft:custom", "minecraft:walk_one_cm"],["stat.walkOneCm"]], properties, 0.01, "Meters walked", "directions_walk")            
+        } catch (error) {
+            console.error(error);
+        }
+        wrapper.appendChild(el);
 
-        createEntry([["minecraft:custom", "minecraft:sneak_time"],["stat.sneakTime"]],properties, (1/20), "Seconds sneaked", "elderly")
-        .then((el)=>{
-            wrapper.appendChild(el);
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
+        try {
+            var el = await createEntry([["minecraft:custom", "minecraft:sneak_time"],["stat.sneakTime"]],properties, (1/20), "Seconds sneaked", "elderly")
+        } catch (error) {
+            console.error(error);
+        }
+        wrapper.appendChild(el);
 
         
-        createEntry([["minecraft:custom", "minecraft:mob_kills"],["stat.mobKills"]],properties, 1, "mobs killed", "shield")
-        .then((el)=>{
-            wrapper.appendChild(el);
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
+        try {
+            var el = await createEntry([["minecraft:custom", "minecraft:mob_kills"],["stat.mobKills"]],properties, 1, "mobs killed", "shield")
+        } catch (error) {
+            console.error(error);
+        }
+        wrapper.appendChild(el);
         
-        createEntry([["minecraft:custom", "minecraft:fly_one_cm"],["stat.flyOneCm"]],properties, (1/100), "meters flown", "flight")
-        .then((el)=>{
-            wrapper.appendChild(el);
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
+        try {
+            var el = await createEntry([["minecraft:custom", "minecraft:fly_one_cm"],["stat.flyOneCm"]],properties, (1/100), "meters flown", "flight")
+        } catch (error) {
+            console.error(error);
+        }
+        wrapper.appendChild(el);
 
-        createEntry([["minecraft:custom", "minecraft:deaths"],["stat.deaths"]],properties, 1, "deaths", "personal_injury")
-        .then((el)=>{
-            wrapper.appendChild(el);
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
+        try {
+            var el = await createEntry([["minecraft:custom", "minecraft:deaths"],["stat.deaths"]],properties, 1, "deaths", "personal_injury")
+        } catch (error) {
+            console.error(error);
+        }
+        wrapper.appendChild(el);
 
-        createEntry([["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]],properties, (((1/20)/60)/60), "hours played", "schedule")
-        .then((el)=>{
-            wrapper.appendChild(el);
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
+        try {
+            var el = await createEntry([["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]],properties, (((1/20)/60)/60), "hours played", "schedule")
+        } catch (error) {
+            console.error(error);
+        }
+        wrapper.appendChild(el);
 
-        createEntry([["minecraft:custom", "minecraft:jump"],["stat.jump"]],properties, 1, "times jumped", "north_east")
-        .then((el)=>{
-            wrapper.appendChild(el);
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
+        try {
+            var el = await createEntry([["minecraft:custom", "minecraft:jump"],["stat.jump"]],properties, 1, "times jumped", "north_east")
+        } catch (error) {
+            console.error(error);
+        }
+        wrapper.appendChild(el);
 
     } else {
         //Show the properties section
