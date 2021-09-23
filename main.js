@@ -123,7 +123,6 @@ window.onload = async ()=>{
                 updateSuggestions();
             })
 
-            createDb();
             applyConfig();
         })
         .catch((err)=>{
@@ -953,7 +952,6 @@ async function openDirectoryModal() {
 
 
 function getId(playername) {
-    alert("asd");
     return fetch(`https://api.mojang.com/users/profiles/minecraft/${playername}`)
       .then(data => data.json())
       .then(player => player.id);
@@ -1495,6 +1493,8 @@ ipcRenderer.on("backend-messages", (ev, data)=>{
 })
 
 
+
+//Test function for the MindBase
 function createDb () {
     const { dbHandler } = require("./dbModule");
 

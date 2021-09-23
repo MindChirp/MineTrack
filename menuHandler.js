@@ -750,7 +750,7 @@ async function showStatPage(index) {
                             console.error(error)
                         }
 
-                        console.log(formatted);
+                        console.log(formatted, title);
                         var entry = returnBox();
                         var ico = document.createElement("i");
                         ico.className = "material-icons";
@@ -759,7 +759,11 @@ async function showStatPage(index) {
                         
                         var p = document.createElement("p");
                         p.className = "full-size";
-                        p.innerText = Math.round(res*scaling) + " " + title;
+                        
+                        //Handle value error gracefully
+                        var value = isNaN(res*scaling)?"Could not load":Math.round(res*scaling) + " " + title;
+                        p.innerText = value;
+
                         entry.querySelector(".wrapper").appendChild(p);
                         resolve(entry);
                     } else if(properties.perWorld) {

@@ -29,6 +29,14 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
 
         for(x of worlds) {
             //Figure out the correct file
+            //Check if file/folder has an extension. In that case, ignore the whole file
+            var fTypes = x.split(".");
+            if(fTypes.length > 1) {
+                //This is NOT a regular world folder!
+                //This code is ESSENTIAL to display the correct statistic values
+                continue;
+            }
+            
             var uuid = userConfig.uuid;
             var name = "";
             try {
@@ -43,9 +51,11 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
 
             var y;
             for(y of files) {
-
+                //Check if file is not of type json
+                var fType = y.substring(y.length - 5, y.length + 5);
+                if(fType != ".json") continue;
+                
                 var fileName;
-                //console.log(y);
                 var removedJSON = y.substring(y.length - 5,0);
                 if(removedJSON.length <= 16) {
                     //This is a minecraft username!
@@ -120,32 +130,6 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
 
 
             }
-
-
-            /*
-                !!!!!THE CODE BELOW IS OBSOLETE!!!!!
-            */
-            /*
-            var y;
-
-            for(y of files) {
-                if(y.replaceAll("-", "").replaceAll(".json", "") == uuid){
-                    name = y.replaceAll(".json", "");
-                }
-            }
-            try {
-                
-                var stat = JSON.parse(await fs.readFile(path.join(mainPath, x, "stats", name + ".json"), "utf8"));
-            } catch (error) {
-                try {
-                    var stat = JSON.parse(await fs.readFile(path.join(mainPath, x, "stats", userConfig.username + ".json"), "utf8"));
-                } catch (error) {
-                    continue;
-                }
-            }
-            */
-
-
         }
         if(properties.total == true) {
             resolve(total); //Returns ticks as timevalue
@@ -175,9 +159,10 @@ function getNamesFromUUID(uuid=String) {
 
 function replaceWithNames(list) {
     return new Promise(async (resolve, reject)=>{
+        if(list.length < 1) {reject(new Error("Must be a list!")); return;}
         //We need to load in our database!
         try {
-            var db = await dbHandler.get(path.join(filesPath, "database"), "usernamesanduuids")
+            var db = await dbHandler.get(path.join(filesPath, "database"), "usernamesanduuids");
         } catch (error) {
             //The database does not exist
             try {
@@ -192,6 +177,15 @@ function replaceWithNames(list) {
         }
 
 
+        function mergeObjWithList(obj) {
+            var thing = newList.find(y => y.username === obj.username);
+            if(typeof thing == "object") {
+                thing.value = thing.value + obj.value;
+            } else {
+                newList.push(obj);
+            }
+        }
+
         var newList = [];
 
         //Start checking for uuids
@@ -200,6 +194,7 @@ function replaceWithNames(list) {
             var uuid = x.id;
             var res;
             if(uuid.toString().length <= 16) {
+                //console.log(uuid, x.value);
                 try {
                     //Get the user data from the database (uuid is the minecraft username)
                     res = await db.SELECT("username", uuid);
@@ -225,10 +220,12 @@ function replaceWithNames(list) {
                         continue;
                     }
 
-                    newList.push({username: uuid, value: x.value});
+                    mergeObjWithList({username: uuid, value: x.value});
+                    //newList.push({username: uuid, value: x.value});
 
                 } else {
-                    newList.push({username: res[0], value: x.value});
+                    mergeObjWithList({username: res[0], value: x.value});
+                    //newList.push({username: res[0], value: x.value});
                 }
 
             } else {
@@ -237,6 +234,7 @@ function replaceWithNames(list) {
                     res = await db.SELECT("uuid", x.id);
                 } catch (error) {
                     //Something went wrong
+                    console.error(error)
                     continue;   
                 }
                 //console.log(res);
@@ -251,25 +249,24 @@ function replaceWithNames(list) {
                     
                     try {
                         //In this case, the uuid variable is the username!
-                        await db.INSERT({username: usrName, uuid: uuid});
+                        await db.INSERT({username: usrName[0].name, uuid: uuid});
                     } catch (error) {
-                        //console.error(error);
                         continue;
                     }
+                    mergeObjWithList({username: usrName, value: x.value});
                     
-                    newList.push({username: usrName, value: x.value});
+                    //newList.push({username: usrName, value: x.value});
                     
                     } else {
                         //the entry exists. Let's get it ans its corresponding values
                         try {
                             var vals = await db.SELECT("uuid", uuid);
-                            vals = {username: vals[0], value: x.value}
                         } catch (error) {
-                        //console.error(error);
-                        continue;
-                    }
-                    
-                    newList.push(vals);
+                            //console.error(error);
+                            continue;
+                        }
+                        vals = {username: vals[0], value: x.value}
+                        mergeObjWithList(vals)
                 }
             }
 
