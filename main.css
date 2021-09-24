@@ -689,6 +689,7 @@ body > #main-container {
         margin: auto;
         border-radius: 0.5rem;
         display: none;
+        animation: fade-in 200ms ease-in-out;
     }
 
     .fp-card.suggestions .wrapper {

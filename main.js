@@ -497,10 +497,10 @@ function notification(title) {
     } else {
         cont.appendChild(el);
     }
-
+    var length = 50*title.length<5000?5000:50*title.length;
     setTimeout(()=>{
         el.parentNode.removeChild(el);
-    }, 5000)
+    }, length)
 }
 
 

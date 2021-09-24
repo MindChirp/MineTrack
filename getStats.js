@@ -244,10 +244,10 @@ function replaceWithNames(list) {
                 //console.log(res);
                 if(res.length < 1) {
                     try {
+                        console.log(uuid)
                         var usrName = await getNamesFromUUID(uuid)
                         //Get uuid from username instead!
                     } catch (error) {
-                        //console.error(error);
                         continue;
                     }
                     

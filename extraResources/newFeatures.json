@@ -3,13 +3,13 @@
     "stats": [],
     "miscellaneous": [
         {
-            "title": "Advanced settings",
-            "body": "We've added some new options and toggles. Go ahead and check it out!",
+            "title": "Statistics",
+            "body": "You can now view singleplayer statistics based on each player that has played in your worlds!",
             "buttons": [
                 {
                     "type": 0,
                     "label": "Check it out",
-                    "click": "advancedSettings()"
+                    "click": "stats(this); notification(`We will connect to Mojang's API to gather some usernames. This process is completely safe, and your usernames will not be stored externally.`)"
                 },
                 {
                     "type": 1,
@@ -17,7 +17,7 @@
                     "click": "close"
                 }
             ],
-            "removed": true
+            "removed": false
         }
     ]
 }

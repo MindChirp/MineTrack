@@ -1,6 +1,6 @@
 {
   "name": "MineTrack",
-  "version": "0.2.16",
+  "version": "0.3.16",
   "description": "",
   "main": "boot.js",
   "scripts": {
