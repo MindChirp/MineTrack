@@ -966,8 +966,21 @@ function gatherWorldInformation() {
         } catch (error) {
             reject(error);      
         }
-        
-        var secs = stat/20;
+
+        console.log(stat)
+        var uuid = userConfig.uuid;
+        var usrName = userConfig.username;
+        var obj = stat.find(y => y.id === uuid);
+        var obj1 = stat.find(y => y.id === usrName);
+
+        console.log(obj, obj1)
+
+        var secs = obj.value/20;
+        if(obj1 != undefined) {
+            secs = secs + (obj1.value/20)
+        }
+
+        console.log(secs);
         totalSeconds = totalSeconds + secs;
         updateTimeCounting(totalSeconds);
         //Update the config
