@@ -589,7 +589,7 @@ body > #main-container {
         bottom: 1rem;
         left: 50%;
         transform: translate(-50%);
-        background-color: #E1D3CB;
+        background-color: rgb(198, 230, 226);
         padding: 0.5rem;
         box-sizing: border-box;
         border-radius: 0.5rem;
@@ -796,7 +796,8 @@ body > #main-container {
         background-color: #5B7B7A;
         animation: transition-menu 0.4s ease-in both;
         transform: translate(-50%, -50%);
-        z-index: 0;
+        z-index: 10;
+        
     }
 
     @keyframes transition-menu {
@@ -925,7 +926,7 @@ body > #main-container {
         padding: 2rem;
         box-sizing: border-box;
         color: #E0F2E9;
-
+        z-index: 10;
     }
 
 
@@ -1062,7 +1063,7 @@ body > #main-container {
         
     }
 
-    .menu-pane .wrapper button:hover {
+    .menu-pane .wrapper > button:hover {
         transform: translate(0,-0.2rem);
     }
 
@@ -1409,7 +1410,14 @@ body > #main-container {
         padding: 0.5rem;
         box-sizing: border-box;
         overflow: hidden;
-        animation: fade-in 200ms ease-in-out;
+        animation: stat-slide-in 200ms ease-in-out;
+        position: relative;
+    }
+
+    @keyframes stat-slide-in {
+        0%{transform: translate(0,-1rem); opacity: 0;}
+        100%{transform: translate(0,0); opacity: 1;}
+
     }
 
     .menu-pane .content .stat-entry:not(:last-of-type) {
@@ -1419,21 +1427,29 @@ body > #main-container {
     .menu-pane .content .stat-entry .wrapper {
         display: inline-block;
         height: 100%;
-        width: calc(100% - (7rem + 3.2rem));
+        width: 100%;
         border-radius: 0;
         display: inline-flex;
         align-items: center;
+        position: absolute;
+        top: 0;
+        left: 0;
     }
 
-    .menu-pane .content .stat-entry .wrapper p.full-size {
+    .menu-pane .content .stat-entry .wrapper span.full-size {
         font-size: 1.8rem;        
         text-transform: capitalize;
         line-height: 1.6rem;
         text-align: center;
-        width: 100%;
+        width: fit-content;
+        margin: auto;
+    }
+    .menu-pane .content .stat-entry .wrapper span.full-size span {
+        float: left;
+        margin-right: 0.5rem;
     }
 
-    .menu-pane .content .stat-entry .wrapper p {
+    .menu-pane .content .stat-entry .wrapper span {
         color: #3C887E;
     }
 
@@ -1554,4 +1570,134 @@ body > #main-container {
         padding: 0 3px;
         z-index: 1;
 
+    }
+
+
+    .fd-dropdown {
+        height: 2.2rem;
+        width: 15rem;
+        position: relative;
+        z-index: 5;
+    }
+
+    .fd-dropdown .show-list {
+        position: absolute !important; 
+        right: 0.5rem !important;
+        top: 50% !important;
+        transform: translate(0,-50%) !important;
+        background: transparent !important;
+        border: none !important;
+        cursor: pointer !important;
+        transition: 150ms !important;
+        outline: none !important;
+        width: 2.5rem !important;
+        padding: 0;
+    }
+    
+    .fd-dropdown .show-list:hover {
+        transform: translate(0,calc(-50% + 0.1rem)) !important;
+    }
+    
+    .fd-dropdown .show-list:focus {
+        transform: translate(0,calc(-50% + 0.1rem)) !important;
+    }
+
+    .fd-dropdown .show-list:focus ~ .indicator {
+        box-shadow: 0 -1px 2px rgba(0,0,0,0.12), 
+        0 2px 2px rgba(0,0,0,0.12), 
+        0 4px 4px rgba(0,0,0,0.12), 
+        0 8px 8px rgba(0,0,0,0.12),
+        0 16px 16px rgba(0,0,0,0.12);
+    }
+
+
+    .fd-dropdown .indicator {
+        height: 100%;
+        width: 100%;
+        background: rgb(198, 230, 226);
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    .fd-dropdown .indicator .value {
+        width: 100%;
+        height: fit-content;
+        text-align: left;
+        padding: 0 1rem;
+        box-sizing: border-box;
+    }
+
+    .fd-dropdown .indicator .value .text {
+        margin: 0;
+        line-height: 2.2rem;
+        color: #5B7B7A;
+    }
+
+
+    .fd-dropdown .indicator .value input {
+        display: none;
+    }
+
+    .fd-dropdown .indicator .value input:not(:checked) + .text {
+        display: none;
+    }
+
+    .fd-dropdown .dropdown-pane {
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        transform: translate(0,calc(100% + 0.5rem));
+        background: rgb(198, 230, 226);
+        border-radius: 0.5rem;
+        box-sizing: border-box;
+        overflow: hidden;
+        padding: 0.5rem 0;
+        max-height: 15rem;
+        overflow-y: auto;
+    }
+
+    .fd-dropdown .dropdown-pane ul {
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+    }
+
+    .fd-dropdown .show-list:not(:focus) ~ .dropdown-pane {
+        animation: hide-dropdown 100ms ease-in-out both;
+        visibility: hidden;
+    }
+
+    .fd-dropdown .show-list:focus ~ .dropdown-pane {
+        animation: show-dropdown 100ms ease-in-out both;
+    }
+    @keyframes hide-dropdown {
+        0%{opacity: 1;}
+        100%{opacity: 0;}
+    }
+
+    @keyframes show-dropdown {
+        0%{opacity: 0; transform: translate(0,100%); visibility: visible;}
+        100%{opacity: 1; transform: translate(0,calc(100% + 0.5rem));}
+    }
+
+    .fd-dropdown .dropdown-pane label {
+        display: block;
+        height: 1.5rem;
+        line-height: 1.5rem;
+        padding: 0 0.5rem;
+        box-sizing: border-box;
+        transition: 0.15s;
+        color: #3C887E;
+        cursor: pointer;
+    }
+
+    .fd-dropdown .dropdown-pane label:checked {
+        background: red;
+    }
+
+    .fd-dropdown .dropdown-pane label:hover {
+        background: #E0F2E9;
     }

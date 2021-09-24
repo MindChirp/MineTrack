@@ -1,5 +1,7 @@
 
 var multiplier = 100;
+var userNamesFound = [];
+var usernamesLoaded = false;
 
 function openMenu(el) {
     return new Promise((resolve)=>{
@@ -74,6 +76,20 @@ async function stats(el) {
         and these are not included.
     `;
     title.appendChild(info);
+    var drDown = madeInputs.createDropdown();
+    menu.appendChild(drDown);
+    drDown.add("Loading users");
+    drDown.select("Loading users");
+    if(usernamesLoaded == true) {
+        drDown.remove("Loading users");
+        drDown.add(userNamesFound);
+        drDown.select(userConfig.username);
+        drDown.reactivate();
+    }
+    drDown.style = `
+        margin: auto;
+        margin-top: 2rem;
+    `;
 
     var selector = document.createElement("div");
     selector.className = "page-selector";
@@ -354,8 +370,6 @@ async function openAdvancedEstimateMenu() {
 
     }
 
-    console.log(times.length)
-
     //Get the object that should be placed first on the x-axis
     var date = new Date();
     var minXval = [parseInt(date.getFullYear())+10, 100, 100];
@@ -487,9 +501,6 @@ function plotDataPoints(times, canvas, minXval, maxXval) {
         iteratorDate.setDate(minXval[2]);
 
         var realDates = [];
-
-        console.log(maxXval[0], maxXval[1], maxXval[2])
-        console.log(days);
         var x;
         if(!testCode) {
             for(let i = 0; i < days;i++) {
@@ -533,7 +544,7 @@ function plotDataPoints(times, canvas, minXval, maxXval) {
                     //equal to or greater than zero.
                 }
             }
-            console.log(realDates.length)
+
             var z;
             var notFound = [];
             for(z of times) {
@@ -548,7 +559,7 @@ function plotDataPoints(times, canvas, minXval, maxXval) {
                     notFound.push(z.date);
                 }
             }
-            console.log(notFound)
+
 
         }
 
@@ -582,7 +593,7 @@ function plotDataPoints(times, canvas, minXval, maxXval) {
             var cX =(Math.round(y.x*xScale));
             var cY = 1*multiplier - yOffset - Math.round(yScale*y.y);
 
-            console.log(cX, cY)
+
             c.beginPath();
             c.moveTo(cX,cY);
             c.arc(cX,cY,1,0, Math.PI*2);
@@ -596,7 +607,7 @@ function plotDataPoints(times, canvas, minXval, maxXval) {
         var dataX = [];
         var dataY = [];
         var y;
-        console.log(points);
+
         for(y of points) {
             dataX.push(parseInt(y.x));
             dataY.push(parseInt(y.y));
@@ -708,11 +719,28 @@ var statsPaths = {
     ]
 }
 
+var properties;
+
 async function showStatPage(index) {
     //Remove the contents
-    menu.querySelector(".content").innerHTML = "";
     //Read the statistic types from the statformats.json file
     //var stats = JSON.parse(await fs.readFile("statformats.json"), "utf8");
+
+    var classes = [
+        "total",
+        "perWorld",
+        "sessions"
+    ]
+
+    for(let i = 0; i < classes.length; i++) {
+        if(i == index) {
+            menu.querySelector(".content").classList.add(classes[i]);
+        } else {
+            menu.querySelector(".content").classList.remove(classes[i]);
+        }
+    }
+
+
 
     
     /*
@@ -722,7 +750,6 @@ async function showStatPage(index) {
         -2 --> Show sessions
 
     */
-    var properties;
     switch(index) {
         case 0:
             properties = {total: true}
@@ -734,40 +761,68 @@ async function showStatPage(index) {
             properties = {sessions: true}
         break;
     }
+
 //[["minecraft:custom", "minecraft:walk_one_cm"],["stat.walkOneCm"]]
     if(!properties.sessions) {
         var allWorlds = [];
-        var createEntry = (path, properties, scaling, title, icon)=>{
+        var createEntry = (path, property, scaling, title, icon)=>{
             return new Promise((resolve, reject)=>{
-
+                
                 //Get total distance walked
-                retrieveStat(path,properties)
+                retrieveStat(path,property)
                 .then(async (res)=>{
-                    if(properties.total) {
+                    if(property.total) {
                         try {
                             var formatted = await replaceWithNames(res); //Replace the stat list that has been returned (that only contains uuids, and some usernames, into only usernames)
                         } catch (error) {
                             console.error(error)
                         }
+                        if(!usernamesLoaded) {
+                            var x;
+                            for(x of formatted) {
+                                if(!userNamesFound.includes(x.username)) {
+                                    userNamesFound.push(x.username)
+                                }
+                                
+                            }
+                        }
 
-                        console.log(formatted, title);
                         var entry = returnBox();
                         var ico = document.createElement("i");
                         ico.className = "material-icons";
                         ico.innerText = icon;
                         entry.appendChild(ico);
                         
-                        var p = document.createElement("p");
+                        var p = document.createElement("span");
                         p.className = "full-size";
+                        var span = document.createElement("span");
+                        span.innerText = "...";
+                        span.className = "value";
+                        p.innerText = title;
+                        p.appendChild(span);
                         
+                        entry.values = formatted;
+                        entry.multiplier = scaling;
                         //Handle value error gracefully
-                        var value = isNaN(res*scaling)?"Could not load":Math.round(res*scaling) + " " + title;
-                        p.innerText = value;
+                        //var value = isNaN(result*scaling)?"Could not load":Math.round(result*scaling) + " " + title;
+                        //p.innerText = value;
 
                         entry.querySelector(".wrapper").appendChild(p);
-                        resolve(entry);
-                    } else if(properties.perWorld) {
+
+                        if(properties[Object.keys(properties)[0]] == property[Object.keys(property)[0]] && Object.keys(properties)[0] == Object.keys(property)[0]) {
+                            resolve(entry);
+                        } else {
+                            reject();
+                        }
+                    } else if(property.perWorld) {
+                        menu.querySelector(".content").innerHTML = "";
                         var x;
+                        var h1 = document.createElement("p");
+                        h1.innerText = "This page is under development";
+                        menu.querySelector(".content.perWorld").appendChild(h1);
+                        return;
+
+
                         for(x of res) {
                             await new Promise((resolve)=>{
 
@@ -825,67 +880,114 @@ async function showStatPage(index) {
             })
         }
 
-        var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content");
+        menu.querySelector(".content").innerHTML = "";
+
+        var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content.total");
         try {
             var el = await createEntry([["minecraft:custom", "minecraft:walk_one_cm"],["stat.walkOneCm"]], properties, 0.01, "Meters walked", "directions_walk")            
+            wrapper.appendChild(el);
         } catch (error) {
             console.error(error);
         }
-        wrapper.appendChild(el);
 
         try {
             var el = await createEntry([["minecraft:custom", "minecraft:sneak_time"],["stat.sneakTime"]],properties, (1/20), "Seconds sneaked", "elderly")
-        } catch (error) {
+            wrapper.appendChild(el);
+    } catch (error) {
             console.error(error);
         }
-        wrapper.appendChild(el);
 
         
         try {
             var el = await createEntry([["minecraft:custom", "minecraft:mob_kills"],["stat.mobKills"]],properties, 1, "mobs killed", "shield")
-        } catch (error) {
+            wrapper.appendChild(el);
+    } catch (error) {
             console.error(error);
         }
-        wrapper.appendChild(el);
         
         try {
             var el = await createEntry([["minecraft:custom", "minecraft:fly_one_cm"],["stat.flyOneCm"]],properties, (1/100), "meters flown", "flight")
+            wrapper.appendChild(el);
         } catch (error) {
             console.error(error);
         }
-        wrapper.appendChild(el);
+
 
         try {
             var el = await createEntry([["minecraft:custom", "minecraft:deaths"],["stat.deaths"]],properties, 1, "deaths", "personal_injury")
+            wrapper.appendChild(el);
         } catch (error) {
             console.error(error);
         }
-        wrapper.appendChild(el);
 
         try {
             var el = await createEntry([["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]],properties, (((1/20)/60)/60), "hours played", "schedule")
+            wrapper.appendChild(el);        
         } catch (error) {
             console.error(error);
         }
-        wrapper.appendChild(el);
 
         try {
             var el = await createEntry([["minecraft:custom", "minecraft:jump"],["stat.jump"]],properties, 1, "times jumped", "north_east")
+            wrapper.appendChild(el);       
         } catch (error) {
             console.error(error);
         }
-        wrapper.appendChild(el);
 
+
+
+
+        //Find the dropdown, and append the array
+        var drDown = document.querySelector("#main-container > div.menu-pane.statistics > div > div.fd-dropdown");   
+        
+        if(!usernamesLoaded) {            
+            drDown.remove("Loading users");
+            drDown.add(userNamesFound);
+            drDown.select(userConfig.username);
+            drDown.reactivate();
+
+            usernamesLoaded = true;
+        }
+
+        drDown.trigger((e)=>{
+            loadDatasIntoStatEntries();
+        })
+        
+        //After creating all the entries, load the data
+        setTimeout(()=>{
+            loadDatasIntoStatEntries();
+        }, 200)
     } else {
         //Show the properties section
-        var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content");
+        var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content.sessions");
         wrapper.innerHTML = "";
         var t = document.createElement("p");
-        t.innerText ="There will be more content to be found soon!";
+        t.innerText ="This page is under development";
         wrapper.appendChild(t);
     }
     
 
+}
+
+function loadDatasIntoStatEntries() {
+    var entries = document.querySelector("#main-container > div.menu-pane.statistics > div > div.content").children;
+    //Get the selected user!
+    var drDown = document.querySelector("#main-container > div.menu-pane.statistics > div > div.fd-dropdown");
+    var val = drDown.value({index: false});
+    var x;
+    for(x of entries) {
+        var vals = x.values;
+        console.log(vals);
+        if(!Array.isArray(vals)) continue;
+        var obj = vals.find(y => y.username === val);
+        if(obj == undefined) {
+            //there is not value for this stat for the selected user
+            x.querySelector(".value").innerText = "Unknown amount of";
+        } else {
+            x.querySelector(".value").innerText = Math.round(obj.value * x.multiplier);
+        }
+
+    }
 }
 
 async function worlds(el) {
@@ -1136,7 +1238,6 @@ function loadScans() {
             console.log(error);
             reject(error);
         }
-        console.log(files);
         if(files.length < 1) {resolve({scans: false}); return;}
         var x;
         var cont = document.querySelector("#main-container > div.menu-pane.scan > div > div.scan-result.smooth-shadow");
@@ -1157,7 +1258,6 @@ function loadScans() {
 
 function scanDirectory(path) {
     return new Promise((resolve, reject)=>{
-        console.log(typeof path);
         if(!(typeof path == "string")) {reject("No path")}
         if(path.length < 1) {reject("No path")}
         retrieveStat([["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]],{perWorld:true},path)
@@ -1436,7 +1536,6 @@ function advancedSettings() {
         tile.appendChild(p);
         var s1 = inputs.toggle();
         tile.appendChild(s1);
-        console.log(systemConfig.enableTray)
         s1.children[0].checked = systemConfig.enableTray;
         menu.appendChild(tile);
         return tile;
@@ -1630,3 +1729,270 @@ function setupMenu() {
           resolve(menu);
         })
   }
+
+
+
+//Used to activate the custom dropdowns etc
+const madeInputs = {
+    functions: {
+        labelClicked: function(e) {
+            e.preventDefault();
+            //Get radio buttons
+            var opts = e.target.closest(".fd-dropdown").querySelector(".indicator").children;
+            var y;
+            for(y of opts){
+                y.querySelector(".radio").checked = false;
+            }
+
+            //Then select the correct one
+            
+            var y;
+            for(y of opts) {
+                var ch = y.children;
+                
+                var m;
+                for(m of ch) {
+                    if(m.classList.contains(e.target.className)) {m.checked = true;}
+                }
+            }
+        },
+        dropDownValue: function(options) {
+            options = options || {index: true}
+            //Get the value of the element
+            if(options.index) {
+                var els = this.querySelector(".indicator").children;
+                var x;
+                var index = 0;
+                for(x of els) {
+                    if(x.querySelector(".radio").checked == true) {return index;}
+                    index++;
+                }
+            } else {
+                var els = this.querySelector(".indicator").children;
+                var x;
+                for(x of els) {
+                    if(x.querySelector(".radio").checked == true) {return x.querySelector(".text").innerText}
+                }
+            }
+        },
+        selectValue: function(value) {
+            //Get the mode
+            //if integer, select with index, if string, select matching string
+            if(typeof value == "number") {
+                //Get every radio button
+                var inps = this.querySelector(".indicator").getElementsByTagName("input");
+
+                var x;
+                for(x of inps) {
+                    x.checked = false;
+                }
+
+                inps[value].checked = true;
+            } else if(typeof value == "string") {
+                //Get all the list options
+                var inps = this.querySelector(".indicator").getElementsByClassName("value");
+                var x;
+                var index = 0;
+                for(x of inps) {
+                    if(x.querySelector(".text").innerText == value) {
+                        this.select(index);
+                        return;
+                    }
+                    index++
+                }
+
+            }
+        },
+        addValue: function(name) {
+            if(Array.isArray(name)) {
+                //Is array
+                var x;
+                for(x of name) {
+                    this.add(x);
+                    
+                }
+            } else if(typeof name == "string") {
+                //Is a single entry, string
+                var inps = this.querySelector(".indicator").children;
+                var el = document.createElement("div");
+                el.className = "value";
+                var inp = document.createElement("input");
+                inp.className = "radio " + (inps.length);
+                inp.type = "radio";
+                el.appendChild(inp);
+                var p = document.createElement("p");
+                p.innerText = name;
+                p.className = "text";
+                el.appendChild(p);
+
+                this.querySelector(".indicator").appendChild(el);
+
+                //Create the label
+                var lab = document.createElement("label");
+                lab.innerText = name;
+                lab.className = inps.length - 1;
+                this.querySelector(".dropdown-pane").children[0].appendChild(lab);
+                lab.addEventListener("click", ()=>{
+                    
+                })
+            }
+        },
+        removeValue: function(value) {
+            var arr = this.querySelector(".indicator").children;
+            var x;
+            for(x of arr) {
+                if(x.querySelector(".text").innerText == value) {
+                    //remove this one
+                    x.parentNode.removeChild(x);
+                    break;
+                }
+            }
+
+            var arr = this.querySelector(".dropdown-pane").children[0].children;
+            var x;
+            for(x of arr) {
+                if(x.innerHTML == value) {
+                    x.parentNode.removeChild(x);
+                }
+            }
+        },
+        activateDropDown: function() {
+            var labs = this.querySelector(".dropdown-pane").children[0].children;
+            var x;
+            for(x of labs) {
+                x.addEventListener("click", (e)=>{
+                    e.preventDefault();
+                    //Get radio buttons
+                    var opts = e.target.closest(".fd-dropdown").querySelector(".indicator").children;
+                    var y;
+                    for(y of opts){
+                        y.querySelector(".radio").checked = false;
+                    }
+        
+                    //Then select the correct one
+                    
+                    var y;
+                    for(y of opts) {
+                        var ch = y.children;
+                        
+                        var m;
+                        for(m of ch) {
+                            if(m.classList.contains(e.target.className)) {m.checked = true;}
+                        }
+                    }
+                })
+            }
+        },
+        handleClick: function(exp) {
+            //Add event listener for every label button
+            var labs = this.querySelector(".dropdown-pane").children[0].children;
+
+            var x;
+            for(x of labs) {
+                x.addEventListener("click", (e)=>{
+                    if(typeof exp == "function") {
+                        exp(e)
+                    } else {
+                        return new Error("Function required");
+                    }
+                })
+            }
+
+        }
+    },
+    activateDropdown: function (el){
+        if(!(el instanceof HTMLElement)) return;
+        if(el.isActivated) return; //We don't want a double set of event listeners!
+
+        var cont = el.querySelector(".dropdown-pane").children[0];
+        var x;
+        for(x of cont.children) {
+            if(typeof x != "object") continue;
+
+            x.addEventListener("click", (e)=>{
+                this.functions.labelClicked(e);
+            })
+        }
+
+        //Set up developer-facing features
+        el.isActivated = true;
+        el.select = this.functions.selectValue;
+        el.value = this.functions.dropDownValue;
+        el.add = this.functions.addValue;
+        el.remove = this.functions.removeValue;
+        el.reactivate = this.functions.activateDropDown;
+        el.trigger = this.functions.handleClick;
+    },
+    createDropdown: function (opts) {
+        var el = document.createElement("div");
+        el.className = "fd-dropdown";
+
+        var b = document.createElement("button");
+        b.className = "show-list";
+        var ico = document.createElement("img");
+        ico.src = "icons/expand_more.svg";
+        b.appendChild(ico);
+        el.appendChild(b);
+
+        var ind = document.createElement("div");
+        ind.className = "indicator";
+        el.appendChild(ind);
+
+        var index = 0;
+        var x;
+        if(Array.isArray(opts)) {
+
+            if(opts.length > 0) {
+                
+                for(x of opts) {
+                    var a = document.createElement("div");
+                    a.className = "value";
+                    
+                    var inp = document.createElement("input");
+                    inp.type = "radio";
+                    inp.className = "radio " + index;
+                    
+                    if(index == 0) {
+                        inp.checked = true;
+                    }
+                    
+                    index++;
+                    a.appendChild(inp);
+                    
+                    var p = document.createElement("p");
+                    p.innerText = x;
+                    p.className = "text";
+                    a.appendChild(p);
+                    ind.appendChild(a);
+                }
+            }
+        }
+        
+        var drop = document.createElement("div");
+        drop.className = "dropdown-pane smooth-shadow";
+        el.appendChild(drop);
+
+        var ul = document.createElement("ul");
+        drop.appendChild(ul);
+
+        var x;
+        var index = 0;
+        if(Array.isArray(opts)) {
+
+            if(opts.length > 0) {
+                
+                for(x of opts) {
+                    var a = document.createElement("label");
+                    a.className = index+''; //to string
+                    a.innerText = x;
+                    ul.appendChild(a);
+                    index++;
+                }
+            }
+        }
+
+        this.activateDropdown(el);
+        return el;
+    }
+
+}
