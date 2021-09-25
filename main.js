@@ -480,7 +480,7 @@ async function startCheckingForMinecraft() {
 }
 
 
-function notification(title) {
+function notification(title, buttons) {
     var cont = document.getElementById("notification-container");
     var el = document.createElement("div");
     el.className = "notification smooth-shadow";
@@ -492,6 +492,16 @@ function notification(title) {
     var tInd = document.createElement("div");
     tInd.className = "time-indicator"
     el.appendChild(tInd);
+
+    var x;
+    for(x of buttons) {
+        var b = document.createElement("button");
+        if(x.important) {b.className = "important"};
+        b.addEventListener("click", x.click);
+        b.innerText = x.label;
+
+        el.appendChild(b);
+    }
 
     if(cont.getElementsByClassName("notification")) {
         //There are already notifications existent. Insert above last notification
@@ -1082,7 +1092,7 @@ function saveSession() {
     return new Promise((resolve, reject)=>{
 
         //Check if there is an ongoing session
-        if(!ongoingSession) reject("No session being recorded");
+        if(!ongoingSession) reject("No session being recorded"); notification("Could not save session"); return;
 
         //Get the session time
         var time = sessionTime; //In seconds

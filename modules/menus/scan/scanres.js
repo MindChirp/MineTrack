@@ -1,4 +1,44 @@
 function scanRes(file, title) {
+    if(!file.formatVersion) {
+        var ver = localStorage.getItem("app-version");
+        notification(`Sorry! Scan files that are from v0.2.16 or earlier 
+        are not supported in this version (` + ver + `). Try scanning the directory 
+        again with the current program version.`,
+        [{label: "Learn more", click: ()=>{
+            var menu = stdMenu();
+            var t = document.createElement("h1");
+            t.className = "title";
+            t.innerText = "Temporarily disabled";
+            menu.appendChild(t);
+
+            var p = document.createElement("p");
+            p.className = "sub-title";
+            p.innerHTML = `
+                As this program evolves, some things might break. Other things are intentionally removed before they
+                get the chance to break. Other times, its execution might have been too bad. 
+                In this case, we are temporarily disabling older files, because they lack a lot of data, that we
+                really need, to display interesting and useful statistics. We've recently made the leap to user-based statistics,
+                and this feature isn't ready for that yet. Please hang tight while we resolve this! Thanks!
+            `;
+            p.style = `
+                text-align: center;
+                max-width: 100%;
+                margin: auto;
+            `
+            menu.appendChild(p);
+        }, important: true}]
+        );
+        return;
+    }
+
+    var format = file.formatVersion;
+    if(parseInt(format.split(".")[1]) < 3 && parseInt(format.split(".")[2]) <= 16) {
+        notification("Sorry! Scan files that are from v0.2.16 or earlier are not supported in this version. Try scanning the directory again with the current program version.");
+        return;
+    }
+
+
+
     var scanMenu = stdMenu();
     scanMenu.closest(".menu-pane").classList.add("view-scan-results");
     var t = document.createElement("h1");
