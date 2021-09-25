@@ -163,6 +163,7 @@ function getNamesFromUUID(uuid=String) {
 
 function replaceWithNames(list) {
     return new Promise(async (resolve, reject)=>{
+        var { debugSys } = require("./modules/sysLogger/sysLog");
         if(list.length < 1) {reject(new Error("Must be a list!")); return;}
         //We need to load in our database!
         try {
@@ -211,9 +212,13 @@ function replaceWithNames(list) {
                 if(res.length < 1) {
                     try {
                         var fetchedId = await getId(uuid);
+                        if(userConfig.sysLogging) {
+                            debugSys(JSON.stringify({usrName: uuid, sysRes: fetchedId}));
+                        }
                     } catch (error) {
                         //That's ok.                        
                     }
+
 
                     fetchedId = fetchedId==undefined?"not found":fetchedId;
                     
@@ -246,6 +251,9 @@ function replaceWithNames(list) {
                     try {
                         console.log(uuid)
                         var usrName = await getNamesFromUUID(uuid)
+                        if(userConfig.sysLogging) {
+                            debugSys(JSON.stringify({uuid: uuid, sysRes: usrName, selected: usrName[0]}));
+                        }
                         //Get uuid from username instead!
                     } catch (error) {
                         continue;

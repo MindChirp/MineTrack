@@ -52,88 +52,8 @@ function openMenu(el) {
 var menu;
 
 async function stats(el) {
-    menu = await openMenu(el)
-    menu.closest(".menu-pane").classList.add("statistics");
-    try {
-        var sessions = await fs.readdir(path.join(filesPath, "recordeddata"));
-    } catch (error) {
-        notification("Something went wrong");
-    }
-
-    var title = document.createElement("h1");
-    title.className = "title";
-    title.innerText = "Statistics";
-    menu.insertBefore(title, menu.querySelector(".content"));
-
-    var info = document.createElement("span");
-    info.innerText = "Info";
-    info.className = "information-pill";
-    var body = document.createElement("p");
-    body.className = "body smooth-shadow";
-    info.appendChild(body);
-    body.innerHTML = `
-        This page only shows statistics from your singleplayer worlds. Some worlds may not have statistics,
-        and these are not included.
-    `;
-    title.appendChild(info);
-    var drDown = madeInputs.createDropdown();
-    menu.appendChild(drDown);
-    drDown.add("Loading users");
-    drDown.select("Loading users");
-    if(usernamesLoaded == true) {
-        drDown.remove("Loading users");
-        drDown.add(userNamesFound);
-        drDown.select(userConfig.username);
-        drDown.reactivate();
-    }
-    drDown.style = `
-        margin: auto;
-        margin-top: 2rem;
-    `;
-
-    var selector = document.createElement("div");
-    selector.className = "page-selector";
-    menu.appendChild(selector);
-
-    var b = document.createElement("button");
-    selector.appendChild(b);
-    b.innerText = "All time"
-    b.className ="active"
-    b.setAttribute("onclick", "triggerTransition(this)");
-
-    var b = document.createElement("button");
-    selector.appendChild(b);
-    b.innerText = "Worlds"
-    b.setAttribute("onclick", "triggerTransition(this)");
-
-    var b = document.createElement("button");
-    selector.appendChild(b);
-    b.innerText = "Sessions"
-    b.setAttribute("onclick", "triggerTransition(this)");
-
-    var content = document.createElement("div");
-    content.className = "content";
-    menu.appendChild(content);
-
-    showStatPage(0);
-
-    //Create more buttons
-    var bWr = document.createElement("div");
-    bWr.className = "bottom-buttons-wrapper";
-    menu.appendChild(bWr);
-
-    var regCalc = document.createElement("button");
-    regCalc.innerText = "Estimate all playtime";
-    bWr.appendChild(regCalc);
-    regCalc.className = "smooth-shadow";
-
-    regCalc.onclick = openAdvancedEstimateMenu;
-
-/*
-    var butt = document.createElement("button");
-    butt.innerText = "Button";
-    bWr.appendChild(butt);
-    butt.className = "smooth-shadow";*/
+    var statMenu = require("./modules/menus/statistics/stats");
+    statMenu(el);
 }
 
 function sleep(ms) {
@@ -145,20 +65,6 @@ function sleep(ms) {
 }
 
 async function openAdvancedEstimateMenu() {
-    //Close any open menu?
-    /*
-    var menus = document.getElementsByClassName("menu-pane");
-    var x;
-    if(menus.length > 0) {
-        for(x of menus) {
-            setTimeout(()=>{
-                x.kill();
-            }, 100)
-        }
-    }*/
-
-    //await sleep(50);
-
     //Check if user has set up this function yet
     if(typeof userConfig != "object") {
         notification("Could not display advanced statistics");
@@ -977,7 +883,6 @@ function loadDatasIntoStatEntries() {
     var x;
     for(x of entries) {
         var vals = x.values;
-        console.log(vals);
         if(!Array.isArray(vals)) continue;
         var obj = vals.find(y => y.username === val);
         if(obj == undefined) {
@@ -1166,67 +1071,8 @@ function createScanEntry(file) {
 
 
 function showFileScanResults(file, title) {
-    var scanMenu = stdMenu();
-
-    var t = document.createElement("h1");
-    t.className = "title";
-    t.style.marginBottom = "0";
-    t.innerText = title;
-    t.style.fontSize = "3rem";
-    scanMenu.appendChild(t);
-
-    var amt = document.createElement("p");
-    amt.className = "sub-title";
-    amt.style = `
-        width: fit-content;
-        padding: 0.2rem 0.5rem;
-        border-radius: 0.25rem;
-        text-align: center;
-        margin: auto;
-        margin-top: 0;
-        margin-bottom: 0;
-        background: #E0F2E9;
-        color: #3C887E;
-    `
-    if(file.scans.res.length < 1) {
-        amt.innerText = "No worlds found";
-        return;
-    }
-    amt.innerText = file.scans.res.length + " Worlds found";
-    scanMenu.appendChild(amt)
-
-    var worlds = file.scans.res;
-    var x;
-    var totalTime = 0;
-    for(x of worlds) {
-        totalTime = totalTime + x.value;
-    }
-
-    var p = document.createElement("p");
-    var time = convertHMS(totalTime/20);
-    p.innerText = time[0] + " Hours " + time[1] + " Minutes and " + time[2] + " seconds played";
-    scanMenu.appendChild(p); 
-
-    p.style = `
-        text-align: center;
-        margin: auto;
-        margin-top: 2rem;
-    `;
-
-    var info = document.createElement("p");
-    info.innerText = "More data will be added to this page soon!";
-    info.style = `
-        padding: 0.5rem 1rem;
-        border-radius: 1rem;
-        background: #E0F2E9;
-        margin: auto;
-        text-align: center;
-        color: #3C887E;
-        margin-top: 0.5rem;
-    `;
-    scanMenu.appendChild(info);
-
-    
+    var scanRes = require("./modules/menus/scan/scanres");
+    scanRes(file, title);
 } 
 
 function loadScans() {
@@ -1604,6 +1450,15 @@ function advancedSettings() {
         applyConfig();
     });
 
+    var t4 = switchTile("Enable system logging");
+    t4.children[1].children[0].checked = userConfig.sysLogging?true: false;
+    t4.children[1].addEventListener("change", (ev)=>{
+        var val = ev.target.checked;
+        userConfig.sysLogging = val;
+        saveUserConfig();
+        applyConfig();
+    });
+
 }
 
 
@@ -1787,18 +1642,34 @@ const madeInputs = {
                     x.checked = false;
                 }
 
-                inps[value].checked = true;
+                if(inps[value]) {
+                    inps[value].checked = true;
+                    return inps[value];
+                } else {
+                    return false;
+                }
             } else if(typeof value == "string") {
                 //Get all the list options
                 var inps = this.querySelector(".indicator").getElementsByClassName("value");
+                console.log(inps);
                 var x;
                 var index = 0;
+                var found = false;
+                var res;
                 for(x of inps) {
+                    console.log(x.querySelector(".text").innerText);
                     if(x.querySelector(".text").innerText == value) {
-                        this.select(index);
-                        return;
+                        res = this.select(index);
+                        found = true;
                     }
                     index++
+                }
+
+                if(found) {
+                    
+                    return res;
+                } else {
+                    return false;
                 }
 
             }
@@ -1945,6 +1816,16 @@ const madeInputs = {
             if(opts.length > 0) {
                 
                 for(x of opts) {
+
+                    var enabled = true;
+                    var divider = false;
+                    if(typeof x == "object") {
+                        var obj = x;
+                        x = x.label;
+                        if(!obj.interactive) {enabled = false;}
+                        if(obj.divider) {divider = true;}
+                    }
+
                     var a = document.createElement("div");
                     a.className = "value";
                     
@@ -1955,7 +1836,7 @@ const madeInputs = {
                     if(index == 0) {
                         inp.checked = true;
                     }
-                    
+                    console.log(x);
                     index++;
                     a.appendChild(inp);
                     
@@ -1982,8 +1863,24 @@ const madeInputs = {
             if(opts.length > 0) {
                 
                 for(x of opts) {
+
+                    var enabled = true;
+                    var divider = false;
+                    if(typeof x == "object") {
+                        var obj = x;
+                        x = x.label;
+                        if(!obj.interactive) {enabled = false;}
+                        if(obj.divider) {divider = true;}
+                    }
+                    
                     var a = document.createElement("label");
                     a.className = index+''; //to string
+                    if(divider) {
+                        a.classList.add("divider");
+                    }
+                    if(!enabled) {
+                        a.classList.add("disabled");
+                    }
                     a.innerText = x;
                     ul.appendChild(a);
                     index++;

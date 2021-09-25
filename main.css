@@ -566,6 +566,20 @@ body > #main-container {
         margin: auto;
     }
 
+    .notification > .time-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 0;
+        background: #C6E6E2;
+        z-index: 1;
+    }
+
+    @keyframes notification-timer {
+        0%{width: 0;}
+        100%{width: 100%;}
+    }
     .notification::before {
         color: transparent;
         content: ".";
@@ -575,11 +589,14 @@ body > #main-container {
         background: #3C887E;
         left: 0;
         top: 0;
+        z-index: 2;
     }
 
     .notification p {
         margin: 0;
         color: #5B7B7A;
+        position: relative;
+        z-index: 2;
     }
 
     #progress-box {
@@ -1138,6 +1155,19 @@ body > #main-container {
         width: 100%;
     }
 
+    .menu-pane.view-scan-results .wrapper .drop-down-wrapper {
+        margin: auto;
+        width: fit-content;
+        margin-top: 1rem;
+    }
+
+    .menu-pane.view-scan-results .wrapper .drop-down-wrapper > div {
+        display: inline-block;
+    }
+
+    .menu-pane.view-scan-results .wrapper .drop-down-wrapper > div:not(:last-of-type) {
+        margin-right: 1rem;
+    }
     
     .menu-pane.error > .wrapper p {
         text-align: center;
@@ -1291,7 +1321,7 @@ body > #main-container {
     .menu-pane.advanced-settings > .wrapper {
         display: grid;
         grid-template-columns: auto auto auto;
-        grid-template-rows: 10rem 5rem auto;
+        grid-template-rows: 10rem 5rem 5rem;
     }
 
     .menu-pane.advanced-settings > .wrapper .title {
@@ -1657,6 +1687,7 @@ body > #main-container {
         padding: 0.5rem 0;
         max-height: 15rem;
         overflow-y: auto;
+        z-index: 2;
     }
 
     .fd-dropdown .dropdown-pane ul {
@@ -1693,6 +1724,29 @@ body > #main-container {
         transition: 0.15s;
         color: #3C887E;
         cursor: pointer;
+        position: relative;
+    }
+
+
+    .fd-dropdown .dropdown-pane label.divider {
+        margin-top: 0.5rem;
+    }
+
+    .fd-dropdown .dropdown-pane label.divider::before {
+        width: 80%;
+        height: 1px;
+        background: #3C887E;
+        content: ".";
+        color: transparent;
+        top: -0.25rem;
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%);
+    }
+
+    .fd-dropdown .dropdown-pane label.disabled {
+        pointer-events: none;
+        opacity: 0.5;
     }
 
     .fd-dropdown .dropdown-pane label:checked {

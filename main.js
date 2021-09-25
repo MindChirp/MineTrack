@@ -18,7 +18,6 @@ var timeConfig = {
     totalSessionTime: 0
 };
 
-module.exports = { filesPath };
 
 var cachedNames;
 
@@ -41,6 +40,7 @@ const {gzip, ungzip} = require("node-gzip");
 ipcRenderer.on("files-path", (ev, data)=>{
     filesPath = data;
     localStorage.setItem("files-path", filesPath);
+
 });
 
 ipcRenderer.on("app-version", (ev, data)=>{
@@ -489,6 +489,10 @@ function notification(title) {
     t.innerText = title;
     el.appendChild(t);
 
+    var tInd = document.createElement("div");
+    tInd.className = "time-indicator"
+    el.appendChild(tInd);
+
     if(cont.getElementsByClassName("notification")) {
         //There are already notifications existent. Insert above last notification
         var notifs = cont.getElementsByClassName("notification");
@@ -498,10 +502,12 @@ function notification(title) {
         cont.appendChild(el);
     }
     var length = 50*title.length<5000?5000:50*title.length;
+    tInd.style.animation = "notification-timer " + length + "ms linear";
     setTimeout(()=>{
         el.parentNode.removeChild(el);
     }, length)
 }
+
 
 
 function loadData() {
@@ -975,24 +981,37 @@ function gatherWorldInformation() {
 
         console.log(obj, obj1)
 
-        var secs = obj.value/20;
+        try {
+            var secs = obj.value/20;
+        } catch (error) {
+            
+        }
         if(obj1 != undefined) {
             secs = secs + (obj1.value/20)
         }
 
-        console.log(secs);
-        totalSeconds = totalSeconds + secs;
-        updateTimeCounting(totalSeconds);
-        //Update the config
-        timeConfig.singleplayertime = secs;
-        try {
-            await fs.writeFile(path.join(filesPath, "worlddata", "scannedplaytime.json"), JSON.stringify(timeConfig));
-        } catch (error) {
-            reject(error);
+        if(secs) {
+
+            totalSeconds = totalSeconds + secs;
+            updateTimeCounting(totalSeconds);
+            //Update the config
+            timeConfig.singleplayertime = secs;
+            try {
+                await fs.writeFile(path.join(filesPath, "worlddata", "scannedplaytime.json"), JSON.stringify(timeConfig));
+            } catch (error) {
+                reject(error);
+            }
+            
+            resolve();
+        } else {
+            try {
+                await fs.writeFile(path.join(filesPath, "worlddata", "scannedplaytime.json"), JSON.stringify({}));
+            } catch (error) {
+                reject(error);
+            }
+            resolve();
         }
-
-        resolve();
-
+            
     })
     
 }
@@ -1241,7 +1260,7 @@ function resetAppFiles() {
 
 function createFileName() {
     var date = new Date();
-    var fileName = date.getDate() + '' + parseInt(date.getMonth()+1) + '' + date.getFullYear() + '' + date.getHours() + '' + date.getMinutes() + '' + date.getSeconds();
+    var fileName = date.getDate() + '' + parseInt(date.getMonth()+1) + '' + date.getFullYear() + '' + date.getHours() + '' + date.getMinutes() + '' + date.getSeconds() + date.getMilliseconds();
     return fileName;
 }
 
@@ -1525,3 +1544,8 @@ function createDb () {
         throw err;
     })
 }
+
+
+
+
+module.exports = { notification, filesPath }; //Used in e.g. sysLog.js
