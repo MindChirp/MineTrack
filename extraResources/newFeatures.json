@@ -3,13 +3,13 @@
     "stats": [],
     "miscellaneous": [
         {
-            "title": "Statistics",
-            "body": "You can now view singleplayer statistics based on each player that has played in your worlds!",
+            "title": "Feature requests",
+            "body": "Do you want to help us improve the program? Are there some features that you really want? Click the button below to send us a feature request!",
             "buttons": [
                 {
                     "type": 0,
-                    "label": "Check it out",
-                    "click": "stats(this); notification(`We will connect to Mojang's API to gather some usernames. This process is completely safe, and your usernames will not be stored externally.`)"
+                    "label": "Do it now",
+                    "click": "openFeatureForm(); notification(`The form has been opened in your default browser.`)"
                 },
                 {
                     "type": 1,
@@ -17,7 +17,7 @@
                     "click": "close"
                 }
             ],
-            "removed": true
+            "removed": false
         }
     ]
 }

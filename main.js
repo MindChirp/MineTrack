@@ -1547,5 +1547,9 @@ function createDb () {
 
 
 
+function openFeatureForm() {
+    window.open("https://docs.google.com/forms/d/e/1FAIpQLScayFoOCius_uZO2IT3-T7Uc9zFiA3L4TrjQz0dljcNKXRzEw/viewform");
+}
+
 
 module.exports = { notification, filesPath }; //Used in e.g. sysLog.js

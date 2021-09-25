@@ -125,9 +125,35 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
 
                             
                         } else if(properties.perWorld == true) {
-                            worldArr.push({name: x, value: layer});
+                            //check if the world is already listed!
+                            var obj = worldArr.find(y => y.name === x);
+                            var name = fileName.length>16?fileName.replaceAll("-", ""):fileName;
+                            
+                            if(obj == undefined) {
+                                worldArr.push({name: x, players: [{id: name, value: layer}]})
+                            } else {
+                                obj.players.push({id: name, value: layer})
+                            }                            
                         } else {
-                            total = total + layer;
+                            //This value has a corresponding uuid / username.
+                            //Find the object in the total array.
+                            var obj = total.find(y => y.id === fileName.replaceAll("-", ""));
+                            
+                            if(obj == undefined) {
+                                
+                                //Create a new object, since this object does not exist
+                                var name = fileName.length>16?fileName.replaceAll("-", ""):fileName;
+                                var el = {
+                                    id: name,
+                                    value: layer
+                                }
+
+                                //Check if this object already exists
+
+                                total.push(el);
+                            } else {
+                                obj.value = obj.value + layer;
+                            }
                         }
                     }
                 }

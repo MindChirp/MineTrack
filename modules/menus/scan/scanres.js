@@ -49,7 +49,7 @@ function scanRes(file, title) {
     var p = document.createElement("p");
     var time = convertHMS(totalTime/20);
     p.innerText = time[0] + " Hours " + time[1] + " Minutes and " + time[2] + " seconds played";
-    scanMenu.appendChild(p); 
+    //scanMenu.appendChild(p); 
 
     p.style = `
         text-align: center;
@@ -58,7 +58,7 @@ function scanRes(file, title) {
     `;
 
     var info = document.createElement("p");
-    info.innerText = "More data will be added to this page soon!";
+    info.innerText = "This page will get more content soon!";
     info.style = `
         padding: 0.5rem 1rem;
         border-radius: 1rem;
