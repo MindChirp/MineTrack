@@ -826,7 +826,7 @@ body > #main-container {
     }
 
     .action-buttons button:disabled {
-        opacity: 0.5;
+        opacity: 0.7;
         pointer-events: none;
     }
 
