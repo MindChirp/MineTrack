@@ -1117,3 +1117,6 @@ const madeInputs = {
     }
 
 }
+
+
+module.exports = { saveUserConfig }

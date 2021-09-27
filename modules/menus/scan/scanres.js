@@ -1,7 +1,7 @@
 function scanRes(file, title) {
     if(!file.formatVersion) {
         var ver = localStorage.getItem("app-version");
-        notification(`Sorry! Scan files that are from v0.2.16 or earlier 
+        notification(`Sorry! Scan files that are from v0.3.16 or earlier 
         are not supported in this version (` + ver + `). Try scanning the directory 
         again with the current program version.`,
         [{label: "Learn more", click: ()=>{
@@ -33,7 +33,7 @@ function scanRes(file, title) {
 
     var format = file.formatVersion;
     if(parseInt(format.split(".")[1]) < 3 && parseInt(format.split(".")[2]) <= 16) {
-        notification("Sorry! Scan files that are from v0.2.16 or earlier are not supported in this version. Try scanning the directory again with the current program version.");
+        notification("Sorry! Scan files that are from v0.3.16 or earlier are not supported in this version. Try scanning the directory again with the current program version.");
         return;
     }
 

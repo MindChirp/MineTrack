@@ -16,11 +16,14 @@ async function settingsMenu(el) {
     paths.className = "path-selection-box";
 
     var t = document.createElement("p");
-    t.innerText = "Minecraft path",
+    t.innerText = "Minecraft path";
     paths.appendChild(t);
 
     var box = document.createElement("div");
     box.className = "path-out smooth-shadow";
+    box.style = `
+        margin-right: 1rem;
+    `
     paths.appendChild(box);
     var p = document.createElement("p");
     box.appendChild(p);
@@ -30,7 +33,6 @@ async function settingsMenu(el) {
     var browse = document.createElement("button");
     browse.className = "smooth-shadow";
     browse.style = `
-        margin-left: 1rem;
     `
     browse.innerText = "Browse";
     paths.appendChild(browse);
@@ -122,18 +124,59 @@ async function settingsMenu(el) {
 
     divider();
 
-    var t = document.createElement("p");
-    t.innerText = "Registered username and uuid",
-    menu.appendChild(t);
-    t.style = "margin-bottom: 0.5rem";
 
-    var usrName = document.createElement("p");
-    usrName.innerText = userConfig.username;
+    var p = document.createElement("p");
+    p.innerText = "Minecraft username";
+    menu.appendChild(p);
+    p.style = `
+        margin-top: 0.5rem;
+    `
+    var usrName = document.createElement("input");
+    usrName.value = userConfig.username;
+    usrName.type = "text";
+    usrName.className = "smooth-shadow";
     menu.appendChild(usrName);
 
+    usrName.addEventListener("change", async (e)=>{
+        //Update the userConfig, but first get the uuid
+        var name = e.target.value;
+        try {
+            var uuid = await getId(e.target.value);
+        } catch (error) {
+            notification("Could not change username");
+            return;
+        }
+
+        var protObj = userConfig;
+        protObj.username = name;
+        protObj.uuid = uuid;
+        try {
+            await saveUserConfig(protObj);
+        } catch (error) {
+            notification("Could not save to userConfig");
+            return;
+        }
+
+        userConfig.username = name;
+        userConfig.uuid = uuid;
+        notification("Username and uuid has been changed. It is recommended to recalculate the playtime.");
+        id.innerHTML = "UUID: <br>" + userConfig.uuid;
+
+    })
+
+    var shownOnce = false;
+    usrName.addEventListener("focus", ()=>{
+        if(shownOnce) return;
+        notification("Be careful - Enter your username correctly!");
+        shownOnce = true;
+    })
+
     var id = document.createElement("p");
-    id.innerText = userConfig.uuid;
+    id.innerHTML = "UUID: <br>" + userConfig.uuid;
     menu.appendChild(id);
+    id.style = `
+        margin-top: 0.5rem;
+    `
 
     var div = divider();
     div.style = `

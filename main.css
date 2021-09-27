@@ -144,12 +144,12 @@ body > #main-container {
     background-color: #E0F2E9;
     border-radius: 0.5rem;
     overflow: hidden;
-    /*
-    background-image: url('minecraft-logo.png');
+    
+    background-image: url('');
     background-size: cover;
     background-repeat: no-repeat;
-    background-position-y: 45vh;
-*/
+    background-position: center;
+
 }
 
 #main-container > #app-bar {
@@ -1080,6 +1080,10 @@ body > #main-container {
         transition: all 150ms ease-in-out;
     }
 
+    .menu-pane .wrapper button:hover {
+        transform: translate(0,-0.2rem);
+    }
+
     .menu-pane .wrapper .information-paragraph {
         padding: 1rem;
         border-radius: 0.5rem;
@@ -1341,12 +1345,29 @@ body > #main-container {
     }
 
 
-    .menu-pane.advanced-settings .settings-tile {
+    
+    .menu-pane.settings > .wrapper input {
+        background-color: #B9DFDA;
+        border-radius: 0.25rem;
+        outline: none;
+        display: block;
+        color: #5B7B7A;
+        border: none;
+        font-size: 0.9rem;
+        transition: all 100ms ease-in-out;
+        padding: 0.4rem 0.5rem;
+        box-sizing: border-box;
+        font-weight: lighter;
+        
+    }
+
+
+    .menu-pane.advanced-settings > .wrapper .switches .settings-tile {
         display: inline-block;
         width: fit-content;
         vertical-align: top;
         height: fit-content;
-        margin: auto;
+        float: left;
     }
 
     /*
@@ -1354,11 +1375,15 @@ body > #main-container {
         margin-right: 2rem;
     }*/
 
-    .menu-pane.advanced-settings > .wrapper {
+
+    .menu-pane.advanced-settings > .wrapper .switches {
         display: grid;
         grid-template-columns: auto auto auto;
-        grid-template-rows: 10rem 3rem 3rem;
+        grid-template-rows: 3rem 3rem;
+        margin-bottom: 1rem;
     }
+
+
 
     .menu-pane.advanced-settings > .wrapper .title {
         grid-column: span 3;
@@ -1370,7 +1395,78 @@ body > #main-container {
         max-width: 20rem !important;
     }
 
+    .menu-pane.advanced-settings > .wrapper label[for=bkg-selector] {
+        border: 0;
+        background: #3C887E;
+        color: #E0F2E9;
+        text-transform: uppercase;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        outline: none;
+        padding: 0.4rem 0.8rem;
+        font-weight: bold;
+        font-family: 'roboto';
+        letter-spacing: 0.05em;
+        font-size: 0.9rem;
+        transition: 0.15s;
+        display: inline-block;
+    }
 
+    .menu-pane.advanced-settings > .wrapper button img {
+        height: 2rem;
+        vertical-align: top;
+        transition: 0.15s;
+    }
+
+    .menu-pane.advanced-settings > .wrapper button:hover {
+        transform: none;
+    }
+
+
+    .menu-pane.advanced-settings > .wrapper button:hover img {
+        transform: translate(0.2rem);
+    }
+
+    .menu-pane.advanced-settings > .wrapper label[for=bkg-selector]:hover {
+        transform: translate(0,-0.2rem);
+    }
+
+
+
+    .menu-pane.background-image-preview .wrapper .preview-container {
+        height: 300px;
+        width: 350px;
+        margin: auto;
+        border-radius: 0.35rem;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .menu-pane.background-image-preview .wrapper .preview-container .fore-ground {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        z-index: 2;
+    }
+
+    .menu-pane.background-image-preview .wrapper .preview-container .back-ground {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        width: 100%;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .menu-pane.background-image-preview .wrapper .buttons-wrapper {
+        margin: auto;
+        width: fit-content;
+        margin-top: 1rem;
+        height: fit-content;
+    }
 
     .session-popup-finished {
         animation: slide-in-bottom 300ms ease-in-out, slide-out-bottom 300ms ease-in-out 4.7s forwards;

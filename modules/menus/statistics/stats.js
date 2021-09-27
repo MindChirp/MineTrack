@@ -38,7 +38,6 @@ async function statMenu(el) {
         console.log(isFound)
         if(isFound == false) {
             //Select the first thing in the dropdown
-            alert("asd")
             drDown.select(0);
         }
         drDown.reactivate();
@@ -367,7 +366,10 @@ async function showStatPage(index) {
         if(!usernamesLoaded) {            
             drDown.remove("Loading users");
             drDown.add(userNamesFound);
-            drDown.select(userConfig.username);
+            var obj = drDown.select(userConfig.username);
+            if(!obj) {
+                drDown.select(0);
+            }
             drDown.reactivate();
 
             usernamesLoaded = true;

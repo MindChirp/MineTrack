@@ -68,8 +68,7 @@ function gatherFilePath() {
     })
 }
 
-window.onload = async ()=>{
-    
+window.onload = async ()=> {
     try {
         await gatherFilePath();
     } catch (error) {
@@ -124,6 +123,14 @@ window.onload = async ()=>{
             })
 
             applyConfig();
+
+            //Apply custom background image
+            try {
+                updateBackgroundImage();
+            } catch (error) {
+                notification("Could not load background image");
+            }
+            
         })
         .catch((err)=>{
             console.error(err);
@@ -131,6 +138,26 @@ window.onload = async ()=>{
     })
 }
 
+function updateBackgroundImage() {
+    return new Promise((resolve, reject)=> {
+        console.log(userConfig);
+        if(userConfig) {
+            if(!userConfig.backgroundImage) {reject();}
+            if(userConfig.backgroundImage.enabled) {
+                //Apply custom background image
+                var cont = document.getElementById("main-container");
+                
+                fs.readFile(path.join(filesPath, "images", "background." + userConfig.backgroundImage.ext), "base64", (err, res)=>{
+                    if(err) {reject(err); return;};
+                    cont.style.backgroundImage = "url('data:image/" + userConfig.backgroundImage.ext + ";base64," + res + "')"; 
+                    resolve();
+                })
+            }
+        } else {
+            reject("no user config");
+        }
+    })
+}
 
 function applyConfig() {
     return new Promise((resolve, reject)=>{
@@ -494,13 +521,16 @@ function notification(title, buttons) {
     el.appendChild(tInd);
 
     var x;
-    for(x of buttons) {
-        var b = document.createElement("button");
-        if(x.important) {b.className = "important"};
-        b.addEventListener("click", x.click);
-        b.innerText = x.label;
+    if(isArray(buttons)) {
 
-        el.appendChild(b);
+        for(x of buttons) {
+            var b = document.createElement("button");
+            if(x.important) {b.className = "important"};
+            b.addEventListener("click", x.click);
+            b.innerText = x.label;
+            
+            el.appendChild(b);
+        }
     }
 
     if(cont.getElementsByClassName("notification")) {
@@ -538,7 +568,9 @@ function loadData() {
         }
         
         //convert values to a good format
-        totalSeconds = timeConfig.singleplayertime;
+        if(timeConfig.singleplayertime) {
+            totalSeconds = timeConfig.singleplayertime;
+        }
         if(!isNaN(timeConfig.totalSessionTime)) {
             totalSeconds = totalSeconds + timeConfig.totalSessionTime;
         }
@@ -1001,26 +1033,22 @@ function gatherWorldInformation() {
         }
 
         if(secs) {
-
             totalSeconds = totalSeconds + secs;
             updateTimeCounting(totalSeconds);
             //Update the config
             timeConfig.singleplayertime = secs;
-            try {
-                await fs.writeFile(path.join(filesPath, "worlddata", "scannedplaytime.json"), JSON.stringify(timeConfig));
-            } catch (error) {
-                reject(error);
-            }
-            
-            resolve();
         } else {
-            try {
-                await fs.writeFile(path.join(filesPath, "worlddata", "scannedplaytime.json"), JSON.stringify({}));
-            } catch (error) {
-                reject(error);
-            }
-            resolve();
+            notification("No singleplayer hours found! Have you entered your username correctly?")
+            timeConfig.singleplayertime = 0;
+            updateTimeCounting(totalSeconds);
         }
+        try {
+            await fs.writeFile(path.join(filesPath, "worlddata", "scannedplaytime.json"), JSON.stringify(timeConfig));
+        } catch (error) {
+            reject(error);
+        }
+            
+        resolve();
             
     })
     
@@ -1092,8 +1120,7 @@ function saveSession() {
     return new Promise((resolve, reject)=>{
 
         //Check if there is an ongoing session
-        if(!ongoingSession) reject("No session being recorded"); notification("Could not save session"); return;
-
+        if(!ongoingSession) {reject("No session being recorded"); notification("Could not save session"); return;}
         //Get the session time
         var time = sessionTime; //In seconds
         totalSeconds = totalSeconds + sessionTime;
@@ -1307,6 +1334,7 @@ function updateSuggestions(card) {
 }
 
 const reg = require("regression");
+const { isArray } = require("util");
 
 function performLinearRegression(data) {
     return new Promise((resolve, reject)=>{
@@ -1562,4 +1590,4 @@ function openFeatureForm() {
 }
 
 
-module.exports = { notification, filesPath }; //Used in e.g. sysLog.js
+module.exports = { notification, filesPath, updateBackgroundImage }; //Used in e.g. sysLog.js

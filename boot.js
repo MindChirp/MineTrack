@@ -274,6 +274,15 @@ ipcMain.handle("open-directory-modal", async (event, arg)=>{
     return result.filePaths;
 })
 
+ipcMain.handle("open-image-selector", async(event, arg) => {
+    var res = await dialog.showOpenDialog(win, {
+        properties: ["openFile"],
+        filters: [{name: "Images", extensions: ["png", "jpg", "bmp", "gif"]}]
+    })
+
+    return res.filePaths;
+})
+
 app.whenReady().then(()=>{
     
     checkConfigs()
