@@ -93,6 +93,32 @@ async function advSettingsMenu() {
         applyConfig();
     });
 
+    var t5 = switchTile("Opt into beta features");
+    t5.children[1].children[0].checked = userConfig.betaTester?true: false;
+    t5.children[1].addEventListener("change", (ev)=>{
+        var val = ev.target.checked;
+
+        //Force system logging
+        if(val == true) {
+            t4.children[1].children[0].checked = true;
+            t4.children[1].classList.add("disabled");
+            userConfig.sysLogging = true;
+            saveUserConfig();
+        } else {
+            t4.children[1].classList.remove("disabled");
+        }
+
+        userConfig.betaTester = val;
+        saveUserConfig();
+        applyConfig();
+    });
+
+
+    if(userConfig.betaTester) {
+        t4.children[1].children[0].checked = true;
+        t4.children[1].classList.add("disabled");
+    }
+
     var p = document.createElement("p");
     p.innerText = "Background image";
     menu.appendChild(p);

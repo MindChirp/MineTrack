@@ -80,7 +80,10 @@ async function statMenu(el) {
 
     var regCalc = document.createElement("button");
     regCalc.innerText = "Estimate all playtime";
-    bWr.appendChild(regCalc);
+
+    if(userConfig.betaTester) {
+        bWr.appendChild(regCalc);
+    }
     regCalc.className = "smooth-shadow";
 
     regCalc.onclick = openAdvancedEstimateMenu;

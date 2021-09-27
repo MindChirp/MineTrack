@@ -1,5 +1,23 @@
 {
-    "tools": [],
+    "tools": [
+        {
+            "title": "Set a background image",
+            "body": "Personalize your program by setting a custom background image!",
+            "buttons": [
+                {
+                    "type": 0,
+                    "label": "Check it out",
+                    "click": "var adv = require('./modules/menus/settings/advancedSettings'); adv(); notification(`This menu can be found in Settings>Advanced settings>Select image`)"
+                },
+                {
+                    "type": 1,
+                    "label": "close",
+                    "click": "close"
+                }
+            ],
+            "removed": true
+        }
+    ],
     "stats": [],
     "miscellaneous": [
         {
