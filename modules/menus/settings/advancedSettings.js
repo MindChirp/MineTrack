@@ -95,8 +95,10 @@ async function advSettingsMenu() {
 
     var t5 = switchTile("Opt into beta features");
     t5.children[1].children[0].checked = userConfig.betaTester?true: false;
-    t5.children[1].addEventListener("change", (ev)=>{
+    t5.children[1].addEventListener("change", async (ev)=>{
         var val = ev.target.checked;
+        userConfig.betaTester = val;
+        await saveUserConfig();
 
         //Force system logging
         if(val == true) {
@@ -107,9 +109,6 @@ async function advSettingsMenu() {
         } else {
             t4.children[1].classList.remove("disabled");
         }
-
-        userConfig.betaTester = val;
-        saveUserConfig();
         applyConfig();
     });
 
@@ -118,6 +117,18 @@ async function advSettingsMenu() {
         t4.children[1].children[0].checked = true;
         t4.children[1].classList.add("disabled");
     }
+
+
+
+    var t6 = switchTile("Notify when logging info");
+    t6.children[1].children[0].checked = userConfig.notifyLogging?true: false;
+    t6.children[1].addEventListener("change", async (ev)=>{
+        var val = ev.target.checked;
+        userConfig.notifyLogging = val;
+        await saveUserConfig();
+        applyConfig();
+    });
+
 
     var p = document.createElement("p");
     p.innerText = "Background image";
@@ -255,7 +266,17 @@ async function showBkgPreview(file) {
     fs.copyFile(path.join(file), path.join(filesPath, "images", "background." + suff))
     .then(async()=>{
         var file = await fs.readFile(path.join(filesPath, "images", "background." + suff), "base64");
-        img.style.backgroundImage = "url('data:image/" + suff + ";base64," + file + "')";
+        img.style.display = "none";
+        
+        var imgPlaceHolder = new Image();
+        
+        imgPlaceHolder.onload = ()=>{
+            console.log(imgPlaceHolder.src);
+            img.style.backgroundImage = "url('" + imgPlaceHolder.src + "')";
+            img.style.display = "block";
+        }
+        imgPlaceHolder.src = "data:image/" + suff + ";base64," + file;
+        
     })
     
     prC.appendChild(img);

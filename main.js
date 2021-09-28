@@ -150,6 +150,9 @@ function updateBackgroundImage() {
                 fs.readFile(path.join(filesPath, "images", "background." + userConfig.backgroundImage.ext), "base64", (err, res)=>{
                     if(err) {reject(err); return;};
                     cont.style.backgroundImage = "url('data:image/" + userConfig.backgroundImage.ext + ";base64," + res + "')"; 
+                    
+                    //Add the hasBackground style to body
+                    document.body.classList.add("hasBackground");
                     resolve();
                 })
             }

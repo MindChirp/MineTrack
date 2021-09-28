@@ -25,7 +25,10 @@ async function debugSys(log) {
 
     try {
         var fileName = createFileName();
-        notification("Saving log " + fileName)
+        console.log(userConfig);
+        if(userConfig.notifyLogging) {
+            notification("Saving log " + fileName)
+        }
         await fs.writeFile(path.join(filesPath, "sysLogs", fileName + ".json"), JSON.stringify(obj, null, 4));
     } catch (error) {
         console.error(error);

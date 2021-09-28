@@ -238,7 +238,9 @@ function replaceWithNames(list) {
                 if(res.length < 1) {
                     try {
                         var fetchedId = await getId(uuid);
+                        console.log(userConfig);
                         if(userConfig.sysLogging) {
+                            console.log("oiansodinsaboi")
                             debugSys(JSON.stringify({usrName: uuid, sysRes: fetchedId}));
                         }
                     } catch (error) {
