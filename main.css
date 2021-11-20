@@ -376,6 +376,7 @@ body.hasBackground #main-container > #app-bar > .buttons {
     height: fit-content;
     font-size: 0.9rem;
     color: #5B7B7A;
+    white-space: nowrap;
 }
 
 .smooth-shadow {
@@ -1050,6 +1051,7 @@ body.hasBackground #main-container > #app-bar > .buttons {
         position: absolute;
         top: 1.5rem;
         left: 2rem;
+        opacity: 0;
     }
 
     .menu-pane .wrapper .path-selection-box {

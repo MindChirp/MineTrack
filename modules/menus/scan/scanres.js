@@ -1,4 +1,5 @@
 function scanRes(file, title) {
+
     if(!file.formatVersion) {
         var ver = localStorage.getItem("app-version");
         notification(`Sorry! Scan files that are from v0.3.16 or earlier 
@@ -38,7 +39,6 @@ function scanRes(file, title) {
     }
 
 
-
     var scanMenu = stdMenu();
     scanMenu.closest(".menu-pane").classList.add("view-scan-results");
     var t = document.createElement("h1");
@@ -61,9 +61,10 @@ function scanRes(file, title) {
         background: #E0F2E9;
         color: #3C887E;
     `
+    console.log(file)
     if(file.scans.res.length < 1) {
         amt.innerText = "No worlds found";
-        return;
+
     }
     console.log(file);
     amt.innerText = file.scans.res.length + " Worlds found";
@@ -74,10 +75,12 @@ function scanRes(file, title) {
     dropDownWrapper.className = "drop-down-wrapper";
     scanMenu.appendChild(dropDownWrapper);
 
-    var dr1 = madeInputs.createDropdown(["All worlds", {label: "Loading worlds...", interactive: false, divider: true}]);
+    var dr1 = madeInputs.createDropdown(["All worlds", {label: "No worlds", interactive: false, divider: true}]);
     var dr2 = madeInputs.createDropdown([{label: "Loading users...", interactive: false}]);
     dropDownWrapper.appendChild(dr1);
     dropDownWrapper.appendChild(dr2);
+
+
 
     var worlds = file.scans.res;
     var x;
@@ -110,7 +113,20 @@ function scanRes(file, title) {
     `;
     scanMenu.appendChild(info);
 
-    
+
+    //Handle the dropdown menus if no worlds exist
+    console.log(worlds)
+    if(worlds.length < 1) {
+        dr1.remove("All worlds");
+        dr1.remove("No worlds");
+        dr1.add("No worlds");
+        dr1.select(0);
+
+        dr2.remove("Loading users...");
+        dr2.add("No users");
+        dr2.select(0);
+    }
+
 }
 
 module.exports = scanRes;

@@ -60,17 +60,16 @@ async function scanMenu(el) {
     `
 
     scan.addEventListener("click", ()=>{
-        
         var paths = require("../../../statformats.json");
+        console.log(paths)
         var config = {
             path: [[paths.time, paths.distance.walkonecm]],
             config: {perWorld: true}
         }
 
-        console.log(config);
-
         scanDirectory(scanPath, config)
         .then(async(res)=>{
+            console.log(res);
             var appV = localStorage.getItem("app-version");
             //Add these to an object, and save this to a JSON-file
             var date = new Date();
@@ -93,7 +92,7 @@ async function scanMenu(el) {
                 await fs.writeFile(path.join(filesPath, "scans", fileName + ".json"), JSON.stringify(obj))
             } catch (error) {
                 console.log(error);
-                notification("Could not save session file");
+                notification("Could not save scan file");
             }
 
             //Update the session list
@@ -104,6 +103,7 @@ async function scanMenu(el) {
             }
         })
         .catch((err)=>{
+            console.log(err);
             notification(err);
         })
     })
@@ -182,7 +182,11 @@ function createScanEntry(file) {
 
 function showFileScanResults(file, title) {
     var scanRes = require("./scanres");
-    scanRes(file, title);
+    try {
+        scanRes(file, title);
+    } catch (error) {
+        console.log(error);
+    }
 } 
 
 function loadScans() {
@@ -217,7 +221,6 @@ function scanDirectory(path, configuration) {
         if(!(typeof path == "string")) {reject("No path")}
         if(path.length < 1) {reject("No path")}
         
-        console.log(paths);
 
         configuration = configuration?configuration:{
             path: [["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]],
@@ -227,6 +230,10 @@ function scanDirectory(path, configuration) {
         if(!configuration.path) {configuration.path = [["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]]}
         if(!configuration.config) {configuration.config = {perWorld: true}}
 
+        console.log(path)
+        console.log(configuration)
+        console.log([configuration.path, configuration.config, path]);
+
         retrieveStat(configuration.path, configuration.config, path)
         .then((res)=>{
             resolve(res);
@@ -234,6 +241,7 @@ function scanDirectory(path, configuration) {
         .catch((err)=>{
             console.log(err);
             notification("Something went wrong while scanning your files");
+            reject(err);
         })
     })
 }

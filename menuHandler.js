@@ -40,7 +40,16 @@ function openMenu(el) {
 
             var back = document.createElement("button");
             back.className = "button pill solid back secondary material-icons";
-            back.innerHTML = "arrow_back";
+
+            var img = document.createElement("img");
+
+            var imgPlaceHolder = new Image();
+            imgPlaceHolder.onload = () =>{
+                img.src = imgPlaceHolder.src;
+                back.style.animation = `fade-in 200ms ease-in-out both 0.15s`
+            }
+            imgPlaceHolder.src = "icons/arrow_left.svg";
+            back.appendChild(img);
             menu.appendChild(back);
             back.onclick = menu.kill;
 
@@ -765,8 +774,16 @@ function getOffset(el) {
 
 
     var back = document.createElement("button");
-    back.className = "button pill solid back secondary material-icons";
-    back.innerHTML = "arrow_back";
+
+    var img = document.createElement("img");
+    var imgPlaceHolder = new Image();
+    imgPlaceHolder.onload = ()=>{
+        img.src = imgPlaceHolder.src;
+        back.style.animation = "fade-in 200ms ease-in-out both 0.15s";
+    }
+    imgPlaceHolder.src = "icons/arrow_left.svg";
+    back.className = "button pill solid back secondary";
+    back.appendChild(img);
     menu.appendChild(back);
     back.addEventListener("click",()=>{
         menu.style.animation = "none";
