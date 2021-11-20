@@ -15,7 +15,7 @@
                     "click": "close"
                 }
             ],
-            "removed": false
+            "removed": true
         }
     ],
     "stats": [],
@@ -35,7 +35,7 @@
                     "click": "close"
                 }
             ],
-            "removed": false
+            "removed": true
         }
     ]
 }

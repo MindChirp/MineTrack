@@ -60,7 +60,16 @@ async function scanMenu(el) {
     `
 
     scan.addEventListener("click", ()=>{
-        scanDirectory(scanPath)
+        
+        var paths = require("../../../statformats.json");
+        var config = {
+            path: [[paths.time, paths.distance.walkonecm]],
+            config: {perWorld: true}
+        }
+
+        console.log(config);
+
+        scanDirectory(scanPath, config)
         .then(async(res)=>{
             var appV = localStorage.getItem("app-version");
             //Add these to an object, and save this to a JSON-file
@@ -142,22 +151,20 @@ function createScanEntry(file) {
     parent.appendChild(el);
 
     var date = new Date(file.meta.date);
-    
     var days = [
+        "sunday",
         "monday",
         "tuesday",
         "wednesday",
         "thursday",
         "friday",
-        "saturday",
-        "sunday"
+        "saturday"
     ]
     
     var hours = date.getHours()<10?"0" + date.getHours():date.getHours();
     var minutes = date.getMinutes()<10?"0" + date.getMinutes():date.getMinutes();
 
-    var title = hours + ":" + minutes + " " + days[date.getDay()-1] + " " + date.getFullYear();
-    
+    var title = hours + ":" + minutes + " " + days[date.getDay()] + " " + date.getFullYear();
     var p = document.createElement("p");
     p.innerHTML = title;
     el.appendChild(p);
@@ -205,11 +212,22 @@ function loadScans() {
     })
 }
 
-function scanDirectory(path) {
+function scanDirectory(path, configuration) {
     return new Promise((resolve, reject)=>{
         if(!(typeof path == "string")) {reject("No path")}
         if(path.length < 1) {reject("No path")}
-        retrieveStat([["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]],{perWorld:true},path)
+        
+        console.log(paths);
+
+        configuration = configuration?configuration:{
+            path: [["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]],
+            config: {perWorld: true}
+        }
+
+        if(!configuration.path) {configuration.path = [["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]]}
+        if(!configuration.config) {configuration.config = {perWorld: true}}
+
+        retrieveStat(configuration.path, configuration.config, path)
         .then((res)=>{
             resolve(res);
         })
