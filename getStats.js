@@ -1,6 +1,7 @@
 var { dbHandler } = require("./dbModule");
 
 function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: Boolean}, worldPath) {
+    console.log(statisticPath, properties, worldPath)
     return new Promise(async (resolve, reject)=>{
         if(statisticPath.length < 1) reject("NO PATH");
         //We get an array as the statpath
@@ -56,13 +57,13 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
                 if(fType != ".json") continue;
                 
                 var fileName;
-                var removedJSON = y.substring(y.length - 5,0); //Remove .json from the end of the filename
+                var removedJSON = y.substring(y.length - 5,0);
                 if(removedJSON.length <= 16) {
                     //This is a minecraft username!
                     fileName = removedJSON;
 
                 } else {
-                    //This is an UUID
+                    //This is an UUID, remove all the hyphens
                     fileName = removedJSON;
                     
                 }
@@ -74,13 +75,12 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
                     //Could not read this config file   
                 }
 
-
+                
 
 
 
                 //Test the stat for each path
                 //Iterate through each path
-                
                 var base = stat.stats;
 
                 var statPath;
@@ -238,6 +238,7 @@ function replaceWithNames(list) {
                 if(res.length < 1) {
                     try {
                         var fetchedId = await getId(uuid);
+                        console.log(userConfig);
                         if(userConfig.sysLogging) {
                             debugSys(JSON.stringify({usrName: uuid, sysRes: fetchedId}));
                         }
@@ -275,6 +276,7 @@ function replaceWithNames(list) {
                 //console.log(res);
                 if(res.length < 1) {
                     try {
+                        console.log(uuid)
                         var usrName = await getNamesFromUUID(uuid)
                         if(userConfig.sysLogging) {
                             debugSys(JSON.stringify({uuid: uuid, sysRes: usrName, selected: usrName[0]}));
@@ -314,3 +316,4 @@ function replaceWithNames(list) {
 
     })
 }
+module.exports = { getNamesFromUUID };

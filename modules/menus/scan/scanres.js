@@ -1,6 +1,8 @@
-function scanRes(file, title) {
+async function scanRes(file, title) {
+    var worlds = [];
+    var users = [];
 
-    if(!file.formatVersion) {
+    if(!file.formatVersion || file.formatVersion == "0.3.16") {
         var ver = localStorage.getItem("app-version");
         notification(`Sorry! Scan files that are from v0.3.16 or earlier 
         are not supported in this version (` + ver + `). Try scanning the directory 
@@ -9,7 +11,7 @@ function scanRes(file, title) {
             var menu = stdMenu();
             var t = document.createElement("h1");
             t.className = "title";
-            t.innerText = "Temporarily disabled";
+            t.innerText = "Heads up";
             menu.appendChild(t);
 
             var p = document.createElement("p");
@@ -61,44 +63,124 @@ function scanRes(file, title) {
         background: #E0F2E9;
         color: #3C887E;
     `
-    console.log(file)
-    if(file.scans.res.length < 1) {
-        amt.innerText = "No worlds found";
+    
 
+    //Go through each world for each stat type, and add it to the world array if it isn't added
+    var x;
+    for(x of file.scans.res) {
+        var y;
+        for(y of x) {
+            if(!worlds.includes(y.name) && y.name) {
+                worlds.push(y.name);
+            }
+
+        }
     }
-    console.log(file);
-    amt.innerText = file.scans.res.length + " Worlds found";
+
+    amt.innerText = worlds.length + " Worlds found";
     scanMenu.appendChild(amt)
+
+    var loading = document.createElement("h1");
+    loading.innerText = "Loading statistics and users";
+    scanMenu.appendChild(loading);
+    loading.style = `
+        background: rgb(224, 242, 233);
+        border-radius: 0.5rem;
+        text-align: center;
+        margin: auto;
+        color: #5B7B7A;
+        margin-top: 1rem;
+    `;
+
+    //Go through each user uuid, and check if it has been added to the user array
+    var x;
+    for(x of file.scans.res) {
+        var y;
+        for(y of x) {
+            var z;
+            if(!y.players) continue;
+            for(z of y.players) {
+                if(!users.includes(z.id) && z.id) {
+                    users.push(z.id); //For now, just add uuid without object, and later add username
+                }
+            }
+        }
+    }
+
+    /*
+
+        Go through each uuid, check if it exists in db,
+        if not, fetch username form mojang api, and
+        add an entry to the db.
+
+        Then save the new entry with uuid and username to an array
+
+    */  
+
+    var convertedUsrs = [];
+    var { getNamesFromUUID } = require("../../../getStats");
+
+    //Set up the database
+    var { dbHandler } = require("../../../dbModule");
+    try {
+        var db = await dbHandler.get(path.join(filesPath, "database"), "usernamesanduuids");
+    } catch (error) {
+        notification("Yaaaaw it's rewind time")
+        //Oops, the database doesn't even exist!
+        try {
+            var db = await dbHandler.create("usernamesanduuids", path.join(filesPath, "database"));
+            await db.CREATE("username", "string");
+            await db.CREATE("uuid", "string");
+        } catch (error) {
+            notification("Could not set up database");
+            return;
+        }
+    }
+
+
+    var x;
+    var convertedUsers = [];
+    for(x of users) {
+        var uuid = x;
+        var usrName;
+
+
+        try {
+            var usrName = await db.SELECT("uuid", x);
+
+                        
+            if(usrName.length < 1) {
+                var usrNames = await getNamesFromUUID(x)
+                console.log(usrNames)
+                var usrName = usrNames[0].name;
+                
+                try {
+                    await db.INSERT({username: usrName, uuid: x});
+                } catch (error) {
+                    notification("Failed to write to database");
+                }
+
+                convertedUsers.push({username: usrName, uuid: x});
+            } else {
+                convertedUsers.push({username: usrName[0], uuid: x});
+            }
+        } catch (error) {
+
+        }
+    }
+
+    loading.parentNode.removeChild(loading);
 
 
     var dropDownWrapper = document.createElement("div");
     dropDownWrapper.className = "drop-down-wrapper";
     scanMenu.appendChild(dropDownWrapper);
 
-    var dr1 = madeInputs.createDropdown(["All worlds", {label: "No worlds", interactive: false, divider: true}]);
+    var dr1 = madeInputs.createDropdown(["All worlds", {label: "Loading...", interactive: false, divider: true}]);
     var dr2 = madeInputs.createDropdown([{label: "Loading users...", interactive: false}]);
     dropDownWrapper.appendChild(dr1);
     dropDownWrapper.appendChild(dr2);
 
-
-
-    var worlds = file.scans.res;
-    var x;
-    var totalTime = 0;
-    for(x of worlds) {
-        totalTime = totalTime + x.value;
-    }
-
-    var p = document.createElement("p");
-    var time = convertHMS(totalTime/20);
-    p.innerText = time[0] + " Hours " + time[1] + " Minutes and " + time[2] + " seconds played";
-    //scanMenu.appendChild(p); 
-
-    p.style = `
-        text-align: center;
-        margin: auto;
-        margin-top: 2rem;
-    `;
 
     var info = document.createElement("p");
     info.innerText = "This page will get more content soon!";
@@ -118,13 +200,35 @@ function scanRes(file, title) {
     console.log(worlds)
     if(worlds.length < 1) {
         dr1.remove("All worlds");
-        dr1.remove("No worlds");
+        dr1.remove("Loading...");
         dr1.add("No worlds");
         dr1.select(0);
 
         dr2.remove("Loading users...");
         dr2.add("No users");
         dr2.select(0);
+    } else {
+        //Add the scanned worlds to the dropdown menu
+        dr1.remove("Loading...");
+        var i = 0;
+        worlds.forEach(e => {
+            dr1.add(e);
+        })
+
+        dr1.reactivate();
+    }
+    console.log(convertedUsers)
+
+    if(convertedUsers.length > 0) {
+        dr2.remove("Loading users...");
+        var x;
+        for(x of convertedUsers) {
+            dr2.add(x.username);
+        }
+
+        dr2.select(userConfig.username); //Will not show anything if the player has not played on any of his or her worlds
+        dr2.reactivate();
+
     }
 
 }

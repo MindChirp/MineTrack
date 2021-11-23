@@ -1818,6 +1818,10 @@ body.hasBackground #main-container > #app-bar > .buttons {
         margin: 0;
         line-height: 2.2rem;
         color: #5B7B7A;
+        overflow: hidden;
+        width: calc(100% - 2rem);
+        max-width: unset;
+        white-space: nowrap;
     }
 
 
@@ -1873,6 +1877,7 @@ body.hasBackground #main-container > #app-bar > .buttons {
     .fd-dropdown .dropdown-pane label {
         display: block;
         height: 1.5rem;
+        white-space: nowrap;
         line-height: 1.5rem;
         padding: 0 0.5rem;
         box-sizing: border-box;
@@ -1880,6 +1885,7 @@ body.hasBackground #main-container > #app-bar > .buttons {
         color: #3C887E;
         cursor: pointer;
         position: relative;
+        overflow: hidden;
     }
 
 
