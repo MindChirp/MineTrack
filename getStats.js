@@ -56,13 +56,13 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
                 if(fType != ".json") continue;
                 
                 var fileName;
-                var removedJSON = y.substring(y.length - 5,0);
+                var removedJSON = y.substring(y.length - 5,0); //Remove .json from the end of the filename
                 if(removedJSON.length <= 16) {
                     //This is a minecraft username!
                     fileName = removedJSON;
 
                 } else {
-                    //This is an UUID, remove all the hyphens
+                    //This is an UUID
                     fileName = removedJSON;
                     
                 }
@@ -74,7 +74,7 @@ function retrieveStat(statisticPath=Array, properties={total:Boolean, perWorld: 
                     //Could not read this config file   
                 }
 
-                
+
 
 
 
@@ -238,9 +238,7 @@ function replaceWithNames(list) {
                 if(res.length < 1) {
                     try {
                         var fetchedId = await getId(uuid);
-                        console.log(userConfig);
                         if(userConfig.sysLogging) {
-                            console.log("oiansodinsaboi")
                             debugSys(JSON.stringify({usrName: uuid, sysRes: fetchedId}));
                         }
                     } catch (error) {
@@ -277,7 +275,6 @@ function replaceWithNames(list) {
                 //console.log(res);
                 if(res.length < 1) {
                     try {
-                        console.log(uuid)
                         var usrName = await getNamesFromUUID(uuid)
                         if(userConfig.sysLogging) {
                             debugSys(JSON.stringify({uuid: uuid, sysRes: usrName, selected: usrName[0]}));

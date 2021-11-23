@@ -63,10 +63,10 @@ async function scanMenu(el) {
         var paths = require("../../../statformats.json");
         console.log(paths)
         var config = {
-            path: [[paths.time, paths.distance.walkonecm]],
+            path: [paths.time, paths.distance[0].walkonecm],
             config: {perWorld: true}
         }
-
+        console.log(config)
         scanDirectory(scanPath, config)
         .then(async(res)=>{
             console.log(res);
@@ -89,7 +89,7 @@ async function scanMenu(el) {
             var fileName = createFileName();
 
             try {
-                await fs.writeFile(path.join(filesPath, "scans", fileName + ".json"), JSON.stringify(obj))
+                await fs.writeFile(path.join(filesPath, "scans", fileName + ".json"), JSON.stringify(obj, null, 4))
             } catch (error) {
                 console.log(error);
                 notification("Could not save scan file");
@@ -217,7 +217,7 @@ function loadScans() {
 }
 
 function scanDirectory(path, configuration) {
-    return new Promise((resolve, reject)=>{
+    return new Promise(async (resolve, reject)=>{
         if(!(typeof path == "string")) {reject("No path")}
         if(path.length < 1) {reject("No path")}
         
@@ -230,19 +230,23 @@ function scanDirectory(path, configuration) {
         if(!configuration.path) {configuration.path = [["minecraft:custom", "minecraft:total_world_time"],["stat.playOneMinute"], ["minecraft:custom", "minecraft:play_one_minute"]]}
         if(!configuration.config) {configuration.config = {perWorld: true}}
 
-        console.log(path)
-        console.log(configuration)
-        console.log([configuration.path, configuration.config, path]);
+        var scans = [];
+        var x;
+        for(x of configuration.path) {
+            console.log(x);
+            try {
+                var stat = await retrieveStat(x, configuration.config, path);
+            } catch (error) {
+                notification("Failed to scan a statistic");
+            }
 
-        retrieveStat(configuration.path, configuration.config, path)
-        .then((res)=>{
-            resolve(res);
-        })
-        .catch((err)=>{
-            console.log(err);
-            notification("Something went wrong while scanning your files");
-            reject(err);
-        })
+            //Add the stat type
+            stat.push({statType: x});   
+            scans.push(stat);
+        }
+
+        resolve(scans);
+        
     })
 }
 

@@ -196,7 +196,7 @@ async function showStatPage(index) {
                 
                 //Get total distance walked
                 retrieveStat(path,property)
-                .then(async (res)=>{
+                .then(async (res)=>{    
                     if(property.total) {
                         try {
                             var formatted = await replaceWithNames(res); //Replace the stat list that has been returned (that only contains uuids, and some usernames, into only usernames)
