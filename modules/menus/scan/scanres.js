@@ -125,7 +125,6 @@ async function scanRes(file, title) {
     try {
         var db = await dbHandler.get(path.join(filesPath, "database"), "usernamesanduuids");
     } catch (error) {
-        notification("Yaaaaw it's rewind time")
         //Oops, the database doesn't even exist!
         try {
             var db = await dbHandler.create("usernamesanduuids", path.join(filesPath, "database"));
