@@ -90,6 +90,7 @@ async function scanRes(file, title) {
         margin: auto;
         color: #5B7B7A;
         margin-top: 1rem;
+        max-width: unset;
     `;
 
     //Go through each user uuid, and check if it has been added to the user array
@@ -180,7 +181,7 @@ async function scanRes(file, title) {
     dropDownWrapper.appendChild(dr1);
     dropDownWrapper.appendChild(dr2);
 
-
+/*
     var info = document.createElement("p");
     info.innerText = "This page will get more content soon!";
     info.style = `
@@ -193,7 +194,9 @@ async function scanRes(file, title) {
         margin-top: 0.5rem;
     `;
     scanMenu.appendChild(info);
+*/
 
+    
 
     //Handle the dropdown menus if no worlds exist
     console.log(worlds)

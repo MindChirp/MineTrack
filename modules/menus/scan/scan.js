@@ -63,10 +63,19 @@ async function scanMenu(el) {
         var paths = require("../../../statformats.json");
         console.log(paths)
         var config = {
-            path: [paths.time, paths.distance[0].walkonecm],
+            path:[
+                paths.time.playtime, 
+                paths.distance.walkonecm, 
+                paths.time.sneaktime,
+                paths.pvp.mobkills,
+                paths.distance.flyonecm,
+                paths.pvp.mobkills,
+                paths.misc.deaths,
+                paths.movement.jumps
+            ],
             config: {perWorld: true}
         }
-        console.log(config)
+
         scanDirectory(scanPath, config)
         .then(async(res)=>{
             console.log(res);

@@ -1,15 +1,38 @@
 {
-    "time": [
-        ["minecraft:custom","minecraft:total_world_time"],
-        ["stat.playOneMinute"],
-        ["minecraft:custom","minecraft:play_one_minute"]
-    ],
-    "distance":[
-        {
-            "walkonecm":[
-                ["minecraft:custom", "minecraft:walk_one_cm"],
-                ["stat.walkOneCm"]
-            ]
-        }
-    ]
+    "time": {
+        "playtime":
+            [
+            ["minecraft:custom","minecraft:total_world_time"],
+            ["stat.playOneMinute"],
+            ["minecraft:custom","minecraft:play_one_minute"]
+            ],
+        "sneaktime":
+        [
+            ["minecraft:custom", "minecraft:sneak_time"],["stat.sneakTime"]
+        ]    
+    },
+    "distance": {
+        "walkonecm":[
+            ["minecraft:custom", "minecraft:walk_one_cm"],
+            ["stat.walkOneCm"]
+        ],
+        "flyonecm":[
+            ["minecraft:custom", "minecraft:fly_one_cm"],["stat.flyOneCm"]
+        ]
+    },
+    "pvp": {
+        "mobkills": [
+            ["minecraft:custom", "minecraft:mob_kills"],["stat.mobKills"]
+        ]
+    },
+    "misc": {
+        "deaths":[
+            ["minecraft:custom", "minecraft:deaths"],["stat.deaths"]
+        ]
+    },
+    "movement": {
+        "jumps": [
+            ["minecraft:custom", "minecraft:jump"],["stat.jump"]
+        ]
+    }
 }
