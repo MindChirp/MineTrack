@@ -196,8 +196,6 @@ async function scanRes(file, title) {
     scanMenu.appendChild(info);
 */
 
-    
-
     //Handle the dropdown menus if no worlds exist
     console.log(worlds)
     if(worlds.length < 1) {
@@ -232,6 +230,11 @@ async function scanRes(file, title) {
         dr2.reactivate();
 
     }
+
+
+
+    //Add statistics and stuff
+    
 
 }
 
