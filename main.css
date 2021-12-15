@@ -28,6 +28,7 @@ body img {
 */
 
 /* The switch - the box around the slider */
+
 .switch {
     position: relative;
     display: inline-block;
@@ -874,6 +875,62 @@ body.hasBackground #main-container > #app-bar > .buttons {
         z-index: 10;
         
     }
+
+
+    #stat-wrapper {
+        height: fit-content;
+        width: calc(80% - 1rem);
+        margin: 1rem auto 0 auto;
+
+    }
+
+    #stat-wrapper .title {
+        color: #3C887E;
+        margin: 0 0 0.2rem 0;
+        width: fit-content;
+    }
+
+    #stat-wrapper #stat-container {
+        background: #C6E6E2;
+        height: 3rem;
+        width: 100%;
+        border-radius: 0.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 300ms ease-in-out;
+    }
+
+    #stat-wrapper #stat-container::before {
+        content:"Click to show more";
+        height: 100%;
+        width: 100%;
+        background-color: rgba(0,0,0,0.40);
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: white;
+        opacity: 0;
+        transition: all 200ms ease-in-out;
+        text-align: center;
+        line-height: 3rem;
+        font-family: roboto;
+        text-transform: uppercase;
+    }
+
+    #stat-wrapper #stat-container.not-expanded:hover::before {
+        opacity: 1;
+        cursor: pointer;
+    }
+
+    #stat-wrapper #stat-container:not(.not-expanded) {
+        height: 10rem;
+    }
+
+    #stat-wrapper #stat-container canvas{
+        height: 4rem; /*Make a margin around the graph*/
+        width: 100%;
+    }
+
 
     @keyframes transition-menu {
         0%{height: 0; width: 0; opacity: 1;}

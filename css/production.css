@@ -1,0 +1,4 @@
+/*Define any production specific behaviour here*/
+.beta-feature {
+    display: none !important; /*IMPORTANT TO HIDE ALL BETA FEATURES IN NON-BETA VERSION*/
+}
