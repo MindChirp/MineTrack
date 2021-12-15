@@ -5,6 +5,7 @@ function drawSessionGraph() {
     if(!userConfig.betaTester) return;
     var canv = document.getElementById("stat-container").querySelector("#statistic");
     var ctx = canv.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
     ctx.lineWidth = 20;
     ctx.strokeStyle = "#3C887E";
     var i = 0;
@@ -79,7 +80,7 @@ function drawSessionGraph() {
         //Now print to the graph!
         //plotGraphPoints({points:days, ctx: ctx, size: 20, color: "blue"});
         //console.log(days)
-        bzCurve({points:days, f:0.3, t:0.2, ctx: ctx});
+        bzCurve({points:days, f:0.4, t:0.2, ctx: ctx});
 
 
     })
