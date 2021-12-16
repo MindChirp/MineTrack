@@ -900,22 +900,58 @@ body.hasBackground .fp-card.suggestions .title {
     transition: all 300ms ease-in-out;
 }
 
-#stat-wrapper #stat-container::before {
+#stat-wrapper #stat-container::before, #stat-container::after {
     content:"Click to show more";
-    height: 100%;
-    width: 100%;
-    background-color: rgba(0,0,0,0.40);
+    height: fit-content;
+    border-radius: 0.25rem;
+    width: fit-content;
+    background-color: rgba(255,255,255,0.7);
     position: absolute;
-    top: 0;
-    left: 0;
-    color: white;
+    bottom: 0.2rem;
+    left: 50%;
+    transform: translate(-50%);
     opacity: 0;
     transition: all 200ms ease-in-out;
     text-align: center;
-    line-height: 3rem;
+    font-size: 0.8rem;
+    color: #3C887E;
+    font-weight: bold;
+    font-family: "roboto";
+    padding: 0.2rem 1rem;
     font-family: roboto;
     text-transform: uppercase;
+    box-shadow: 0 -1px 2px rgba(0,0,0,0.12), 
+    0 2px 2px rgba(0,0,0,0.12), 
+    0 4px 4px rgba(0,0,0,0.12), 
+    0 8px 8px rgba(0,0,0,0.12),
+    0 16px 16px rgba(0,0,0,0.12);
 }
+
+#stat-wrapper #stat-container.not-expanded::before {
+    animation: slide-in-showLess 250ms ease-in-out both 200ms;
+}
+
+#stat-wrapper #stat-container.not-expanded::after {
+    opacity: 0;
+}
+
+#stat-wrapper #stat-container::after {
+    content: "click to show less"
+}
+
+#stat-wrapper #stat-container.not-expanded::after {
+    animation: slide-out-showMore 200ms ease-in-out both;
+}
+
+#stat-wrapper #stat-container:not(.not-expanded)::after {
+    opacity: 0;
+    animation: slide-in-showLess 250ms ease-in-out both 250ms;
+}
+
+#stat-wrapper #stat-container:not(.not-expanded):hover::after {
+    opacity: 1;
+}
+
 
 #stat-wrapper #stat-container.not-expanded:hover::before {
     opacity: 1;
@@ -926,6 +962,14 @@ body.hasBackground .fp-card.suggestions .title {
     height: 10rem;
 }
 
+#stat-wrapper #stat-container:not(.not-expanded)::before {
+    animation: slide-out-showMore 250ms ease-in-out both;
+}
+
+#stat-wrapper #stat-container:not(.not-expanded):hover::before {
+    opacity: 1;
+}
+
 #stat-wrapper #stat-container canvas {
     height: 3rem; /*Make a margin around the graph*/
     width: 100%;
@@ -933,7 +977,8 @@ body.hasBackground .fp-card.suggestions .title {
 }
 
 #stat-wrapper #stat-container:not(.not-expanded) canvas {
-
+    position: relative;
+    z-index: 1;
 }
 
 #stat-wrapper #stat-container .days-indicator{
@@ -982,6 +1027,16 @@ body.hasBackground .fp-card.suggestions .title {
 
 #stat-wrapper > #stat-container > .statistics .stat-pill:hover {
     transform: translateY(-0.1rem);
+}
+
+@keyframes slide-out-showMore {
+    0%{transform: 0}
+    100%{transform: translate(-50%,calc(100% + 0.4rem))}
+}
+
+@keyframes slide-in-showLess {
+    0%{transform: translate(-50%,calc(100% + 0.4rem))}
+    100%{transform: 0}
 }
 
 
