@@ -50,7 +50,7 @@ function drawSessionGraph() {
                             //We've found the object
                             days[index].y = days[index].y - (res[m].timePlayed*multiplierGraphHeight);
                         } else {
-                            days.push({x:i*(3000/6)-500,y:300-(res[m].timePlayed*multiplierGraphHeight)});
+                            days.push({x:i*(3000/6)-500,y:400-(res[m].timePlayed*multiplierGraphHeight)});
                         }
                     } catch (error) {
                         console.error(error);
@@ -65,10 +65,10 @@ function drawSessionGraph() {
             try {
                 var index = days.findIndex(item => item.x === i*(3000/6)-500);
                 if(index == -1) {
-                    days.push({x:i*(3000/6)-500,y:300});
+                    days.push({x:i*(3000/6)-500,y:400});
                 }
             } catch (error) {
-                days.push({x:i*(3000/6)-500,y:300});
+                days.push({x:i*(3000/6)-500,y:400});
             }
             
 
