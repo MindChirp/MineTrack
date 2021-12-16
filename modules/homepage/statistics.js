@@ -22,7 +22,6 @@ function drawSessionGraph() {
         X = X + t;
     }
 
-
     //plotGraphPoints({points:lines, ctx: ctx, size: 20, color: "blue"});
     //drawGraphMeta();
     fetchSessionData()
@@ -76,10 +75,8 @@ function drawSessionGraph() {
         }
         
 
-        //days
         //Now print to the graph!
         //plotGraphPoints({points:days, ctx: ctx, size: 20, color: "blue"});
-        //console.log(days)
         bzCurve({points:days, f:0.4, t:0.2, ctx: ctx});
 
 
@@ -152,7 +149,7 @@ function gradient(a, b) {
 
 function bzCurve({points, f, t, ctx}) {
     //f = 0, will be straight line
-    //t suppose to be 1, but changing the value can control the smoothness too
+    //t supposed to be 1, but changing the value can control the smoothness too
     if (typeof(f) == 'undefined') f = 0.3;
     if (typeof(t) == 'undefined') t = 0.6;
 
