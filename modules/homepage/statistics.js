@@ -74,7 +74,9 @@ function drawSessionGraph() {
 
         }
         
-
+        if(days.length == 0) {
+            days = [{x:0,y:0},{x:3000,y:0}]; //Add a flat line if there is no data
+        }
         //Now print to the graph!
         //plotGraphPoints({points:days, ctx: ctx, size: 20, color: "blue"});
         bzCurve({points:days, f:0.4, t:0.2, ctx: ctx});

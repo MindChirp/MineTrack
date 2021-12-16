@@ -389,8 +389,8 @@ function parseLogContents(log) {
 
         //This is how it works: 
         /*
-        Go through the string, have a range of 10 letters, and move over one letter at a time.
-        Use regex to remove the numbers, and check if the resulting string is like this [::]
+            Go through the string, have a range of 10 letters, and move over one letter at a time.
+            Use regex to remove the numbers, and check if the resulting string is like this [::]
         */
         var timestamps = [];
 
@@ -492,6 +492,13 @@ async function startCheckingForMinecraft() {
 
                 }
                 if(!on) {
+                    minecraftOpen = false;
+                    //Update the status bar
+                    var ind = document.getElementById("indicator");
+                    if(!ind.classList.contains("offline")) {
+                        ind.classList.add("offline");
+                        ind.classList.remove("online");
+                    }
                     try {
                         await saveSession()
                         ongoingSession = false;
@@ -500,18 +507,12 @@ async function startCheckingForMinecraft() {
                     }
                 }
             }
-            minecraftOpen = false;
-            //Update the status bar
-            var ind = document.getElementById("indicator");
-            if(!ind.classList.contains("offline")) {
-                ind.classList.add("offline");
-                ind.classList.remove("online");
-            }
+
         } else if(res == "unknown") {
             //Nothing
         }
     }
-    var delay = minecraftOpen?5000:2000;
+    var delay = minecraftOpen?10000:2000;
     setTimeout(startCheckingForMinecraft, delay);
 }
 

@@ -1003,14 +1003,16 @@ body.hasBackground .fp-card.suggestions .title {
     margin: 0 0 0 0.5rem;
 }
 
-#stat-wrapper > #stat-container > .statistics {
-    height: fit-content;
+#stat-wrapper > #stat-container > .wrapper > .statistics {
+    height: calc(100% - 4rem);
     width: 100%;
     padding: 0 0.5rem 0.5rem 0.5rem;
     box-sizing: border-box;
+    background: #AADAD3;
+    border-radius: 1rem 1rem 0 0;
 }
 
-#stat-wrapper > #stat-container > .statistics .stat-pill { 
+#stat-wrapper > #stat-container > .wrapper >.statistics .stat-pill { 
     border-radius: 1rem;
     width: fit-content;
     height: 1.2rem;
@@ -1025,8 +1027,13 @@ body.hasBackground .fp-card.suggestions .title {
     transition: all 150ms ease-in-out;
 }   
 
-#stat-wrapper > #stat-container > .statistics .stat-pill:hover {
+#stat-wrapper > #stat-container > .wrapper > .statistics .stat-pill:hover {
     transform: translateY(-0.1rem);
+}
+
+#stat-wrapper > #stat-container > .wrapper {
+    height: 100%;
+    width: 100%;
 }
 
 @keyframes slide-out-showMore {
