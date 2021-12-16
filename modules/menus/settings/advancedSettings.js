@@ -1,5 +1,6 @@
 const { saveUserConfig } = require("../../../menuHandler");
 const { notification } = require("../../../main");
+const { getBetaRules } = require("../../../beta/betaRules.js");
 async function advSettingsMenu() {    
     //configuration variables: 
     //userConfig
@@ -99,6 +100,7 @@ async function advSettingsMenu() {
         var val = ev.target.checked;
         userConfig.betaTester = val;
         await saveUserConfig();
+        getBetaRules();
 
         //Force system logging
         if(val == true) {

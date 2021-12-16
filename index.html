@@ -42,6 +42,26 @@
                 <div class="wrapper"></div>
             </div>
 
+            <div id="stat-wrapper" class="beta-feature">
+                <p class="title">Recent activity</p>
+                <div id="stat-container" onclick="this.classList.toggle('not-expanded');" class="smooth-shadow not-expanded">
+                    <canvas id="statistic" width="3000" height="400">This content couldn't load.</canvas>
+                    <div class="days-indicator">
+                        <p>7 days ago</p>
+                        <p>Today</p>
+                    </div>
+
+                    <div class="statistics">
+                        <span class="stat-pill smooth-shadow">10 Hours Last 7 Days</span>
+                        <span class="stat-pill smooth-shadow">1.2 Hours Average Per Day</span>
+                        <span class="stat-pill smooth-shadow">2 Hours today</span>
+                        <span class="stat-pill smooth-shadow">Placeholder</span>
+                        <span class="stat-pill smooth-shadow">Placeholder</span>
+                        <span class="stat-pill smooth-shadow">Placeholder</span>
+                    </div>
+                </div>
+            </div>
+
 
             <div id="indicator" class="offline"><!--<div class="filler"></div>--></div>
         </div>

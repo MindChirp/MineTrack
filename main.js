@@ -2,8 +2,8 @@
 const { ipcRenderer } = require("electron");
 const path = require("path");
 var { dbHandler } = require("./dbModule");
-
-
+const { drawSessionGraph } = require("./modules/homepage/statistics.js");
+const { getBetaRules } = require("./beta/betaRules.js");
 var allowchecking = true;
 var fs = require("fs-extra");
 var filesPath;
@@ -105,6 +105,7 @@ window.onload = async ()=> {
 
                     notification("Found " + conv1[0] + " multiplayer hours and " + conv2[0] + " singleplayer hours.");
 
+
                     checkForTermsAgreement();
                 } catch (error) {
                     console.log(error);
@@ -112,6 +113,11 @@ window.onload = async ()=> {
             } else {
                 checkForTermsAgreement();
             }
+
+            getBetaRules();
+            //Draw the session graph on the front page
+            drawSessionGraph();
+
 
             //Check for new features!
             checkForNewFeatures()
@@ -1591,6 +1597,12 @@ function createDb () {
 function openFeatureForm() {
     window.open("https://docs.google.com/forms/d/e/1FAIpQLScayFoOCius_uZO2IT3-T7Uc9zFiA3L4TrjQz0dljcNKXRzEw/viewform");
 }
+
+
+function homeStatExpand(el) {
+    el.classList.toggle("not-expanded");
+}
+
 
 
 module.exports = { notification, filesPath, updateBackgroundImage }; //Used in e.g. sysLog.js
