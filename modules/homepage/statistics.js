@@ -5,18 +5,21 @@ function drawSessionGraph() {
     if(!userConfig.betaTester) return;
     var canv = document.getElementById("stat-container").querySelector("#statistic");
     var ctx = canv.getContext("2d");
-    ctx.imageSmoothingEnabled = false;
-    ctx.lineWidth = 20;
-    ctx.strokeStyle = "#3C887E";
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "#7FC7BD";
     var i = 0;
-    ctx.setTransform(1,0,0,0.9,0,20);
+    ctx.setTransform(1,0,0,0.9,0,5);
     
+    window.devicePixelRatio = 1;
+    var scale = window.devicePixelRatio;
+    ctx.scale(scale,scale);
+
     //Define some points
     var lines = [];
     var X = 10;
     var t = 100; //to control width of X
     for (var i = 0; i < 100; i++ ) {
-        Y = Math.floor((Math.random() * 300));
+        Y = Math.floor((Math.random() * canv.height/scale));
         p = { x: X, y: Y };
         lines.push(p);
         X = X + t;
@@ -24,64 +27,27 @@ function drawSessionGraph() {
 
     //plotGraphPoints({points:lines, ctx: ctx, size: 20, color: "blue"});
     //drawGraphMeta();
+
     fetchSessionData()
     .then(res=>{
 
-        var multiplierGraphHeight = 0.0138;
+        var multiplierGraphHeight = canv.height/(6*60*60);
         //Arrange the points according to age (date)
         //Add the same days into a combined poll
-        var days = [];
-        for(let i = 1; i <= 7; i++) {
-            //Create the date object for the day we are checking
-            console.log(i)
-            var date = new Date();
-            date.setTime(date.getTime()-(7-i)*24*60*60*1000);
 
-            //Get the date we're dealing with
-            for(let m = 0; m < res.length; m++) {
-                var datDate = res[m].date;
-                console.log(date.getDate())
-                if(datDate.getDate() == date.getDate() && datDate.getFullYear() == date.getFullYear() && datDate.getMonth() == date.getMonth()) {
-                    //This is the same day, add to an array
-                    try {
-                        var index = days.findIndex(item => item.x === i*(3000/6)-500);
-                        if(index > -1) {
-                            //We've found the object
-                            days[index].y = days[index].y - (res[m].timePlayed*multiplierGraphHeight);
-                        } else {
-                            days.push({x:i*(3000/6)-500,y:400-(res[m].timePlayed*multiplierGraphHeight)});
-                        }
-                    } catch (error) {
-                        console.error(error);
-                    }
-                } else {
-
-                }
-            }
-
-
-            //Check if there exists an entry for this day
-            try {
-                var index = days.findIndex(item => item.x === i*(3000/6)-500);
-                if(index == -1) {
-                    days.push({x:i*(3000/6)-500,y:400});
-                }
-            } catch (error) {
-                days.push({x:i*(3000/6)-500,y:400});
-            }
-            
-
-
+        var days = [{x:-canv.width/6,y:0}];
+        var arr = filterData({data: res, yMultiplier:multiplierGraphHeight, canvas: canv, scale: scale});
+        console.log(arr);
+        for(let i = 0; i < arr.length; i++) {
+            days.push(arr[i]);
         }
+        days.push({x:canv.width + canv.width/6,y:0})
         
-        if(days.length == 0) {
-            days = [{x:0,y:0},{x:3000,y:0}]; //Add a flat line if there is no data
-        }
         //Now print to the graph!
-        //plotGraphPoints({points:days, ctx: ctx, size: 20, color: "blue"});
-        bzCurve({points:days, f:0.4, t:0.2, ctx: ctx});
+        //  plotGraphPoints({points:days, ctx: ctx, size: 20, color: "blue"});
+        bzCurve({points:days, f:0.5, t:0, ctx: ctx});
 
-
+        
     })
     .catch(err=>{
         console.error(err);
@@ -144,6 +110,50 @@ function fetchSessionData() {
 
 
 
+function filterData({data, yMultiplier, canvas, scale}) {
+    var days = [];
+    for(let i = 1; i <= 7; i++) {
+        //Create the date object for the day we are checking
+        var date = new Date();
+        date.setTime(date.getTime()-(7-i)*24*60*60*1000);
+        //Get the date we're dealing with
+        for(let m = 0; m < data.length; m++) {
+            var datDate = data[m].date;
+            if(datDate.getDate() == date.getDate() && datDate.getFullYear() == date.getFullYear() && datDate.getMonth() == date.getMonth()) {
+                //This is the same day, add to an array
+                try {
+                    var index = days.findIndex(item => item.x === i*(canvas.width/scale/6)-(canvas.width/scale/6));
+                    if(index > -1) {
+                        //We've found the object
+                        days[index].y = days[index].y - (data[m].timePlayed*yMultiplier);
+                    } else {
+                        days.push({x:i*(canvas.width/scale/6)-(canvas.width/scale/6),y:canvas.height-(data[m].timePlayed*yMultiplier)});
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            } else {
+
+            }
+        }
+
+
+        //Check if there exists an entry for this day
+        try {
+            var index = days.findIndex(item => item.x === i*(canvas.width/scale/6)-(canvas.width/scale/6));
+            if(index == -1) {
+                days.push({x:i*(canvas.width/scale/6)-(canvas.width/scale/6),y:canvas.height/scale});
+            }
+        } catch (error) {
+            days.push({x:i*(canvas.width/scale/6)-(canvas.width/scale/6),y:canvas.height/scale});
+        }
+
+    }
+
+    return days;
+}
+
+
 
 function gradient(a, b) {
     return (b.y-a.y)/(b.x-a.x);
@@ -183,5 +193,104 @@ function bzCurve({points, f, t, ctx}) {
 }
 
 
+function filterForProcessing(data) {
+    var days = [];
+    for(let i = 1; i <= 7; i++) {
+        //Create the date object for the day we are checking
+        var date = new Date();
+        date.setTime(date.getTime()-(7-i)*24*60*60*1000);
+        //Get the date we're dealing with
+        for(let m = 0; m < data.length; m++) {
+            var datDate = data[m].date;
+            if(datDate.getDate() == date.getDate() && datDate.getFullYear() == date.getFullYear() && datDate.getMonth() == date.getMonth()) {
+                //This is the same day, add to an array
+                try {
+                    var index = days.findIndex(item => item.x === i);
+                    if(index > -1) {
+                        //We've found the object
+                        days[index].y = days[index].y + data[m].timePlayed;
+                    } else {
+                        days.push({x:i,y:data[m].timePlayed});
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            } else {
 
-module.exports = { drawSessionGraph }
+            }
+        }
+
+
+        //Check if there exists an entry for this day
+        try {
+            var index = days.findIndex(item => item.x === i);
+            if(index == -1) {
+                days.push({x:i,y:0});
+            }
+        } catch (error) {
+            days.push({x:i,y:0});
+        }
+
+    }
+
+    return days;
+}
+
+
+async function calculateSessionStats() {
+    //Get the last 7 sessions
+    try {
+        var res = await fetchSessionData()
+    } catch (error) {
+        //Error, but ignore it
+        return;
+    }
+
+    var data = filterForProcessing(res);
+
+    var statParent = document.querySelector("#stat-container > div > div.statistics");
+
+
+    //Get average time per day last 7 days
+
+    var total = 0;
+    for(let i = 0; i < data.length; i++) {
+        total = total + data[i].y;
+    }
+
+    //Divide total seconds by 7
+    var avgSec = total / 7;
+    //Get hours
+    var avgHrs = (avgSec / 60 / 60).toFixed(1);
+    //Get the element
+    var pill = statParent.querySelectorAll('[key=average]')[0];
+    pill.getElementsByTagName("dat")[0].innerText = avgHrs;
+    //DONE
+
+
+
+    //Get the total time the last 7 days
+    //already found in the code above
+
+    var totHrs = (total/60/60).toFixed(1);
+    var pill = statParent.querySelectorAll('[key=total]')[0];
+    pill.getElementsByTagName("dat")[0].innerText = totHrs;
+
+    //DONE
+
+    
+
+    //Get the hours played today
+
+    var todaySecs = data[data.length-1].y;
+    var todayHrs = (todaySecs/60/60).toFixed(1);
+    var pill = statParent.querySelectorAll('[key=today]')[0];
+    pill.getElementsByTagName("dat")[0].innerText = todaySecs;
+
+    //DONE
+
+}
+
+
+
+module.exports = { drawSessionGraph, calculateSessionStats }

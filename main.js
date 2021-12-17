@@ -2,7 +2,7 @@
 const { ipcRenderer } = require("electron");
 const path = require("path");
 var { dbHandler } = require("./dbModule");
-const { drawSessionGraph } = require("./modules/homepage/statistics.js");
+const { drawSessionGraph, calculateSessionStats } = require("./modules/homepage/statistics.js");
 const { getBetaRules } = require("./beta/betaRules.js");
 var allowchecking = true;
 var fs = require("fs-extra");
@@ -117,7 +117,7 @@ window.onload = async ()=> {
             getBetaRules();
             //Draw the session graph on the front page
             drawSessionGraph();
-
+            calculateSessionStats();
 
             //Check for new features!
             checkForNewFeatures()
