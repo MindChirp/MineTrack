@@ -1,5 +1,4 @@
 /*Define any beta spesific behaviour here*/
 .beta-feature {
-    opacity: 0;
     animation: fade-in 200ms ease-in-out both;
 }

@@ -16,7 +16,7 @@ function getBetaRules() {
             //Oopsies
         }
 
-
+        updateBetaFeatures();
     } else {
         var old = document.getElementsByTagName("head")[0].querySelector("#betasheet");
         try {
@@ -35,4 +35,11 @@ function getBetaRules() {
     }
 }
 
-module.exports = { getBetaRules }
+
+function updateBetaFeatures() {
+    //Update front page stat graph
+    drawSessionGraph();
+    calculateSessionStats();
+}
+
+module.exports = { getBetaRules, updateBetaFeatures }
