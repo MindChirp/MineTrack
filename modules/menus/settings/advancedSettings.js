@@ -137,7 +137,9 @@ async function advSettingsMenu() {
     menu.appendChild(p);
     p.style = `
         margin-bottom: 0.5rem;
-    `
+    `;
+    p.className = "beta-feature";
+
     //Image selector
     var inp = document.createElement("input");
     inp.type = "file";
@@ -149,7 +151,7 @@ async function advSettingsMenu() {
     var lab = document.createElement("label");
     lab.setAttribute("for", "bkg-selector");
     lab.innerText = "Select image";
-    lab.className = "smooth-shadow";
+    lab.className = "smooth-shadow beta-feature";
     menu.appendChild(inp);
     menu.appendChild(lab);
 

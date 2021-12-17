@@ -1142,18 +1142,9 @@ function saveSession() {
             timePlayed: time,
             date: date
         }
-        
-        var fileName = createFileName();
 
-        fs.writeFile(path.join(filesPath, "recordeddata", fileName + ".json"), JSON.stringify(obj,null,4))
-        .then(()=>{
-            resolve();
-        })
-        .catch((err)=>{
-            reject(err);      
-        })
 
-        timeConfig.totalSessionTime
+        //timeConfig.totalSessionTime
 
         if(isNaN(timeConfig.totalSessionTime)) {
             timeConfig.totalSessionTime = time; //sessionTime
@@ -1204,6 +1195,23 @@ function saveSession() {
         setTimeout(()=>{
             pop.parentNode.removeChild(pop);
         }, 5000)
+
+
+        
+        var fileName = createFileName();
+
+        fs.writeFile(path.join(filesPath, "recordeddata", fileName + ".json"), JSON.stringify(obj,null,4))
+        .then(()=>{
+            //Update stat graphs
+            drawSessionGraph();
+            calculateSessionStats();
+            resolve();
+        })
+        .catch((err)=>{
+            reject(err);      
+        })
+
+        
     })
 }
 
