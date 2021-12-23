@@ -651,7 +651,7 @@ body.hasBackground #main-container > #app-bar > .buttons {
 }
 
 #progress-box {
-    height: fit-content;
+    height: 3rem;
     width: 90%;
     position: absolute;
     bottom: 1rem;
@@ -678,6 +678,32 @@ body.hasBackground #main-container > #app-bar > .buttons {
     min-width: 1rem;
     width: 0;
     transition: all 500ms ease-in-out;
+}
+
+#progress-box.animate-out > * {
+    animation: fade-out 200ms ease-in-out both 1s;
+}
+
+#progress-box.animate-out::before {
+    content: "✓";
+    line-height: 2rem;
+    text-align: center;
+    color: #5B7B7A;
+    animation: fade-in 200ms ease-in-out 1s both;
+    font-size: 2rem;
+    left: 50%;
+    transform: translate(-50%);
+    position: absolute;
+}
+
+@keyframes loading-done-animation {
+    0%{}
+    100%{width: 3rem; border-radius: 3rem;}
+}
+
+@keyframes slide-down-notification {
+    0%{transform: translate(-50%, 0); opacity: 1; width: 3rem; border-radius: 3rem;}
+    100%{transform: translate(-50%, 100%); opacity: 0;width: 3rem;border-radius: 3rem;}
 }
 
 @keyframes slide-in-notification {

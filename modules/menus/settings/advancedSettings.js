@@ -1,6 +1,8 @@
 const { saveUserConfig } = require("../../../menuHandler");
 const { notification } = require("../../../main");
 const { getBetaRules } = require("../../../beta/betaRules.js");
+const hoverMenu = require("../../utils/hoverInfo.js");
+
 async function advSettingsMenu() {    
     //configuration variables: 
     //userConfig
@@ -154,6 +156,8 @@ async function advSettingsMenu() {
     lab.className = "smooth-shadow beta-feature";
     menu.appendChild(inp);
     menu.appendChild(lab);
+    hoverMenu.createInfo({element: lab, body: "Select background image (BETA)", config: {position: "right"}});
+    
 
     var imgPath;
     lab.addEventListener("click", async (e)=>{

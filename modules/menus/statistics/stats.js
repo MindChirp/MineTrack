@@ -1,3 +1,5 @@
+const hoverMenu = require("../../utils/hoverInfo.js");
+
 async function statMenu(el) {
     menu = await openMenu(el)
     menu.closest(".menu-pane").classList.add("statistics");
@@ -79,13 +81,18 @@ async function statMenu(el) {
     menu.appendChild(bWr);
 
     var regCalc = document.createElement("button");
-    regCalc.innerText = "Estimate all playtime";
+    var sB = menu.parentNode.querySelector(".sidebar");
+    hoverMenu.createInfo({element: regCalc, body: "Estimate all playtime (BETA)", config: {position: "right"}});
+    var img = document.createElement("img");
+    img.src = "./icons/show_chart.svg";
+    regCalc.appendChild(img);
 
     if(userConfig.betaTester) {
-        bWr.appendChild(regCalc);
+        sB.appendChild(regCalc);
     }
-    regCalc.className = "smooth-shadow";
 
+
+    regCalc.className = "smooth-shadow beta-feature";
     regCalc.onclick = openAdvancedEstimateMenu;
 
 /*
