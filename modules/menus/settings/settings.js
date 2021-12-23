@@ -1,3 +1,6 @@
+const hoverMenu = require("../../utils/hoverInfo.js");
+
+
 async function settingsMenu(el) {
 
     var menu = await openMenu(el)
@@ -11,6 +14,30 @@ async function settingsMenu(el) {
         notification("Could not display settings");
         return;
     }
+
+
+    //Advanced settings button
+    var advS = document.createElement("button");
+    menu.parentNode.querySelector(".sidebar").appendChild(advS);
+    advS.addEventListener("click", ()=>{
+        advancedSettings();
+    })
+    var img = document.createElement("img");
+    advS.appendChild(img);
+    img.src="./icons/settings_star.svg";
+    advS.className = "smooth-shadow";
+    hoverMenu.createInfo({element: advS, body: "Advanced settings", config: {position: "right"}});
+
+/*     //Advanced settings button
+    var feedback = document.createElement("button");
+    menu.parentNode.querySelector(".sidebar").appendChild(feedback);
+    var img = document.createElement("img");
+    feedback.appendChild(img);
+    img.src="./icons/feedback.svg";
+    feedback.className = "smooth-shadow";
+    hoverMenu.createInfo({element: feedback, body: "Feedback", config: {position: "right"}}); */
+
+
 
     var paths = document.createElement("div");
     paths.className = "path-selection-box";
@@ -183,16 +210,9 @@ async function settingsMenu(el) {
         margin-bottom: 1rem;
     `
 
-    var adv = document.createElement("button");
-    adv.innerText = "Advanced settings";
-    menu.appendChild(adv);
-    adv.className = "smooth-shadow";
-    adv.style = `
-        display: inline-block;
-    `
-    adv.addEventListener("click", ()=>{
+/*     adv.addEventListener("click", ()=>{
         advancedSettings();
-    })
+    }) */
 
 
 
@@ -200,9 +220,6 @@ async function settingsMenu(el) {
     reset.innerText = "Reset program";
     menu.appendChild(reset);
     reset.className = "smooth-shadow";
-    reset.style = `
-        margin-left: 1rem;
-    `
 
     var clickedAgain = false;
     reset.addEventListener("click", async ()=>{

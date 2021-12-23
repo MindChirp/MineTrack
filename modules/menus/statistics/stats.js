@@ -308,7 +308,7 @@ async function showStatPage(index) {
 
         menu.querySelector(".content").innerHTML = "";
 
-        var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content.total");
+        var wrapper = document.querySelector("#main-container > div.menu-pane.statistics > div > div.content-wrapper > div.content.total")
         try {
             var el = await createEntry([["minecraft:custom", "minecraft:walk_one_cm"],["stat.walkOneCm"]], properties, 0.01, "Meters walked", "directions_walk")            
             wrapper.appendChild(el);
@@ -364,7 +364,7 @@ async function showStatPage(index) {
 
 
         //Find the dropdown, and append the array
-        var drDown = document.querySelector("#main-container > div.menu-pane.statistics > div > div.fd-dropdown");   
+        var drDown = document.querySelector("#main-container > div.menu-pane.statistics > div > div.content-wrapper > div.fd-dropdown")
         
         if(!usernamesLoaded) {            
             drDown.remove("Loading users");
@@ -388,7 +388,7 @@ async function showStatPage(index) {
         }, 200)
     } else {
         //Show the properties section
-        var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content.sessions");
+        var wrapper = document.querySelector("#main-container > div.menu-pane.statistics > div > div.content-wrapper > div.content.sessions")
         wrapper.innerHTML = "";
         var t = document.createElement("p");
         t.innerText ="This page is under development";
