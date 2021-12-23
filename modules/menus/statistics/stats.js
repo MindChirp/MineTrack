@@ -1,3 +1,5 @@
+const hoverMenu = require("../../utils/hoverInfo.js");
+
 async function statMenu(el) {
     menu = await openMenu(el)
     menu.closest(".menu-pane").classList.add("statistics");
@@ -79,13 +81,18 @@ async function statMenu(el) {
     menu.appendChild(bWr);
 
     var regCalc = document.createElement("button");
-    regCalc.innerText = "Estimate all playtime";
+    var sB = menu.parentNode.querySelector(".sidebar");
+    hoverMenu.createInfo({element: regCalc, body: "Estimate all playtime (BETA)", config: {position: "right"}});
+    var img = document.createElement("img");
+    img.src = "./icons/show_chart.svg";
+    regCalc.appendChild(img);
 
     if(userConfig.betaTester) {
-        bWr.appendChild(regCalc);
+        sB.appendChild(regCalc);
     }
-    regCalc.className = "smooth-shadow";
 
+
+    regCalc.className = "smooth-shadow beta-feature";
     regCalc.onclick = openAdvancedEstimateMenu;
 
 /*
@@ -308,7 +315,7 @@ async function showStatPage(index) {
 
         menu.querySelector(".content").innerHTML = "";
 
-        var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content.total");
+        var wrapper = document.querySelector("#main-container > div.menu-pane.statistics > div > div.content-wrapper > div.content.total")
         try {
             var el = await createEntry([["minecraft:custom", "minecraft:walk_one_cm"],["stat.walkOneCm"]], properties, 0.01, "Meters walked", "directions_walk")            
             wrapper.appendChild(el);
@@ -364,7 +371,7 @@ async function showStatPage(index) {
 
 
         //Find the dropdown, and append the array
-        var drDown = document.querySelector("#main-container > div.menu-pane.statistics > div > div.fd-dropdown");   
+        var drDown = document.querySelector("#main-container > div.menu-pane.statistics > div > div.content-wrapper > div.fd-dropdown")
         
         if(!usernamesLoaded) {            
             drDown.remove("Loading users");
@@ -388,7 +395,7 @@ async function showStatPage(index) {
         }, 200)
     } else {
         //Show the properties section
-        var wrapper = document.querySelector("#main-container > div.menu-pane > div > div.content.sessions");
+        var wrapper = document.querySelector("#main-container > div.menu-pane.statistics > div > div.content-wrapper > div.content.sessions")
         wrapper.innerHTML = "";
         var t = document.createElement("p");
         t.innerText ="This page is under development";

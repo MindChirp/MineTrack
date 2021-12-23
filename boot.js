@@ -5,6 +5,8 @@ const log = require('electron-log');
 const autoLaunch = require("auto-launch");
 const fs = require("fs-extra");
 const path = require("path");
+const env = require("dotenv");
+env.config();
 
 var backEndMessageBuffer = [] //This stores any errors that occur before the creation of the window object. It will be sent over to the renderer process when it has been opened.
 
@@ -18,7 +20,9 @@ var tray = null;
 
 const filesPath = app.getPath("userData");
 app.setAppUserModelId('MineTrack');
+
 var win;
+var devToolsWin;
 
 function showNotification(title, body) {
     new Notification({title: title, body:body}).show();
@@ -175,7 +179,15 @@ async function createWindow() {
 
             return;
         })
-        
+
+
+        //Do this if developer
+        if(process.env.NODE_ENV == "developer") {
+            devToolsWin = new BrowserWindow();
+            win.webContents.setDevToolsWebContents(devToolsWin.webContents);
+            win.webContents.openDevTools({ mode: 'detach' })
+        }
+
     } catch (error) {
         console.log(error);
     }

@@ -279,6 +279,9 @@ async function scanLogFiles() {
             reject(error);
         }
 
+        //For debug purposes
+        //files = ['2018-01-28-1.log.gz', '2018-01-28-2.log.gz', '2018-01-28-3.log.gz'];
+
         if(!files) reject("No logs");
         //Go through each of these zip-files, open the text file, and get the start and end time stamp.
         totalPercentage = 0;
@@ -336,10 +339,17 @@ async function scanLogFiles() {
         totalSeconds = totalSeconds + totalSecs;
 
         box.style.animation = "none";
-        box.style.animation = "slide-down-notification 300ms ease-in-out both 1s";
+        box.classList.add("animate-out");
+        setTimeout(()=>{
+            box.style.animation = "loading-done-animation 500ms ease-in-out both";
+            setTimeout(()=>{
+                //box.style.animation = "none";
+                box.style.animation = "slide-down-notification 300ms ease-in-out both 1s";
+            }, 600)
+        }, 1000)
         setTimeout(()=>{
             box.parentNode.removeChild(box);
-        }, 1300)
+        }, 2700)
 
         userConfig.logsCalculated = true;
         timeConfig.multiplayertime = totalSecs;
@@ -1224,7 +1234,7 @@ function showErrorPage(title, errorstack) {
     menu.appendChild(titleT);
     
     //Remove the default back button
-    menu.parentNode.removeChild(menu.parentNode.querySelector(".back"));
+    menu.parentNode.querySelector(".sidebar").removeChild(menu.parentNode.querySelector(".sidebar > .back"));
 
     //Create standard error paragraph
     var p = document.createElement("p");

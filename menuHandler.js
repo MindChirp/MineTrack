@@ -3,6 +3,8 @@ var multiplier = 100;
 var userNamesFound = [];
 var usernamesLoaded = false;
 const { triggerTransition } = require("./modules/menus/statistics/stats");
+const hoverMenu = require("./modules/utils/hoverInfo.js");
+
 
 function openMenu(el) {
     return new Promise((resolve)=>{
@@ -37,9 +39,24 @@ function openMenu(el) {
                 }, 150)
             }
 
+            //Create sidebar
+            var sideBar = document.createElement("div");
+            sideBar.className = "sidebar";
+            wr.appendChild(sideBar);
+
+            var contWr = document.createElement("div");
+            contWr.className = "content-wrapper";
+            wr.appendChild(contWr);
+
+/*             var back = document.createElement("button");
+            back.className = "button pill solid back secondary material-icons"; */
 
             var back = document.createElement("button");
-            back.className = "button pill solid back secondary material-icons";
+            back.className = "back smooth-shadow";
+            sideBar.appendChild(back);
+
+            hoverMenu.createInfo({element: back, body: "Go back", config: {position: "right"}});
+
 
             var img = document.createElement("img");
 
@@ -50,12 +67,11 @@ function openMenu(el) {
             }
             imgPlaceHolder.src = "icons/arrow_left.svg";
             back.appendChild(img);
-            menu.appendChild(back);
             back.onclick = menu.kill;
 
             document.getElementById("main-container").appendChild(menu);
             exp.parentNode.removeChild(exp);
-            resolve(wr);
+            resolve(contWr);
         }, 250)
     })
 }
@@ -588,9 +604,9 @@ function plotDataPoints(times, canvas, minXval, maxXval) {
 
 
 function loadDatasIntoStatEntries() {
-    var entries = document.querySelector("#main-container > div.menu-pane.statistics > div > div.content").children;
+    var entries = document.querySelector("#main-container > div.menu-pane.statistics > div > div.content-wrapper > div.content").children;
     //Get the selected user!
-    var drDown = document.querySelector("#main-container > div.menu-pane.statistics > div > div.fd-dropdown");
+    var drDown = document.querySelector("#main-container > div.menu-pane.statistics > div > div.content-wrapper > div.fd-dropdown")
     var val = drDown.value({index: false});
     var x;
     for(x of entries) {
@@ -772,8 +788,20 @@ function getOffset(el) {
         menu.parentNode.removeChild(menu);
     }
 
+    //Create sidebar
+    var sideBar = document.createElement("div");
+    sideBar.className = "sidebar";
+    wr.appendChild(sideBar);
+
+    var contWr = document.createElement("div");
+    contWr.className = "content-wrapper";
+    wr.appendChild(contWr);
 
     var back = document.createElement("button");
+    back.className = "back";
+    sideBar.appendChild(back);
+    hoverMenu.createInfo({element: back, body: "Go back", config: {position: "right"}});
+
 
     var img = document.createElement("img");
     var imgPlaceHolder = new Image();
@@ -784,7 +812,6 @@ function getOffset(el) {
     imgPlaceHolder.src = "icons/arrow_left.svg";
     back.className = "button pill solid back secondary";
     back.appendChild(img);
-    menu.appendChild(back);
     back.addEventListener("click",()=>{
         menu.style.animation = "none";
         menu.style.animation = "slide-out-stdMenu 200ms ease-in-out both";
@@ -795,7 +822,7 @@ function getOffset(el) {
     });
 
     document.getElementById("main-container").appendChild(menu);
-    return wr;
+    return contWr;
   }
 
 function setupMenu() {
