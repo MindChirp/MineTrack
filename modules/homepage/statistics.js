@@ -283,9 +283,9 @@ async function calculateSessionStats() {
     //Get the hours played today
 
     var todaySecs = data[data.length-1].y;
-    var todayHrs = (todaySecs/60/60).toFixed(1);
+    var todayHrs = (todaySecs/60/60).toFixed(2);
     var pill = statParent.querySelectorAll('[key=today]')[0];
-    pill.getElementsByTagName("dat")[0].innerText = todaySecs/60/60;
+    pill.getElementsByTagName("dat")[0].innerText = todayHrs;
 
     //DONE
 
