@@ -62,12 +62,17 @@ async function statMenu(el) {
     var b = document.createElement("button");
     selector.appendChild(b);
     b.innerText = "Worlds"
-    b.setAttribute("onclick", "triggerTransition(this)");
+    b.style.opacity = "0.5";
+    //b.setAttribute("onclick", "triggerTransition(this)");
+    hoverMenu.createInfo({element: b, body: "WIP", config:{position:"top"}})
 
     var b = document.createElement("button");
     selector.appendChild(b);
     b.innerText = "Sessions"
-    b.setAttribute("onclick", "triggerTransition(this)");
+    b.style.opacity = "0.5";
+    //b.setAttribute("onclick", "triggerTransition(this)");
+    hoverMenu.createInfo({element: b, body: "WIP", config:{position:"top"}})
+
 
     var content = document.createElement("div");
     content.className = "content";

@@ -1144,10 +1144,6 @@ margin: 0;
 .menu-pane.setup-menu .wrapper .container input:focus {
     background-color: #5B7B7A;
 }
-.menu-pane.setup-menu .back {
-    bottom: 1rem !important;
-    top: auto !important;
-}
 
 .menu-pane.setup-menu .wrapper .information {
     color: #5B7B7A;
@@ -2161,6 +2157,11 @@ margin: 0;
     max-width: 15rem;
     white-space:normal;
     word-break: break-all;
+    text-align: center;
+}
+
+.hover-info.top {
+    transform: translate(-50%,0);
 }
 
 .hover-info.right::before {
@@ -2175,4 +2176,19 @@ margin: 0;
     left: 0;
     top: 50%;
     transform: translate(-100%,-50%);
+}
+
+
+.hover-info.top::before {
+    content: ".";
+    color: transparent;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 7px solid #3D5251;
+    width: 0;
+    height: 0;
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%,0);
 }

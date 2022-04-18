@@ -58,7 +58,7 @@ function createInfo({element, body, title, config}) {
             x = elX + parseInt(elStyle.width.split("px")[0]) + infoMargin;
         } else if(pos == "top") {
             y = elY - parseInt(elStyle.height.split("px")[0]) - infoMargin;
-            x = elX;
+            x = elX + (parseInt(elStyle.width.split("px")[0])/2);
         } else if(pos == "bottom") {
             y = elY + parseInt(elStyle.height.split("px")[0]) + infoMargin;
             x = elX;

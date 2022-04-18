@@ -114,9 +114,6 @@ async function openAdvancedEstimateMenu() {
         t.className = "title";
         setup.appendChild(t);
 
-        var back = setup.closest(".menu-pane").querySelector(".back");
-        back.style.color = "#E0F2E9";
-
         var cont = document.createElement("div");
         cont.className = "container";
         setup.appendChild(cont);
@@ -810,7 +807,6 @@ function getOffset(el) {
         back.style.animation = "fade-in 200ms ease-in-out both 0.15s";
     }
     imgPlaceHolder.src = "icons/arrow_left.svg";
-    back.className = "button pill solid back secondary";
     back.appendChild(img);
     back.addEventListener("click",()=>{
         menu.style.animation = "none";
